@@ -19,6 +19,7 @@ from EDafk_combat import AFK_Combat
 from Overlay import *
 from Voice import *
 from Robigo import *
+from OnFoot import *
 
 """
 File:EDAP.py    EDAutopilot
@@ -106,6 +107,7 @@ class EDAutopilot:
         self.fsd_assist_enabled = False
         self.sc_assist_enabled = False
         self.afk_combat_assist_enabled = False
+        self.on_foot_enabled = False
         self.waypoint_assist_enabled = False
         self.robigo_assist_enabled = False
 
@@ -118,6 +120,7 @@ class EDAutopilot:
         self.afk_combat = AFK_Combat(self.keys, self.jn, self.vce)
         self.waypoint = EDWayPoint(self.jn.ship_state()['odyssey'])
         self.robigo = Robigo(self)
+        self.onfoot = OnFoot(self)
 
         # rate as ship dependent.   Can be found on the outfitting page for the ship.  However, it looks like supercruise
         # has worse performance for these rates
@@ -197,7 +200,9 @@ class EDAutopilot:
                 ap_mode = "Waypoint Assist"
             elif self.afk_combat_assist_enabled == True:
                 ap_mode = "AFK Combat Assist"
-                
+            elif self.on_foot_enabled == True:
+                ap_mode = "On Foot"
+
             ship_state = self.jn.ship_state()['status']
             if ship_state == None:
                 ship_state = '<init>'
@@ -1501,6 +1506,11 @@ class EDAutopilot:
             self.ctype_async_raise(self.ap_thread, EDAP_Interrupt)
         self.afk_combat_assist_enabled = enable
 
+    def set_on_foot(self, enable=True):
+        #if enable == False and self.on_foot_enabled == True:
+            #self.ctype_async_raise(self.ap_thread, EDAP_Interrupt)
+        self.on_foot_enabled = enable
+
     def set_cv_view(self, enable=True, x=0, y=0):
         self.cv_view = enable
         self.config['Enable_CV_View'] = int(self.cv_view)  # update the config
@@ -1640,6 +1650,18 @@ class EDAutopilot:
                     logger.debug("Stopping afk_combat")
                 self.afk_combat_assist_enabled = False
                 self.ap_ckb('afk_stop')
+                self.update_overlay()
+
+            elif self.on_foot_enabled == True:
+                logger.debug("Running on_foot")
+                #self.set_focus_elite_window()
+                self.update_overlay()
+                try:
+                    self.onfoot.have_GotoYourHangar(self.scrReg)
+                except EDAP_Interrupt:
+                    logger.debug("Stopping on_foot")
+                #self.on_foot_enabled = False
+                #self.ap_ckb('on_foot_stop')
                 self.update_overlay()
 
             self.update_overlay()

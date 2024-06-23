@@ -78,6 +78,7 @@ class APGui():
             'Robigo Assist': "",
             'ELW Scanner': "Will perform FSS scans while FSD Assist is traveling between stars. \nIf the FSS shows a signal in the region of Earth, \nWater or Ammonia type worlds, it will announce that discovery.",
             'AFK Combat Assist': "Used with a AFK Combat ship in a Rez Zone.",
+            'On Foot': "Used when on foot.",
             'RollRate': "Roll rate your ship has.",
             'PitchRate': "Pitch rate your ship has.",
             'YawRate': "Yaw rate your ship has.",
@@ -223,6 +224,9 @@ class APGui():
             logger.debug("Detected 'afk_stop' key")
             self.checkboxvar['AFK Combat Assist'].set(0)
             self.check_cb('AFK Combat Assist')
+        elif key == 'on_foot_stop':
+            self.checkboxvar['On Foot'].set(0)
+            self.check_cb('On Foot')
         elif key == 'jumpcount':
             self.update_jumpcount(body)
         elif key == 'statusline':
@@ -268,7 +272,8 @@ class APGui():
         self.callback('afk_stop')
         self.callback('waypoint_stop')
         self.callback('robigo_stop')
-
+        self.callback('on_foot_stop')
+	
     def start_fsd(self):
         logger.debug("Entered: start_fsd")
         self.ed_ap.set_fsd_assist(True)
@@ -550,6 +555,23 @@ class APGui():
                 self.lab_ck['Waypoint Assist'].config(state='active')
                 self.lab_ck['Robigo Assist'].config(state='active')
 
+        if field == 'On Foot':
+            if self.checkboxvar['On Foot'].get() == 1:
+                self.ed_ap.set_on_foot(True)
+                self.log_msg("On Foot start")
+                self.lab_ck['FSD Route Assist'].config(state='disabled')
+                self.lab_ck['Supercruise Assist'].config(state='disabled')
+                self.lab_ck['Waypoint Assist'].config(state='disabled')
+                self.lab_ck['Robigo Assist'].config(state='disabled')
+
+            elif self.checkboxvar['On Foot'].get() == 0:
+                self.ed_ap.set_on_foot(False)
+                self.log_msg("On Foot stop")
+                self.lab_ck['FSD Route Assist'].config(state='active')
+                self.lab_ck['Supercruise Assist'].config(state='active')
+                self.lab_ck['Waypoint Assist'].config(state='active')
+                self.lab_ck['Robigo Assist'].config(state='active')
+
         if self.checkboxvar['Enable Randomness'].get():
             self.ed_ap.set_randomness(True)
         else:
@@ -612,7 +634,7 @@ class APGui():
 
     def gui_gen(self, win):
 
-        modes_check_fields = ('FSD Route Assist', 'Supercruise Assist', 'Waypoint Assist', 'Robigo Assist', 'AFK Combat Assist')
+        modes_check_fields = ('FSD Route Assist', 'Supercruise Assist', 'Waypoint Assist', 'Robigo Assist', 'AFK Combat Assist', 'On Foot')
         ship_entry_fields = ('RollRate', 'PitchRate', 'YawRate', 'SunPitchUp+Time')
         autopilot_entry_fields = ('Sun Bright Threshold', 'Nav Align Tries', 'Jump Tries', 'Wait For Autodock')
         buttons_entry_fields = ('Start FSD', 'Start SC', 'Stop All')
