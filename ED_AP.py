@@ -434,26 +434,40 @@ class EDAutopilot:
 
     def get_nav_offset(self, scr_reg):
         """ Determine the x,y offset from center of the compass of the nav point. """
-
-        icompass_image, (minVal, maxVal, minLoc, maxLoc), match = scr_reg.match_template_in_region('compass', 'compass')
+        compass_region_image = scr_reg.capture_region(self.scr, 'compass')
+        filt_compass_image, (minVal, maxVal, minLoc, maxLoc), match = (
+            scr_reg.match_template_in_region('compass', 'compass'))
         pt = maxLoc
 
-        # get wid/hgt of templates  
+        # get wid/hgt of templates
         c_wid = scr_reg.templates.template['compass']['width']
         c_hgt = scr_reg.templates.template['compass']['height']
         wid = scr_reg.templates.template['navpoint']['width']
         hgt = scr_reg.templates.template['navpoint']['height']
 
-        # cut out the compass from the region          
+        # cut out the compass from the region
         pad = 5
-        compass_image = icompass_image[abs(pt[1]-pad): pt[1]+c_hgt+pad, abs(pt[0]-pad): pt[0]+c_wid+pad].copy()
+        compass_image = compass_region_image[abs(pt[1] - pad): pt[1] + c_hgt + pad, abs(pt[0] - pad): pt[0] + c_wid + pad].copy()
 
         # find the nav point within the compass box
-        navpt_image, (n_minVal, n_maxVal, n_minLoc, n_maxLoc), match = scr_reg.match_template_in_image(compass_image, 'navpoint')
+        navpt_image, (n_minVal, n_maxVal, n_minLoc, n_maxLoc), match = (
+            scr_reg.match_template_in_filtered_image(compass_image, 'navpoint', 'navpoint'))
         n_pt = n_maxLoc
 
+        # Get x and y coords of the nav point
+        final_x = ((n_pt[0] + ((1 / 2) * wid)) - ((1 / 2) * c_wid)) - 5.5
+        final_y = (((1 / 2) * c_hgt) - (n_pt[1] + ((1 / 2) * hgt))) + 6.5
+        # must be > 0.70 to have solid hit, otherwise we are facing wrong way (empty circle)
+        if n_maxVal < 0.70:
+            final_z = -1.0  # Behind
+        else:
+            final_z = 1.0  # Ahead
+
+        logger.debug(("maxVal=" + str(n_maxVal) + " x:" + str(final_x) + " y:" + str(final_y)))
+        result = {'x': final_x, 'y': final_y, 'z': final_z}
+
         if self.cv_view:
-            icompass_image_d = cv2.cvtColor(icompass_image, cv2.COLOR_GRAY2RGB)
+            icompass_image_d = filt_compass_image
             self.draw_match_rect(icompass_image_d, pt, (pt[0]+c_wid, pt[1]+c_hgt), (0, 0, 255), 2)
             #cv2.rectangle(icompass_image_display, pt, (pt[0]+c_wid, pt[1]+c_hgt), (0, 0, 255), 2)
             #self.draw_match_rect(compass_image, n_pt, (n_pt[0] + wid, n_pt[1] + hgt), (255,255,255), 2)   
@@ -463,27 +477,21 @@ class EDAutopilot:
             #   dim = (int(destination_width/3), int(destination_height/3))
 
             #   img = cv2.resize(dst_image, dim, interpolation =cv2.INTER_AREA) 
-            cv2.putText(icompass_image_d, f'C:{maxVal:5.2f} >0.6', (1, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.putText(icompass_image_d, f'N:{n_maxVal:5.2f} >0.8', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(icompass_image_d, f'Compass: {maxVal:5.2f} >0.6', (1, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(icompass_image_d, f'Nav Point: {n_maxVal:5.2f} >0.8', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255), 1, cv2.LINE_AA)
             #cv2.circle(icompass_image_display, (pt[0]+n_pt[0], pt[1]+n_pt[1]), 5, (0, 255, 0), 3)
             cv2.imshow('compass', icompass_image_d)
-            #cv2.imshow('nav', navpt_image)
             cv2.moveWindow('compass', self.cv_view_x, self.cv_view_y)
-            #cv2.moveWindow('nav', self.cv_view_x, self.cv_view_y) 
-            cv2.waitKey(30)
 
-        # must be > 0.80 to have solid hit, otherwise we are facing wrong way (empty circle)
-        if n_maxVal < 0.80:
-            final_x = 0.0
-            final_y = 0.0
-            final_z = -1.0 # Behind
-            result = {'x': final_x, 'y': final_y, 'z': final_z}
-        else:
-            final_x = ((n_pt[0]+((1/2)*wid))-((1/2)*c_wid))-5.5
-            final_y = (((1/2)*c_hgt)-(n_pt[1]+((1/2)*hgt)))+6.5
-            final_z = 1.0 # Ahead
-            logger.debug(("maxVal="+str(n_maxVal)+" x:"+str(final_x)+" y:"+str(final_y)))
-            result = {'x': final_x, 'y': final_y, 'z': final_z}
+            destination_height, destination_width, _ = navpt_image.shape
+            dim = (int(destination_width * 2), int(destination_height * 2))
+            navpt_image = cv2.resize(navpt_image, dim, interpolation=cv2.INTER_AREA)
+            cv2.putText(navpt_image, f'X:{final_x:5.2f}', (1, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(navpt_image, f'Y:{final_y:5.2f}', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(navpt_image, f'Z:{final_z:5.2f}', (1, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.imshow('nav', navpt_image)
+            cv2.moveWindow('nav', self.cv_view_x, self.cv_view_y+425)
+            cv2.waitKey(30)
 
         return result
 
