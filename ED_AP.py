@@ -403,13 +403,14 @@ class EDAutopilot:
 
     def have_destination(self, scr_reg) -> bool:
         """ Check to see if the compass is on the screen. """
+        compass_match_thresh = 0.35
 
         icompass_image, (minVal, maxVal, minLoc, maxLoc), match = scr_reg.match_template_in_region('compass', 'compass')
 
         logger.debug("has_destination:"+str(maxVal))
 
-        # need > 50% in the match to say we do have a destination
-        if maxVal < 0.50:
+        # need > x in the match to say we do have a destination
+        if maxVal < compass_match_thresh:
             return False
         else:
             return True
@@ -434,6 +435,8 @@ class EDAutopilot:
 
     def get_nav_offset(self, scr_reg):
         """ Determine the x,y offset from center of the compass of the nav point. """
+        navpoint_match_thresh = 0.70
+
         compass_region_image = scr_reg.capture_region(self.scr, 'compass')
         filt_compass_image, (minVal, maxVal, minLoc, maxLoc), match = (
             scr_reg.match_template_in_region('compass', 'compass'))
@@ -457,8 +460,8 @@ class EDAutopilot:
         # Get x and y coords of the nav point
         final_x = ((n_pt[0] + ((1 / 2) * wid)) - ((1 / 2) * c_wid)) - 5.5
         final_y = (((1 / 2) * c_hgt) - (n_pt[1] + ((1 / 2) * hgt))) + 6.5
-        # must be > 0.70 to have solid hit, otherwise we are facing wrong way (empty circle)
-        if n_maxVal < 0.70:
+        # must be > x to have solid hit, otherwise we are facing wrong way (empty circle)
+        if n_maxVal < navpoint_match_thresh:
             final_z = -1.0  # Behind
         else:
             final_z = 1.0  # Ahead
@@ -478,7 +481,7 @@ class EDAutopilot:
 
             #   img = cv2.resize(dst_image, dim, interpolation =cv2.INTER_AREA) 
             cv2.putText(icompass_image_d, f'Compass: {maxVal:5.2f} >0.6', (1, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.putText(icompass_image_d, f'Nav Point: {n_maxVal:5.2f} >0.8', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(icompass_image_d, f'Nav Point: {n_maxVal:5.2f} > {navpoint_match_thresh:5.2f}', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255), 1, cv2.LINE_AA)
             #cv2.circle(icompass_image_display, (pt[0]+n_pt[0], pt[1]+n_pt[1]), 5, (0, 255, 0), 3)
             cv2.imshow('compass', icompass_image_d)
             cv2.moveWindow('compass', self.cv_view_x, self.cv_view_y)
