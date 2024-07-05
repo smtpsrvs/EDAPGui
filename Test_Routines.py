@@ -23,9 +23,9 @@ def main():
 
     # Shows filtering and matching for the specified region...
     # ========================================================
-     template_matching_test('compass', 'compass')
+    # template_matching_test('compass', 'compass')
     # template_matching_test('navpoint','navpoint')
-    # template_matching_test('target', 'target')
+     template_matching_test('target', 'target')
     # template_matching_test('target_occluded', 'target_occluded')
 
     # Shows regions on the Elite window...
@@ -104,10 +104,11 @@ def compass_and_nav_test():
             scr_reg.match_template_in_filtered_image(compass_image, 'navpoint', 'navpoint'))
         n_pt = n_maxLoc
 
+        # Get x and y coords of the nav point
         final_x = ((n_pt[0] + ((1 / 2) * wid)) - ((1 / 2) * c_wid)) - 5.5
         final_y = (((1 / 2) * c_hgt) - (n_pt[1] + ((1 / 2) * hgt))) + 6.5
-        # must be > 0.70 to have solid hit, otherwise we are facing wrong way (empty circle)
-        if n_maxVal < 0.70:
+        # must be > x to have solid hit, otherwise we are facing wrong way (empty circle)
+        if n_maxVal < scr_reg.navpoint_match_thresh:
             final_z = -1.0  # Behind
         else:
             final_z = 1.0  # Ahead
@@ -121,9 +122,9 @@ def compass_and_nav_test():
         draw_match_rect(icompass_image_d, (pt[0] + n_pt[0] - pad, pt[1] + n_pt[1] - pad),
                         (pt[0] + n_pt[0] + wid - pad, pt[1] + n_pt[1] + hgt - pad), (0, 255, 0), 1)
 
-        cv2.putText(icompass_image_d, f'Compass: {maxVal:5.2f} >0.6', (1, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255),
+        cv2.putText(icompass_image_d, f'Compass: {maxVal:5.2f} > {scr_reg.compass_match_thresh:5.2f}', (1, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255),
                     1, cv2.LINE_AA)
-        cv2.putText(icompass_image_d, f'Nav Point: {n_maxVal:5.2f} >0.8', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.35,
+        cv2.putText(icompass_image_d, f'Nav Point: {n_maxVal:5.2f} > {scr_reg.navpoint_match_thresh:5.2f}', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.35,
                     (255, 255, 255), 1, cv2.LINE_AA)
         # cv2.circle(icompass_image_display, (pt[0]+n_pt[0], pt[1]+n_pt[1]), 5, (0, 255, 0), 3)
         cv2.imshow('compass', icompass_image_d)

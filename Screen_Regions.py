@@ -18,15 +18,21 @@ class Screen_Regions:
     def __init__(self, screen, templ):
         self.screen = screen
         self.templates = templ
+
+        # Define the thresholds for template matching to be consistent throughout the program
+        self.compass_match_thresh = 0.35
+        self.navpoint_match_thresh = 0.70
+        self.target_thresh = 0.40
+        self.target_occluded_thresh = 0.75
         self.sun_threshold = 125
         
         # array is in HSV order which represents color ranges for filtering
         self.orange_color_range   = [array([15, 163, 148]),  array([23, 255, 255])] # Change range for better matching
-        self.orange_2_color_range = [array([16, 165, 220]), array([98, 255, 255])]
+        self.orange_2_color_range = [array([16, 100, 220]), array([98, 255, 255])]
         self.target_occluded_range= [array([16, 31, 85]),   array([26, 160, 212])]
         self.blue_color_range     = [array([45, 35, 100]),   array([100, 255, 255])] # Changed range for better matching
         self.fss_color_range      = [array([95, 210, 70]),  array([105, 255, 120])]
-        
+
         self.reg = {}
         # regions with associated filter and color ranges
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
