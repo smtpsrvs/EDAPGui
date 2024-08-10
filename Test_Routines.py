@@ -1,8 +1,12 @@
+import cv2
+import os
+
 from Screen_Regions import *
 from Overlay import *
 from Screen import *
 from Image_Templates import *
 from time import sleep
+import numpy as np
 
 """
 File:Test_Routines.py    
@@ -16,22 +20,34 @@ def main():
     # Uncomment one tests to be performed as each runs in a loop until exited.
     # Run this file instead of the main EDAPGUI file.
 
+    # Shows filtering and matching for the specified region...
+    # ========================================================
+    # template_matching_test('compass', 'compass')
+    # template_matching_test('navpoint','navpoint')
+    # template_matching_test('target', 'target')
+    # template_matching_test('target_occluded', 'target_occluded')
+
     # More complicated specific test cases...
     # =======================================
     # compass_and_nav_test()
     # compass_test()
 
-    # Shows filtering and matching for the specified region...
-    # ========================================================
-    # template_matching_test('compass', 'compass')
-    # template_matching_test('navpoint','navpoint')
-     template_matching_test('target', 'target')
-    # template_matching_test('target_occluded', 'target_occluded')
-
     # Shows regions on the Elite window...
     # ====================================
     # regions_test()
 
+    # Testing of images...
+    # The result of image matching will be placed in the 'out' folder for each image group.
+    # =====================================================================================
+    image_matching_test('test/target/','target', 'target')
+    image_matching_test('test/compass/','compass', 'compass')
+    image_matching_test('test/navpoint/','navpoint','navpoint')
+    image_matching_test('test/navpoint-behind/','navpoint','navpoint-behind')
+
+    # HSV Tester...
+    # =============
+    # hsv_tester("test/navpoint/Screenshot 2024-07-04 20-02-01.png")
+    # hsv_tester("test/navpoint-behind/Screenshot 2024-07-04 20-01-33.png")
 
 def draw_match_rect(img, pt1, pt2, color, thick):
     wid = pt2[0] - pt1[0]
@@ -189,6 +205,49 @@ def template_matching_test(region_name, template):
             break
 
 
+def image_matching_test(directory, region_name, template):
+    """ Test all the image files in the given folder. Images are filtered using the filter defined for the region.
+    The template is matched within each image and the result saved in the 'out' folder.
+    :param directory: The directory to process.
+    :param region_name: The name of the region with the required filter to apply to the image.
+    :param template: The name of the template to find in each file being tested. """
+    scr = Screen()
+    templ = Image_Templates(scr.scaleX, scr.scaleY)
+    scr_reg = Screen_Regions(scr, templ)
+
+    directory_out = os.path.join(directory, 'out')
+    if not os.path.exists(directory_out):
+        os.makedirs(directory_out)
+
+    for filename in os.listdir(directory):
+        if filename.endswith(".png"):
+            image_path = os.path.join(directory, filename)
+            image_out_path = os.path.join(directory_out, filename)
+
+            image = cv2.imread(image_path)
+            img_filtered, (minVal, maxVal, minLoc, maxLoc), match = (
+                scr_reg.match_template_in_filtered_image(image, region_name, template))
+
+            pt = maxLoc
+            c_wid = scr_reg.templates.template[template]['width']
+            c_hgt = scr_reg.templates.template[template]['height']
+
+            img_output = img_filtered
+            img_output = image
+            draw_match_rect(img_output, pt, (pt[0] + c_wid, pt[1] + c_hgt), (0, 0, 255), 2)
+            cv2.putText(img_output, f'Match: {maxVal:5.2f}', (1, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35,
+                        (255, 255, 255), 1, cv2.LINE_AA)
+            #cv2.imshow(template, image)
+            #cv2.imshow(template + 'filtered', img_output)
+            #cv2.imshow(template + ' match', match)
+
+            cv2.imwrite(image_out_path, img_output)
+
+            #key = cv2.waitKey(1)
+            #if key == 27: # ESC
+            #    break
+
+
 def regions_test():
     ov = Overlay("", 1)
     scr = Screen()
@@ -209,6 +268,54 @@ def regions_test():
     ov.overlay_quit()
     sleep(2)
 
+def hsv_tester(image_path):
+    cv2.namedWindow("Trackbars", cv2.WINDOW_NORMAL) # cv2.WINDOW_AUTOSIZE)
+
+    cv2.createTrackbar("L - H", "Trackbars", 0, 179, callback)
+    cv2.createTrackbar("L - S", "Trackbars", 0, 255, callback)
+    cv2.createTrackbar("L - V", "Trackbars", 0, 255, callback)
+    cv2.createTrackbar("U - H", "Trackbars", 255, 179, callback)
+    cv2.createTrackbar("U - S", "Trackbars", 255, 255, callback)
+    cv2.createTrackbar("U - V", "Trackbars", 255, 255, callback)
+
+    frame = cv2.imread(image_path)
+
+    # Set default values
+    cv2.setTrackbarPos("L - H", "Trackbars", 43)
+    cv2.setTrackbarPos("L - S", "Trackbars", 35)
+    cv2.setTrackbarPos("L - V", "Trackbars", 100)
+    cv2.setTrackbarPos("U - H", "Trackbars", 100)
+    cv2.setTrackbarPos("U - S", "Trackbars", 255)
+    cv2.setTrackbarPos("U - V", "Trackbars", 255)
+
+    while True:
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+        l_h = cv2.getTrackbarPos("L - H", "Trackbars")
+        l_s = cv2.getTrackbarPos("L - S", "Trackbars")
+        l_v = cv2.getTrackbarPos("L - V", "Trackbars")
+        u_h = cv2.getTrackbarPos("U - H", "Trackbars")
+        u_s = cv2.getTrackbarPos("U - S", "Trackbars")
+        u_v = cv2.getTrackbarPos("U - V", "Trackbars")
+
+        lower_range = np.array([l_h, l_s, l_v])
+        upper_range = np.array([u_h, u_s, u_v])
+        mask = cv2.inRange(hsv, lower_range, upper_range)
+
+        result = cv2.bitwise_and(frame, frame, mask=mask)
+
+        cv2.imshow("original", frame)
+        cv2.imshow("mask", mask)
+        cv2.imshow("result", result)
+
+        key = cv2.waitKey(1)
+        if key == 27:  # ESC
+            break
+
+    cv2.destroyAllWindows()
+
+def callback(value):
+    print(value)
 
 if __name__ == "__main__":
     main()

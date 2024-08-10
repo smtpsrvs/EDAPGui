@@ -31,6 +31,7 @@ class Screen_Regions:
         self.orange_2_color_range = [array([16, 100, 220]), array([98, 255, 255])]
         self.target_occluded_range= [array([16, 31, 85]),   array([26, 160, 212])]
         self.blue_color_range     = [array([45, 35, 100]),   array([100, 255, 255])] # Changed range for better matching
+        self.blue_color_range     = [array([0, 0, 95]),   array([100, 185, 255])] # Changed range for better matching
         self.fss_color_range      = [array([95, 210, 70]),  array([105, 255, 120])]
 
         self.reg = {}

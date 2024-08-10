@@ -18,7 +18,8 @@ class Image_Templates:
    
         self.template = { 'elw'       : {'image': None, 'width': 1, 'height': 1},
                           'elw_sig'   : {'image': None, 'width': 1, 'height': 1}, 
-                          'navpoint'  : {'image': None, 'width': 1, 'height': 1}, 
+                          'navpoint'  : {'image': None, 'width': 1, 'height': 1},
+                          'navpoint-behind': {'image': None, 'width': 1, 'height': 1},
                           'compass'   : {'image': None, 'width': 1, 'height': 1},
                           'target'    : {'image': None, 'width': 1, 'height': 1},
                           'target_occluded' : {'image': None, 'width': 1, 'height': 1},
@@ -39,7 +40,7 @@ class Image_Templates:
         template = cv2.imread(self.resource_path(file_name), cv2.IMREAD_UNCHANGED)
         #logger.debug("File:"+self.resource_path(file_name)+" template:"+str(template))
         template = cv2.resize(template, (0, 0), fx=scaleX, fy=scaleY)
-        width, height, _ = template.shape
+        height, width, channels = template.shape
         return {'image': template, 'width': width, 'height' : height}
     
 
@@ -48,6 +49,7 @@ class Image_Templates:
         self.template['elw']       = self.load_template("templates/elw-template.png", scaleX, scaleY) 
         self.template['elw_sig']   = self.load_template("templates/elw-sig-template.png", scaleX, scaleY) 
         self.template['navpoint']  = self.load_template("templates/navpoint.png", scaleX, scaleY)
+        self.template['navpoint-behind']  = self.load_template("templates/navpoint-behind.png", scaleX, scaleY)
         self.template['compass']   = self.load_template("templates/compass.png", scaleX, scaleY)         
         self.template['target']    = self.load_template("templates/destination.png", scaleX, scaleY) 
         self.template['target_occluded']    = self.load_template("templates/target_occluded.png", scaleX, scaleY) 
