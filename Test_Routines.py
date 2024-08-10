@@ -27,10 +27,13 @@ def main():
     # This only needs to be competed for new screenshots that were not take
     # at 3440x1440. Once complete, remove the original images and move the
     # converted images to relevant test folder.
+    #
+    # Does NOT require Elite Dangerous to be running.
     # ======================================================================
     rescale_screenshots('test/images-to-rescale', 0.76, 0.76)
 
     # Shows filtering and matching for the specified region...
+    # Requires Elite Dangerous to be running.
     # ========================================================
     # template_matching_test('compass', 'compass')
     # template_matching_test('navpoint','navpoint')
@@ -39,15 +42,19 @@ def main():
 
     # More complicated specific test cases...
     # =======================================
+    # Requires Elite Dangerous to be running.
     # compass_and_nav_test()
     # compass_test()
 
     # Shows regions on the Elite window...
-    # ====================================
-    # regions_test()
+    # Requires Elite Dangerous to be running.
+    # =======================================
+    # regions_test('nav_panel')
 
     # Testing of images...
     # The result of image matching will be placed in the 'out' folder for each image group.
+    #
+    # Does NOT require Elite Dangerous to be running.
     # =====================================================================================
     image_matching_test('test/target/','target', 'target')
     image_matching_test('test/compass/','compass', 'compass')
@@ -55,12 +62,15 @@ def main():
     image_matching_test('test/navpoint-behind/','navpoint-behind','navpoint-behind')
 
     # HSV Tester...
-    # =============
+    #
+    # Does NOT require Elite Dangerous to be running.
+    # ===============================================
     # hsv_tester("test/navpoint/Screenshot 2024-07-04 20-02-01.png")
     # hsv_tester("test/navpoint-behind/Screenshot 2024-07-04 20-01-33.png")
 
 
 def draw_match_rect(img, pt1, pt2, color, thick):
+    """ Utility function to add a rectangle to an image. """
     wid = pt2[0] - pt1[0]
     hgt = pt2[1] - pt1[1]
 
@@ -104,6 +114,7 @@ def draw_match_rect(img, pt1, pt2, color, thick):
 
 
 def compass_and_nav_test():
+    """ Performs a compass and nav test. """
     scr = Screen()
     templ = Image_Templates(scr.scaleX, scr.scaleY)
     scr_reg = Screen_Regions(scr, templ)
@@ -175,6 +186,7 @@ def compass_and_nav_test():
 
 
 def compass_test():
+    """ Performs a compass test. """
     scr = Screen()
     templ = Image_Templates(scr.scaleX, scr.scaleY)
     scr_reg = Screen_Regions(scr, templ)
@@ -199,7 +211,9 @@ def compass_test():
 
 
 def template_matching_test(region_name, template):
-    """ To test the template matching. Change the region name and template name below. """
+    """ To test the template matching. Using the provided region and template.
+    :param region_name: The name of the region with the required filter to apply to the image.
+    :param template: The name of the template to find in each file being tested. """
     scr = Screen()
     templ = Image_Templates(scr.scaleX, scr.scaleY)
     scr_reg = Screen_Regions(scr, templ)
@@ -218,10 +232,10 @@ def template_matching_test(region_name, template):
 
 def image_matching_test(directory, region_name, template):
     """ Test all the image files in the given folder. Images are filtered using the filter defined for the region.
-    The template is matched within each image and the result saved in the 'out' folder.
-    :param directory: The directory to process.
-    :param region_name: The name of the region with the required filter to apply to the image.
-    :param template: The name of the template to find in each file being tested. """
+        The template is matched within each image and the result saved in the 'out' folder.
+        :param directory: The directory to process.
+        :param region_name: The name of the region with the required filter to apply to the image.
+        :param template: The name of the template to find in each file being tested. """
     scr = Screen()
     templ = Image_Templates(scr.scaleX, scr.scaleY)
     scr_reg = Screen_Regions(scr, templ)
@@ -263,7 +277,9 @@ def image_matching_test(directory, region_name, template):
             #    break
 
 
-def regions_test():
+def regions_test(region_name):
+    """ Draw a rectangle indicating the given region on the Elite Dangerous window.
+        :param region_name: The name of the region with the required filter to apply to the image."""
     ov = Overlay("", 1)
     scr = Screen()
     templ = Image_Templates(scr.scaleX, scr.scaleY)
@@ -273,7 +289,7 @@ def regions_test():
         # tgt = scrReg.capture_region_filtered(scr, key)
         # print(key)
         # print(scrReg.reg[key])
-        if key == 'nav_panel':
+        if key == region_name:
             ov.overlay_rect(key, (scrReg.reg[key]['rect'][0],
                                   scrReg.reg[key]['rect'][1]),
                             (scrReg.reg[key]['rect'][2],
@@ -285,6 +301,10 @@ def regions_test():
 
 
 def hsv_tester(image_path):
+    """ Brings up a HSV test window with sliders to check the 'inRange' function on the provided image.
+        Change the default values below where indicated to the values associated with the appropriate
+        template in image_template.py.
+        :param image_path: The file path of the image to test. """
     cv2.namedWindow("Trackbars", cv2.WINDOW_NORMAL) # cv2.WINDOW_AUTOSIZE)
 
     cv2.createTrackbar("L - H", "Trackbars", 0, 179, callback)
