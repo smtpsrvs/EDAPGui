@@ -25,7 +25,7 @@ def main():
     # the ratio, not the resolution. Refer to Screen.py for resolution to
     # ratio conversions.
     # This only needs to be competed for new screenshots that were not take
-    # at 3440x1440. Once complete, remove the original images and move the 
+    # at 3440x1440. Once complete, remove the original images and move the
     # converted images to relevant test folder.
     # ======================================================================
     rescale_screenshots('test/images-to-rescale', 0.76, 0.76)
@@ -52,7 +52,7 @@ def main():
     image_matching_test('test/target/','target', 'target')
     image_matching_test('test/compass/','compass', 'compass')
     image_matching_test('test/navpoint/','navpoint','navpoint')
-    image_matching_test('test/navpoint-behind/','navpoint','navpoint-behind')
+    image_matching_test('test/navpoint-behind/','navpoint-behind','navpoint-behind')
 
     # HSV Tester...
     # =============

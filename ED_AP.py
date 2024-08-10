@@ -453,14 +453,20 @@ class EDAutopilot:
             scr_reg.match_template_in_filtered_image(compass_image, 'navpoint', 'navpoint'))
         n_pt = n_maxLoc
 
-        # Get x and y coords of the nav point
-        final_x = ((n_pt[0] + ((1 / 2) * wid)) - ((1 / 2) * c_wid)) - 5.5
-        final_y = (((1 / 2) * c_hgt) - (n_pt[1] + ((1 / 2) * hgt))) + 6.5
         # must be > x to have solid hit, otherwise we are facing wrong way (empty circle)
         if n_maxVal < scr_reg.navpoint_match_thresh:
             final_z = -1.0  # Behind
+
+            # find the nav point within the compass box using the -behind template
+            navpt_image, (n_minVal, n_maxVal, n_minLoc, n_maxLoc), match = (
+                scr_reg.match_template_in_filtered_image(compass_image, 'navpoint-behind', 'navpoint-behind'))
+            n_pt = n_maxLoc
         else:
             final_z = 1.0  # Ahead
+
+        # Get x and y coords of the nav point
+        final_x = ((n_pt[0] + ((1 / 2) * wid)) - ((1 / 2) * c_wid)) - 5.5
+        final_y = (((1 / 2) * c_hgt) - (n_pt[1] + ((1 / 2) * hgt))) + 6.5
 
         logger.debug(("maxVal=" + str(n_maxVal) + " x:" + str(final_x) + " y:" + str(final_y)))
         result = {'x': final_x, 'y': final_y, 'z': final_z}

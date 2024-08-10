@@ -39,6 +39,7 @@ class Screen_Regions:
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         self.reg['compass']   = {'rect': [0.30, 0.60, 0.46, 0.97], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.orange_color_range} # Using color filter for compass instead of greyscale filter
         self.reg['navpoint'] = {'rect': [0.30, 0.60, 0.46, 0.97], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.blue_color_range} # For purpose of testing. The actually code determine the navpoint from the compass region.
+        self.reg['navpoint-behind'] = {'rect': [0.30, 0.60, 0.46, 0.97], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.blue_color_range}
         self.reg['target']    = {'rect': [0.33, 0.27, 0.66, 0.70], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.orange_2_color_range}   # also called destination
         self.reg['target_occluded']    = {'rect': [0.33, 0.27, 0.66, 0.70], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.target_occluded_range} 
         self.reg['sun']       = {'rect': [0.30, 0.30, 0.70, 0.68], 'width': 1, 'height': 1, 'filterCB': self.filter_sun, 'filter': None}
