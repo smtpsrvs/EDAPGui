@@ -20,6 +20,16 @@ def main():
     # Uncomment one tests to be performed as each runs in a loop until exited.
     # Run this file instead of the main EDAPGUI file.
 
+    # Rescale screenshots from the user scaling (i.e. 1920x1080 [0.75,0.75]
+    # to the default scaling of 3440x1440 [1.0, 1.0]. Note the scaling is by
+    # the ratio, not the resolution. Refer to Screen.py for resolution to
+    # ratio conversions.
+    # This only needs to be competed for new screenshots that were not take
+    # at 3440x1440. Once complete, remove the original images and move the 
+    # converted images to relevant test folder.
+    # ======================================================================
+    rescale_screenshots('test/images-to-rescale', 0.76, 0.76)
+
     # Shows filtering and matching for the specified region...
     # ========================================================
     # template_matching_test('compass', 'compass')
@@ -48,6 +58,7 @@ def main():
     # =============
     # hsv_tester("test/navpoint/Screenshot 2024-07-04 20-02-01.png")
     # hsv_tester("test/navpoint-behind/Screenshot 2024-07-04 20-01-33.png")
+
 
 def draw_match_rect(img, pt1, pt2, color, thick):
     wid = pt2[0] - pt1[0]
@@ -225,6 +236,10 @@ def image_matching_test(directory, region_name, template):
             image_out_path = os.path.join(directory_out, filename)
 
             image = cv2.imread(image_path)
+
+            # Scale image to user scaling
+            image = cv2.resize(image, (0, 0), fx=scr.scaleX, fy=scr.scaleY)
+
             img_filtered, (minVal, maxVal, minLoc, maxLoc), match = (
                 scr_reg.match_template_in_filtered_image(image, region_name, template))
 
@@ -267,6 +282,7 @@ def regions_test():
     sleep(10)
     ov.overlay_quit()
     sleep(2)
+
 
 def hsv_tester(image_path):
     cv2.namedWindow("Trackbars", cv2.WINDOW_NORMAL) # cv2.WINDOW_AUTOSIZE)
@@ -313,6 +329,33 @@ def hsv_tester(image_path):
             break
 
     cv2.destroyAllWindows()
+
+
+def rescale_screenshots(directory, scalex, scaley):
+    """ Rescale all images in a folder.
+    :param directory: The directory to process.
+    :param scalex: The X scaling of the original image.
+    :param scaley: The scaling of the original image. """
+
+    # Calc factor to scale image up/down
+    newScaleX = 1.0/scalex
+    newScaleY = 1.0/scaley
+
+    directory_out = os.path.join(directory, 'out')
+    if not os.path.exists(directory_out):
+        os.makedirs(directory_out)
+
+    for filename in os.listdir(directory):
+        if filename.endswith(".png"):
+            image_path = os.path.join(directory, filename)
+            image_out_path = os.path.join(directory_out, filename)
+
+            image = cv2.imread(image_path)
+
+            # Scale image to user scaling
+            image = cv2.resize(image, (0, 0), fx=newScaleX, fy=newScaleY)
+            cv2.imwrite(image_out_path, image)
+
 
 def callback(value):
     print(value)
