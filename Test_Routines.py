@@ -50,6 +50,7 @@ def main():
     # Requires Elite Dangerous to be running.
     # =======================================
     # regions_test('nav_panel')
+    # regions_test('disengage')
 
     # Testing of images...
     # The result of image matching will be placed in the 'out' folder for each image group.
@@ -60,6 +61,7 @@ def main():
     image_matching_test('test/compass/','compass', 'compass')
     image_matching_test('test/navpoint/','navpoint','navpoint')
     image_matching_test('test/navpoint-behind/','navpoint-behind','navpoint-behind')
+    image_matching_test('test/disengage/','disengage', 'disengage')
 
     # HSV Tester...
     #
@@ -178,7 +180,7 @@ def compass_and_nav_test():
         cv2.putText(navpt_image, f'Z:{final_z:5.2f}', (1, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255), 1,
                     cv2.LINE_AA)
         cv2.imshow('nav', navpt_image)
-        cv2.moveWindow('nav', -500, 500)
+        cv2.moveWindow('nav', -500, 600)
 
         key = cv2.waitKey(10)
         if key == 27:  # ESC
@@ -379,6 +381,7 @@ def rescale_screenshots(directory, scalex, scaley):
 
 def callback(value):
     print(value)
+
 
 if __name__ == "__main__":
     main()

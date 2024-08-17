@@ -459,9 +459,9 @@ class EDAutopilot:
             final_z = -1.0  # Behind
 
             # find the nav point within the compass box using the -behind template
-            navpt_image, (n_minVal, n_maxVal, n_minLoc, n_maxLoc), match = (
-                scr_reg.match_template_in_filtered_image(compass_image, 'navpoint-behind', 'navpoint-behind'))
-            n_pt = n_maxLoc
+            # navpt_image, (n_minVal, n_maxVal, n_minLoc, n_maxLoc), match = (
+            #     scr_reg.match_template_in_filtered_image(compass_image, 'navpoint-behind', 'navpoint-behind'))
+            # n_pt = n_maxLoc
         else:
             final_z = 1.0  # Ahead
 
@@ -496,7 +496,7 @@ class EDAutopilot:
             cv2.putText(navpt_image, f'Y:{final_y:5.2f}', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255), 1, cv2.LINE_AA)
             cv2.putText(navpt_image, f'Z:{final_z:5.2f}', (1, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 255, 255), 1, cv2.LINE_AA)
             cv2.imshow('nav', navpt_image)
-            cv2.moveWindow('nav', self.cv_view_x, self.cv_view_y+425)
+            cv2.moveWindow('nav', self.cv_view_x, self.cv_view_y+500)
             cv2.waitKey(30)
 
         return result
@@ -592,14 +592,14 @@ class EDAutopilot:
 
         if self.cv_view:
             self.draw_match_rect(dis_image, pt, (pt[0] + width, pt[1] + height), (0,255,0), 2)
-            cv2.putText(dis_image, f'{maxVal:5.2f} >.45', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+            cv2.putText(dis_image, f'{maxVal:5.2f} > {scr_reg.disengage_thresh}', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
             cv2.imshow('disengage', dis_image)
-            cv2.moveWindow('disengage', self.cv_view_x-460,self.cv_view_y+460)
+            cv2.moveWindow('disengage', self.cv_view_x-460,self.cv_view_y+575)
             cv2.waitKey(1)
 
         logger.debug("Disenage = "+str(maxVal))
 
-        if (maxVal > 0.45):
+        if (maxVal > scr_reg.disengage_thresh):
             self.vce.say("Disengaging Supercruise")
             return True
         else:
@@ -1389,6 +1389,8 @@ class EDAutopilot:
             sleep(0.05)
 
             if self.jn.ship_state()['status'] == 'in_supercruise':
+                # Check (show) compass # Steve
+                self.get_nav_offset(scr_reg) # Steve
 
                 # Align and stay on target. If false is returned, we have lost the target behind us.
                 if self.sc_target_align(scr_reg) == False:
