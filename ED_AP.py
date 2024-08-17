@@ -55,6 +55,7 @@ class EDAutopilot:
             "HotKey_StopAllAssists": "end",
             "Robigo_Single_Loop": False,   # True means only 1 loop will executed and then terminate the Robigo, will not perform mission processing
             "EnableRandomness": False,     # add some additional random sleep times to avoid AP detection (0-3sec at specific locations)
+            "ActivateEliteEachKey": False, # Activate Elite window before each key or group of keys
             "OverlayTextEnable": False,    # Experimental at this stage
             "OverlayTextYOffset": 400,     # offset down the screen to start place overlay text
             "OverlayTextXOffset": 50,      # offset left the screen to start place overlay text
@@ -704,7 +705,7 @@ class EDAutopilot:
                 if self.jn.ship_state()['status'] == "in_station":
                     # go to top item, select (which should be refuel)
                     self.keys.send('UI_Up', hold=3)
-                    self.keys.send('UI_Select') # Refuel
+                    self.keys.send('UI_Select')  # Refuel
                     sleep(0.5)
                     self.keys.send('UI_Right')  # Repair
                     self.keys.send('UI_Select')
@@ -1526,6 +1527,9 @@ class EDAutopilot:
 
     def set_randomness(self, enable=False):
         self.config["EnableRandomness"] = enable
+
+    def set_activate_elite_eachkey(self, enable=False):
+        self.config["ActivateEliteEachKey"] = enable
 
     def set_overlay(self, enable=False):
         # TODO: apply the change without restarting the program
