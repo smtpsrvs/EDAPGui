@@ -1,6 +1,5 @@
 import cv2
 import os
-
 from Screen_Regions import *
 from Overlay import *
 from Screen import *
@@ -36,7 +35,7 @@ def main():
     # Requires Elite Dangerous to be running.
     # ========================================================
     # template_matching_test('compass', 'compass')
-    # template_matching_test('navpoint','navpoint')
+    # template_matching_test('compass','navpoint')
     # template_matching_test('target', 'target')
     # template_matching_test('target_occluded', 'target_occluded')
 
