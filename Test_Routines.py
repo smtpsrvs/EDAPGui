@@ -29,7 +29,7 @@ def main():
     #
     # Does NOT require Elite Dangerous to be running.
     # ======================================================================
-    rescale_screenshots('test/images-to-rescale', 0.76, 0.76)
+    # rescale_screenshots('test/images-to-rescale', 0.76, 0.76)
 
     # Shows filtering and matching for the specified region...
     # Requires Elite Dangerous to be running.
@@ -48,7 +48,11 @@ def main():
     # Shows regions on the Elite window...
     # Requires Elite Dangerous to be running.
     # =======================================
-    # regions_test('nav_panel')
+    wanted_regions = ["compass", "target", "nav_panel", "disengage", "interdicted", "fss", "mission_dest", "missions",
+                      "sun"]
+    wanted_regions = ["compass", "target", "nav_panel", "disengage"]  # The more common regions for navigation
+    regions_test(wanted_regions)
+
     # regions_test('disengage')
 
     # Testing of images...
@@ -56,18 +60,21 @@ def main():
     #
     # Does NOT require Elite Dangerous to be running.
     # =====================================================================================
-    image_matching_test('test/target/','target', 'target')
-    image_matching_test('test/compass/','compass', 'compass')
-    image_matching_test('test/navpoint/','navpoint','navpoint')
-    image_matching_test('test/navpoint-behind/','navpoint-behind','navpoint-behind')
-    image_matching_test('test/disengage/','disengage', 'disengage')
+    # image_matching_test('test/target/','target', 'target')
+    # image_matching_test('test/compass/','compass', 'compass')
+    # image_matching_test('test/navpoint/','navpoint','navpoint')
+    # image_matching_test('test/navpoint-behind/','navpoint-behind','navpoint-behind')
+    # image_matching_test('test/disengage/','disengage', 'disengage')
 
     # HSV Tester...
     #
     # Does NOT require Elite Dangerous to be running.
     # ===============================================
+    # hsv_tester("test/compass/Screenshot 2024-07-04 20-01-49.png")
+    # hsv_tester("test/disengage/Screenshot 2024-08-13 21-32-58.png")
     # hsv_tester("test/navpoint/Screenshot 2024-07-04 20-02-01.png")
     # hsv_tester("test/navpoint-behind/Screenshot 2024-07-04 20-01-33.png")
+    # hsv_tester("test/target/Screenshot 2024-07-04 23-22-02.png")
 
 
 def draw_match_rect(img, pt1, pt2, color, thick):
@@ -278,24 +285,45 @@ def image_matching_test(directory, region_name, template):
             #    break
 
 
-def regions_test(region_name):
+def regions_test(regions):
     """ Draw a rectangle indicating the given region on the Elite Dangerous window.
-        :param region_name: The name of the region with the required filter to apply to the image."""
-    ov = Overlay("", 1)
+        :param regions: An array names of the regions to indicate on screen (i.e. ["compass", "target"])."""
+    ov = Overlay("", 0)
     scr = Screen()
     templ = Image_Templates(scr.scaleX, scr.scaleY)
     scrReg = Screen_Regions(scr, templ)
 
+    overlay_colors = [
+        (255, 255, 255),
+        (255, 0, 0),
+        (0, 255, 0),
+        (0, 0, 255),
+        (255, 255, 0),
+        (0, 255, 255),
+        (255, 0, 255),
+        (192, 192, 192),
+        (128, 128, 128),
+        (128, 0, 0),
+        (128, 128, 0),
+        (0, 128, 0),
+        (128, 0, 128),
+        (0, 128, 128),
+        (0, 0, 128)
+    ]
+
     for i, key in enumerate(scrReg.reg):
-        # tgt = scrReg.capture_region_filtered(scr, key)
-        # print(key)
-        # print(scrReg.reg[key])
-        if key == region_name:
-            ov.overlay_rect(key, (scrReg.reg[key]['rect'][0],
-                                  scrReg.reg[key]['rect'][1]),
-                            (scrReg.reg[key]['rect'][2],
-                             scrReg.reg[key]['rect'][3]), (0, 255, i * 40), 2)
-            ov.overlay_paint()
+        #tgt = scrReg.capture_region_filtered(scr, key)
+        #print(key)
+        #print(scrReg.reg[key])
+        if key in regions:
+            ov.overlay_rect(key, (scrReg.reg[key]['rect'][0], scrReg.reg[key]['rect'][1]),
+                            (scrReg.reg[key]['rect'][2], scrReg.reg[key]['rect'][3]),
+                            overlay_colors[i+1], 2)
+            ov.overlay_floating_text(key, key, scrReg.reg[key]['rect'][0], scrReg.reg[key]['rect'][1],
+                                     overlay_colors[i+1])
+
+    ov.overlay_paint()
+
     sleep(10)
     ov.overlay_quit()
     sleep(2)
