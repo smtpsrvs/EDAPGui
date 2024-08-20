@@ -282,17 +282,18 @@ class EDAutopilot:
             compass_image, (minVal, maxVal, minLoc, maxLoc), match = self.scrReg.match_template_in_region('compass', 'compass')
             dst_image, (minVal1, maxVal1, minLoc1, maxLoc1), match = self.scrReg.match_template_in_region('target', 'target')
 
+            border = 10  # border to prevent the box from interfering with future matches
             reg_compass_pos = self.scrReg.reg['compass']['rect']
-            comp_width = self.scrReg.templates.template['compass']['width']
-            comp_height = self.scrReg.templates.template['compass']['height']
-            comp_left = reg_compass_pos[0] + maxLoc[0]
-            comp_top = reg_compass_pos[1] + maxLoc[1]
+            comp_width = self.scrReg.templates.template['compass']['width'] + border + border
+            comp_height = self.scrReg.templates.template['compass']['height'] + border + border
+            comp_left = reg_compass_pos[0] + maxLoc[0] - border
+            comp_top = reg_compass_pos[1] + maxLoc[1] - border
 
             reg_target_pos = self.scrReg.reg['target']['rect']
-            targ_width = self.scrReg.templates.template['target']['width']
-            targ_height = self.scrReg.templates.template['target']['height']
-            targ_left = reg_target_pos[0] + maxLoc1[0]
-            targ_top = reg_target_pos[1] + maxLoc1[1]
+            targ_width = self.scrReg.templates.template['target']['width'] + border + border
+            targ_height = self.scrReg.templates.template['target']['height'] + border + border
+            targ_left = reg_target_pos[0] + maxLoc1[0] - border
+            targ_top = reg_target_pos[1] + maxLoc1[1] - border
 
             if maxVal > threshold and maxVal1 > threshold and maxVal > max_pick:
                 # Draw box around compass
