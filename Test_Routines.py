@@ -53,7 +53,6 @@ def main():
     wanted_regions = ["compass", "target", "nav_panel", "disengage"]  # The more common regions for navigation
     regions_test(wanted_regions)
 
-    # regions_test('disengage')
 
     # Testing of images...
     # The result of image matching will be placed in the 'out' folder for each image group.
