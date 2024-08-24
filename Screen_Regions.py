@@ -75,19 +75,19 @@ class Screen_Regions:
             # return the screen region in the format returned by the filter.
             return self.reg[region_name]['filterCB'] (scr, self.reg[region_name]['filter'])          
 
-    def match_template_in_region(self, region_name, template):
+    def match_template_in_region(self, region_name, templ):
         """ Attempt to match the given template in the given region which is filtered using the region filter.
         Returns the filtered image, detail of match and the match mask. """
-        img_region_filtered = self.capture_region_filtered(self.screen, region_name)
+        img_region = self.capture_region_filtered(self.screen, region_name)    # which would call, reg.capture_region('compass') and apply defined filter
 
         # Perform matching in greyscale
-        img_gray = cv2.cvtColor(img_region_filtered, cv2.COLOR_BGR2GRAY)
-        tpl_gray = cv2.cvtColor(self.templates.template[template]['image'], cv2.COLOR_BGR2GRAY)
+        img_gray = cv2.cvtColor(img_region, cv2.COLOR_BGR2GRAY)
+        tpl_gray = cv2.cvtColor(self.templates.template[templ]['image'], cv2.COLOR_BGR2GRAY)
         match = cv2.matchTemplate(img_gray, tpl_gray, cv2.TM_CCOEFF_NORMED)
 
         (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(match)
-        return img_region_filtered, (minVal, maxVal, minLoc, maxLoc), match
-
+        return img_region, (minVal, maxVal, minLoc, maxLoc), match 
+    
     def match_template_in_image(self, image, template):
         """ Attempt to match the given template in the (unfiltered) image.
         Returns the original image, detail of match and the match mask. """
@@ -137,12 +137,12 @@ class Screen_Regions:
         their original color, otherwise black."""
         # converting from BGR to HSV color space
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        # filter passed in color low, high
+        # filte passed in color low, high
         img_mask = cv2.inRange(hsv, color_range[0], color_range[1])
         # Return original image with filter applied.
-        img_filtered = cv2.bitwise_and(image, image, mask=img_mask)
+        filtered = cv2.bitwise_and(image, image, mask=img_mask)
 
-        return img_filtered
+        return filtered
  
     # not used
     def filter_bright(self, image=None, noOp=None):
