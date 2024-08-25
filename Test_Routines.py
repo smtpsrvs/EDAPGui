@@ -271,6 +271,7 @@ def image_matching_test(directory, region_name, template):
             img_output = img_filtered
             img_output = image
             draw_match_rect(img_output, pt, (pt[0] + c_wid, pt[1] + c_hgt), (0, 0, 255), 2)
+            cv2.rectangle(img_output, (0,0), (150,12), color=(0,0,0), thickness= cv2.FILLED)
             cv2.putText(img_output, f'Match: {maxVal:5.2f}', (1, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35,
                         (255, 255, 255), 1, cv2.LINE_AA)
             #cv2.imshow(template, image)

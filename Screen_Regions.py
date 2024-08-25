@@ -81,9 +81,12 @@ class Screen_Regions:
         img_region = self.capture_region_filtered(self.screen, region_name)    # which would call, reg.capture_region('compass') and apply defined filter
 
         # Perform matching in greyscale
-        img_gray = cv2.cvtColor(img_region, cv2.COLOR_BGR2GRAY)
-        tpl_gray = cv2.cvtColor(self.templates.template[templ]['image'], cv2.COLOR_BGR2GRAY)
-        match = cv2.matchTemplate(img_gray, tpl_gray, cv2.TM_CCOEFF_NORMED)
+        # img_gray = cv2.cvtColor(img_region, cv2.COLOR_BGR2GRAY)
+        # tpl_gray = cv2.cvtColor(self.templates.template[templ]['image'], cv2.COLOR_BGR2GRAY)
+        # match = cv2.matchTemplate(img_gray, tpl_gray, cv2.TM_CCOEFF_NORMED)
+        im = self.templates.template[templ]['image']
+        im = cv2.cvtColor(im, cv2.COLOR_BGRA2BGR)
+        match = cv2.matchTemplate(img_region, im, cv2.TM_CCOEFF_NORMED)
 
         (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(match)
         return img_region, (minVal, maxVal, minLoc, maxLoc), match 
@@ -92,9 +95,12 @@ class Screen_Regions:
         """ Attempt to match the given template in the (unfiltered) image.
         Returns the original image, detail of match and the match mask. """
         # Perform matching in greyscale
-        img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        tpl_gray = cv2.cvtColor(self.templates.template[template]['image'], cv2.COLOR_BGR2GRAY)
-        match = cv2.matchTemplate(img_gray, tpl_gray, cv2.TM_CCOEFF_NORMED)
+        # img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # tpl_gray = cv2.cvtColor(self.templates.template[template]['image'], cv2.COLOR_BGR2GRAY)
+        # match = cv2.matchTemplate(img_gray, tpl_gray, cv2.TM_CCOEFF_NORMED)
+        im = self.templates.template[template]['image']
+        im = cv2.cvtColor(im, cv2.COLOR_BGRA2BGR)
+        match = cv2.matchTemplate(image, im, cv2.TM_CCOEFF_NORMED)
 
         (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(match)
         return image, (minVal, maxVal, minLoc, maxLoc), match     
@@ -114,9 +120,12 @@ class Screen_Regions:
         img_filtered = self.image_filtered(image, region_name)
 
         # Perform matching in greyscale
-        img_gray = cv2.cvtColor(img_filtered, cv2.COLOR_BGR2GRAY)
-        tpl_gray = cv2.cvtColor(self.templates.template[template]['image'], cv2.COLOR_BGR2GRAY)
-        match = cv2.matchTemplate(img_gray, tpl_gray, cv2.TM_CCOEFF_NORMED)
+        # img_gray = cv2.cvtColor(img_filtered, cv2.COLOR_BGR2GRAY)
+        # tpl_gray = cv2.cvtColor(self.templates.template[template]['image'], cv2.COLOR_BGR2GRAY)
+        # match = cv2.matchTemplate(img_gray, tpl_gray, cv2.TM_CCOEFF_NORMED)
+        im = self.templates.template[template]['image']
+        im = cv2.cvtColor(im, cv2.COLOR_BGRA2BGR)
+        match = cv2.matchTemplate(img_filtered, im, cv2.TM_CCOEFF_NORMED)
 
         (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(match)
         return img_filtered, (minVal, maxVal, minLoc, maxLoc), match
