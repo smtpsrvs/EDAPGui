@@ -251,6 +251,9 @@ def image_matching_test(directory, region_name, template):
     if not os.path.exists(directory_out):
         os.makedirs(directory_out)
 
+    for filename in os.listdir(directory_out):
+        os.remove(os.path.join(directory_out, filename))
+
     for filename in os.listdir(directory):
         if filename.endswith(".png"):
             image_path = os.path.join(directory, filename)
@@ -381,7 +384,7 @@ def hsv_tester(image_path):
 
 
 def rescale_screenshots(directory, scalex, scaley):
-    """ Rescale all images in a folder.
+    """ Rescale all images in a folder. Also convert BMP to PNG
     :param directory: The directory to process.
     :param scalex: The X scaling of the original image.
     :param scaley: The scaling of the original image. """
@@ -395,9 +398,9 @@ def rescale_screenshots(directory, scalex, scaley):
         os.makedirs(directory_out)
 
     for filename in os.listdir(directory):
-        if filename.endswith(".png"):
+        if filename.endswith(".png") or filename.endswith(".bmp"):
             image_path = os.path.join(directory, filename)
-            image_out_path = os.path.join(directory_out, filename)
+            image_out_path = os.path.join(directory_out, filename.replace('bmp','png'))
 
             image = cv2.imread(image_path)
 
