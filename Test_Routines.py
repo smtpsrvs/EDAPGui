@@ -64,6 +64,9 @@ def main():
     # image_matching_test('test/navpoint/','navpoint','navpoint')
     # image_matching_test('test/navpoint-behind/','navpoint-behind','navpoint-behind')
     # image_matching_test('test/disengage/','disengage', 'disengage')
+    # image_matching_test('test/target-occluded/','target_occluded', 'target_occluded')
+    # image_matching_test('test/dest-sirius-atmos/', 'mission_dest', 'dest_sirius')
+    # image_matching_test('test/robigo-no-completed-missions/', 'missions', 'missions')
 
     # HSV Tester...
     #

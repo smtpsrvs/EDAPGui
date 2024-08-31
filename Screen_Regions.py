@@ -48,7 +48,7 @@ class Screen_Regions:
         self.reg['interdicted'] = {'rect': [0.60, 0.1, 0.90, 0.25], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.orange_2_color_range}
         self.reg['fss']       = {'rect': [0.5045, 0.7545, 0.532, 0.7955], 'width': 1, 'height': 1, 'filterCB': self.equalize, 'filter': None}
         self.reg['mission_dest']  = {'rect': [0.46, 0.38, 0.65, 0.86], 'width': 1, 'height': 1, 'filterCB': self.equalize, 'filter': None}    
-        self.reg['missions']    = {'rect': [0.50, 0.78, 0.65, 0.85], 'width': 1, 'height': 1, 'filterCB': self.equalize, 'filter': None}   
+        self.reg['missions']    = {'rect': [0.50, 0.72, 0.65, 0.85], 'width': 1, 'height': 1, 'filterCB': self.equalize, 'filter': None}
         self.reg['nav_panel']   = {'rect': [0.25, 0.36, 0.60, 0.85], 'width': 1, 'height': 1, 'filterCB': self.equalize, 'filter': None}  
         
         # convert rect from percent of screen into pixel location, calc the width/height of the area
@@ -79,11 +79,9 @@ class Screen_Regions:
         """ Attempt to match the given template in the given region which is filtered using the region filter.
         Returns the filtered image, detail of match and the match mask. """
         img_region = self.capture_region_filtered(self.screen, region_name)    # which would call, reg.capture_region('compass') and apply defined filter
+        img_region = cv2.cvtColor(img_region, cv2.COLOR_BGRA2BGR)
 
-        # Perform matching in greyscale
-        # img_gray = cv2.cvtColor(img_region, cv2.COLOR_BGR2GRAY)
-        # tpl_gray = cv2.cvtColor(self.templates.template[templ]['image'], cv2.COLOR_BGR2GRAY)
-        # match = cv2.matchTemplate(img_gray, tpl_gray, cv2.TM_CCOEFF_NORMED)
+        # Perform matching in color. Greyscale should be applied by applying a filter.
         im = self.templates.template[templ]['image']
         im = cv2.cvtColor(im, cv2.COLOR_BGRA2BGR)
         match = cv2.matchTemplate(img_region, im, cv2.TM_CCOEFF_NORMED)
@@ -94,10 +92,7 @@ class Screen_Regions:
     def match_template_in_image(self, image, template):
         """ Attempt to match the given template in the (unfiltered) image.
         Returns the original image, detail of match and the match mask. """
-        # Perform matching in greyscale
-        # img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        # tpl_gray = cv2.cvtColor(self.templates.template[template]['image'], cv2.COLOR_BGR2GRAY)
-        # match = cv2.matchTemplate(img_gray, tpl_gray, cv2.TM_CCOEFF_NORMED)
+        # Perform matching in color. Greyscale should be applied by applying a filter.
         im = self.templates.template[template]['image']
         im = cv2.cvtColor(im, cv2.COLOR_BGRA2BGR)
         match = cv2.matchTemplate(image, im, cv2.TM_CCOEFF_NORMED)
@@ -118,11 +113,9 @@ class Screen_Regions:
         """ Attempt to match the given template in the given image which is filtered using the region filter.
         Returns the filtered image, detail of match and the match mask. """
         img_filtered = self.image_filtered(image, region_name)
+        img_filtered = cv2.cvtColor(img_filtered, cv2.COLOR_BGRA2BGR)
 
-        # Perform matching in greyscale
-        # img_gray = cv2.cvtColor(img_filtered, cv2.COLOR_BGR2GRAY)
-        # tpl_gray = cv2.cvtColor(self.templates.template[template]['image'], cv2.COLOR_BGR2GRAY)
-        # match = cv2.matchTemplate(img_gray, tpl_gray, cv2.TM_CCOEFF_NORMED)
+        # Perform matching in color. Greyscale should be applied by applying a filter.
         im = self.templates.template[template]['image']
         im = cv2.cvtColor(im, cv2.COLOR_BGRA2BGR)
         match = cv2.matchTemplate(img_filtered, im, cv2.TM_CCOEFF_NORMED)

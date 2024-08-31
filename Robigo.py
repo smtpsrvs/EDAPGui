@@ -212,6 +212,10 @@ class Robigo:
                 self.select_mission(ap)
                 sleep(1.5)
 
+        # Check if no missions were found.
+        if mission_cnt == 0:
+            ap.update_ap_status("No missions found!")
+
         ap.keys.send("UI_Back", repeat=4)  # go back to main menu              
 
     # Go to the passenger lounge menu
