@@ -16,6 +16,7 @@ from EDWayPoint import *
 from EDJournal import *
 from EDKeys import *
 from EDafk_combat import AFK_Combat
+from NavPanel import NavPanel
 from Overlay import *
 from Voice import *
 from Robigo import *
@@ -116,6 +117,7 @@ class EDAutopilot:
         self.scrReg = Screen_Regions.Screen_Regions(self.scr, self.templ)
         self.jn = EDJournal()
         self.keys = EDKeys()
+        self.nav_panel = NavPanel(self.scr,self.keys)
         self.afk_combat = AFK_Combat(self.keys, self.jn, self.vce)
         self.waypoint = EDWayPoint(self.jn.ship_state()['odyssey'])
         self.robigo = Robigo(self)
@@ -652,33 +654,9 @@ class EDAutopilot:
 
         # Performs left menu ops to request docking
 
-    # Required that the left menu is on the "NAVIGATION" tab otherwise this doesn't work
-    #
-    def request_docking(self, toCONTACT):
-        self.keys.send('UI_Back', repeat=10)
-        self.keys.send('HeadLookReset')
-        self.keys.send('UIFocus', state=1)
-        self.keys.send('UI_Left')
-        self.keys.send('UIFocus', state=0)
-        sleep(0.5)
-
-        # we start with the Left Panel having "NAVIGATION" highlighted, we then need to right
-        # right twice to "CONTACTS".  Notice of a FSD run, the LEFT panel is reset to "NAVIGATION"
-        # otherwise it is on the last tab you selected.  Thus must start AP with "NAVIGATION" selected
-        if (toCONTACT == 1):
-            self.keys.send('CycleNextPanel', hold=0.2)
-            sleep(0.2)
-            self.keys.send('CycleNextPanel', hold=0.2)
-
-        # On the CONTACT TAB, go to top selection, do this 4 seconds to ensure at top
-        # then go right, which will be "REQUEST DOCKING" and select it
-        self.keys.send('UI_Up', hold=4)
-        self.keys.send('UI_Right')
-        self.keys.send('UI_Select')
-
-        sleep(0.3)
-        self.keys.send('UI_Back')
-        self.keys.send('HeadLookReset')
+    def request_docking(self):
+        """ Request docking from Nav Panel. """
+        self.nav_panel.request_docking()
 
     # Docking sequence.  Assumes in normal space, will get closer to the Station
     # then zero the velocity and execute menu commands to request docking, when granted
@@ -705,7 +683,7 @@ class EDAutopilot:
         # if we get docking granted ED's docking computer will take over
         self.keys.send('SetSpeedZero', repeat=2)
 
-        self.request_docking(1)
+        self.request_docking()
         sleep(1)
 
         tries = self.config['DockingRetries']
@@ -718,7 +696,7 @@ class EDAutopilot:
                     self.keys.send('SetSpeed50')
                     sleep(5)
                     self.keys.send('SetSpeedZero', repeat=2)
-                self.request_docking(0)
+                self.request_docking()
                 self.keys.send('SetSpeedZero', repeat=2)
                 sleep(1.5)
                 if self.jn.ship_state()['status'] == "dockinggranted":

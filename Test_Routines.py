@@ -1,5 +1,8 @@
-import cv2
 import os
+
+from EDKeys import EDKeys
+from NavPanel import NavPanel
+from OCR import OCR
 from Screen_Regions import *
 from Overlay import *
 from Screen import *
@@ -49,8 +52,8 @@ def main():
     # =======================================
     wanted_regions = ["compass", "target", "nav_panel", "disengage", "interdicted", "fss", "mission_dest", "missions",
                       "sun"]
-    wanted_regions = ["compass", "target", "nav_panel", "disengage"]  # The more common regions for navigation
-    regions_test(wanted_regions)
+    #wanted_regions = ["compass", "target", "nav_panel", "disengage"]  # The more common regions for navigation
+    #regions_test(wanted_regions)
 
     # HSV Tester...
     #
@@ -61,6 +64,24 @@ def main():
     # hsv_tester("test/navpoint/Screenshot 2024-07-04 20-02-01.png")
     # hsv_tester("test/navpoint-behind/Screenshot 2024-07-04 20-01-33.png")
     # hsv_tester("test/target/Screenshot 2024-07-04 23-22-02.png")
+
+    # Testing of OCR...
+    #
+    # Does NOT require Elite Dangerous to be running.
+    # =====================================================================================
+    # image_ocr_test('test/dest-sirius-atmos/','mission_dest')
+    # image_ocr_alltext_test('test/dest-sirius-atmos/','mission_dest')
+    # image_ocr_test('test/dest-sirius-atmos/', 'nav_panel')
+    # image_ocr_alltext_test('test/robigo-no-completed-missions/','missions')
+
+    # Testing of Nav Panel OCR...
+    #
+    # Does NOT require Elite Dangerous to be running.
+    # =====================================================================================
+    nav_panel_display_all_text_test('test/nav-panel/')
+    nav_panel_selected_item_text('test/nav-panel/')
+    # nav_panel_lock_station("QUAID'S VISION")
+    # nav_panel_lock_station("SMITH'S OBLIGATION")
 
 
 def draw_match_rect(img, pt1, pt2, color, thick):
@@ -150,6 +171,100 @@ def template_matching_test(region_name, template):
         key = cv2.waitKey(10)
         if key == 27:  # ESC
             break
+
+def nav_panel_display_all_text_test(directory):
+    """ OCR all the image files in the given folder.
+        :param directory: The directory to process.
+    """
+    scr = Screen()
+    ocr = OCR()
+    keys = EDKeys()
+    keys.activate_window = True  # Helps with single steps testing
+    nav_pnl = NavPanel(scr, keys)
+    nav_pnl.using_screen = False
+
+    directory_out = os.path.join(directory, 'out')
+    if not os.path.exists(directory_out):
+        os.makedirs(directory_out)
+
+    for filename in os.listdir(directory_out):
+        os.remove(os.path.join(directory_out, filename))
+
+    for filename in os.listdir(directory):
+        if filename.endswith(".png"):
+            image_path = os.path.join(directory, filename)
+            image_out_path = os.path.join(directory_out, filename)
+            text_out_path = os.path.join(directory_out, filename.replace('png', 'txt'))
+
+            # Load image
+            orig_image = cv2.imread(image_path)
+            nav_pnl.screen_image = orig_image
+
+            # Extract region
+            image = nav_pnl.capture_nav_panel()
+
+            ocr_data, ocr_textlist = ocr.image_ocr_no_filter(image)
+
+            draw_bounding_boxes(image, ocr_data, 0.25)
+            cv2.imwrite(image_out_path, image)
+
+
+def nav_panel_selected_item_text(directory):
+    """ OCR all the image files in the given folder. Images are filtered using the filter defined for the region.
+        :param directory: The directory to process.
+    """
+    scr = Screen()
+    keys = EDKeys()
+    keys.activate_window = True  # Helps with single steps testing
+
+    nav_pnl = NavPanel(scr, keys)
+    nav_pnl.using_screen = False
+    ocr = OCR()
+
+    directory_out = os.path.join(directory, 'out_selected')
+    if not os.path.exists(directory_out):
+        os.makedirs(directory_out)
+
+    for filename in os.listdir(directory_out):
+        os.remove(os.path.join(directory_out, filename))
+
+    for filename in os.listdir(directory):
+        if filename.endswith(".png"):
+            image_path = os.path.join(directory, filename)
+            image_out_path = os.path.join(directory_out, filename)
+            text_out_path = os.path.join(directory_out, filename.replace('png', 'txt'))
+
+            # Load image
+            orig_image = cv2.imread(image_path)
+            nav_pnl.screen_image = orig_image
+
+            # Get the location panel image
+            loc_panel = nav_pnl.capture_location_panel()
+
+            # Find the selected item/menu (solid orange)
+            #img_item = nav_pnl.get_selected_location_image(image, 100, 10)
+            # if img_item is not None:
+            #crop_with_border = cv2.copyMakeBorder(img_item, 40, 20, 20, 20, cv2.BORDER_CONSTANT)
+            #ocr_data, ocr_textlist = nav_pnl.get_selected_location_data(crop_with_border, 100, 10)
+
+            image, ocr_data, ocr_textlist = nav_pnl.get_selected_item_data(loc_panel, 100, 10)
+            if image is not None:
+                draw_bounding_boxes(image, ocr_data, 0.25)
+                cv2.imwrite(image_out_path, image)
+                # cv2.imshow("ocr", crop_with_border)
+
+                # key = cv2.waitKey(10)
+                # if key == 27:  # ESC
+                #     break
+
+
+def nav_panel_lock_station(name):
+    scr = Screen()
+    keys = EDKeys()
+    keys.activate_window = True  # Helps with single steps testing
+    nav_pnl = NavPanel(scr, keys)
+
+    nav_pnl.lock_destination(name)
 
 
 def regions_test(regions):
@@ -247,24 +362,113 @@ def hsv_tester(image_path):
     cv2.destroyAllWindows()
 
 
+def ocr_tester(image_path):
+    """ Brings up a HSV test window with sliders to check the 'inRange' function on the provided image.
+        Change the default values below where indicated to the values associated with the appropriate
+        template in image_template.py.
+        :param image_path: The file path of the image to test.
+    """
+    scr = Screen()
+    templ = Image_Templates(scr.scaleX, scr.scaleY)
+    scr_reg = Screen_Regions(scr, templ)
+    ocr = OCR()
+
+    cv2.namedWindow("Trackbars", cv2.WINDOW_NORMAL)  # cv2.WINDOW_AUTOSIZE)
+
+    cv2.createTrackbar("L - H", "Trackbars", 0, 179, callback)
+    cv2.createTrackbar("L - S", "Trackbars", 0, 255, callback)
+    cv2.createTrackbar("L - V", "Trackbars", 0, 255, callback)
+    cv2.createTrackbar("U - H", "Trackbars", 255, 179, callback)
+    cv2.createTrackbar("U - S", "Trackbars", 255, 255, callback)
+    cv2.createTrackbar("U - V", "Trackbars", 255, 255, callback)
+
+    orig_image = cv2.imread(image_path)
+
+    # Warp nav panel for perspective
+    #img_warped = nav_panel_perspective_warp(orig_image)
+    img_warped = orig_image
+
+    # Set default values
+    cv2.setTrackbarPos("L - H", "Trackbars", 100)
+    cv2.setTrackbarPos("L - S", "Trackbars", 0)
+    cv2.setTrackbarPos("L - V", "Trackbars", 100)
+    cv2.setTrackbarPos("U - H", "Trackbars", 100)
+    cv2.setTrackbarPos("U - S", "Trackbars", 255)
+    cv2.setTrackbarPos("U - V", "Trackbars", 255)
+
+    while True:
+        hsv = cv2.cvtColor(img_warped, cv2.COLOR_BGR2HSV)
+
+        l_h = cv2.getTrackbarPos("L - H", "Trackbars")
+        l_s = cv2.getTrackbarPos("L - S", "Trackbars")
+        l_v = cv2.getTrackbarPos("L - V", "Trackbars")
+        u_h = cv2.getTrackbarPos("U - H", "Trackbars")
+        u_s = cv2.getTrackbarPos("U - S", "Trackbars")
+        u_v = cv2.getTrackbarPos("U - V", "Trackbars")
+
+        lower_range = np.array([l_h, l_s, l_v])
+        upper_range = np.array([u_h, u_s, u_v])
+        mask = cv2.inRange(hsv, lower_range, upper_range)
+        # Return original image with filter applied.
+        filtered = cv2.bitwise_and(img_warped, img_warped, mask=mask)
+
+        adjusted = cv2.cvtColor(filtered, cv2.COLOR_BGR2GRAY)
+        #gray = cv2.bitwise_not(gray)
+        # cv2.imshow("gray", gray)
+
+        # kernel = np.ones((1, 1), np.uint8)
+        # img = cv2.dilate(gray, kernel, iterations=1)
+        # img = cv2.erode(gray, kernel, iterations=1)
+        #
+        # # Apply Gaussian blur to reduce noise and smoothen edges
+        # blurred = cv2.GaussianBlur(src=gray, ksize=(3, 5), sigmaX=0.5)
+        # cv2.imshow("blurred", blurred)
+        #
+        # # Perform Canny edge detection
+        # edges = cv2.Canny(blurred, 70, 135)
+        # cv2.imshow("edges", edges)
+
+        #adjusted = cv2.convertScaleAbs(gray, l_h/100, l_s)
+        #adjusted = cv2.convertScaleAbs(gray, alpha=2, beta=0)
+
+        # Convert to B&W to allow FindContours to find rectangles.
+        # ret, thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # | cv2.THRESH_BINARY_INV)
+
+        result = adjusted.copy()
+        result = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
+
+        ocr_data, ocr_textlist = ocr.image_ocr_no_filter(adjusted)
+
+        draw_bounding_boxes(result, ocr_data, 0.25)
+
+        cv2.imshow("original", img_warped)
+        cv2.imshow("result", result)
+
+        key = cv2.waitKey(1)
+        if key == 27:  # ESC
+            break
+
+    cv2.destroyAllWindows()
+
+
 def rescale_screenshots(directory, scalex, scaley):
-    """ Rescale all images in a folder.
+    """ Rescale all images in a folder. Also convert BMP to PNG
     :param directory: The directory to process.
     :param scalex: The X scaling of the original image.
     :param scaley: The scaling of the original image. """
 
     # Calc factor to scale image up/down
-    newScaleX = 1.0/scalex
-    newScaleY = 1.0/scaley
+    newScaleX = 1.0 / scalex
+    newScaleY = 1.0 / scaley
 
     directory_out = os.path.join(directory, 'out')
     if not os.path.exists(directory_out):
         os.makedirs(directory_out)
 
     for filename in os.listdir(directory):
-        if filename.endswith(".png"):
+        if filename.endswith(".png") or filename.endswith(".bmp"):
             image_path = os.path.join(directory, filename)
-            image_out_path = os.path.join(directory_out, filename)
+            image_out_path = os.path.join(directory_out, filename.replace('bmp', 'png'))
 
             image = cv2.imread(image_path)
 
@@ -272,6 +476,19 @@ def rescale_screenshots(directory, scalex, scaley):
             image = cv2.resize(image, (0, 0), fx=newScaleX, fy=newScaleY)
             cv2.imwrite(image_out_path, image)
 
+
+def draw_bounding_boxes(image, detections, threshold=0.25):
+    for res in detections:
+        for line in res:
+            points = np.array(line[0]).astype(np.int32)
+            w = points[1][0] - points[0][0]
+            if w > threshold:
+                cv2.polylines(image, [points.reshape(-1, 1, 2)], True, (255, 0, 0), 2)
+                #cv2.rectangle(image, tuple(map(int, points[0])), tuple(map(int, points[2])), (255, 0, 0), 2)
+                #            cv2.putText(image, text, tuple(map(int, bbox[0])), cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.65, (255, 0, 0), 2)
+                text_position = (int(points[0][0]), int(points[0][1]) - 0)
+                cv2.putText(image, f"{line[1][0]} ({line[1][1]:.2f})", text_position,
+                            cv2.FONT_HERSHEY_PLAIN, 0.9, (0, 255, 0), 1, cv2.LINE_AA)
 
 def callback(value):
     print(value)

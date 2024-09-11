@@ -15,3 +15,5 @@
 /configs/AP.json
 /EDAPGui.exe
 .idea/
+test/nav-panel/out/
+test/nav-panel/out_selected/
