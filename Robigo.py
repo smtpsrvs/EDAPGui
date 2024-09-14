@@ -79,7 +79,7 @@ class Robigo:
             loop_missions = 8
         ap.jn.ship_state()['mission_completed'] = 0
 
-        # Check if "NO COMPLETED MISSIONS" is shown in the passenger lounge2
+        # Check if "NO COMPLETED MISSIONS" is shown in the passenger lounge
         no_missions = not self.ap.station_services_in_ship.passenger_lounge.any_completed_missions()
 
         # we don't have any missions to complete as the screen did not change
@@ -93,18 +93,20 @@ class Robigo:
         ap.keys.send("UI_Select")
         sleep(2)  # give time for mission page to come up
 
-        ap.keys.send("UI_Up", repeat=2)  # goto the top
-        ap.keys.send("UI_Down")  # down one to select first mission
-        sleep(0.5)
-        for i in range(loop_missions):
-            ap.keys.send("UI_Select")  # select mission
-            sleep(0.1)
-            ap.keys.send("UI_Up")  # Up to Credit
-            sleep(0.1)
-            ap.keys.send("UI_Select")  # Select it
-            sleep(10)  # wait until the "skip" button changes to "back" button
-            ap.keys.send("UI_Select")  # Select the Back key which will be highlighted
-            sleep(1.5)
+        while True:
+            found = self.ap.station_services_in_ship.passenger_lounge.find_complete_mission("COMPLETE MISSION")
+            if found:
+                ap.keys.send("UI_Select")  # select mission
+                sleep(0.1)
+                ap.keys.send("UI_Up")  # Up to Credit
+                ap.keys.send("UI_Right")  # Right for Materials
+                sleep(0.1)
+                ap.keys.send("UI_Select")  # Select it
+                sleep(10)  # wait until the "skip" button changes to "back" button
+                ap.keys.send("UI_Select")  # Select the Back key which will be highlighted
+                sleep(1.5)
+            else:
+                break
 
         ap.keys.send("UI_Back")  # seem to be going back to Mission menu
 

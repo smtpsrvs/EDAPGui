@@ -111,6 +111,7 @@ class PassengerLounge:
         # Nav Panel region covers the entire navigation panel.
         self.reg['missions'] = {'rect': [0.50, 0.72, 0.65, 0.85]}  # Fraction with ref to the screen/image
         self.reg['mission_dest_col'] = {'rect': [0.47, 0.42, 0.64, 0.82]}  # Fraction with ref to the screen/image
+        self.reg['complete_mission_col'] = {'rect': [0.47, 0.25, 0.67, 0.82]}  # Fraction with ref to the screen/image
 
     def goto_personal_transport_missions(self) -> bool:
         """ Go to the passenger lounge menu. """
@@ -161,7 +162,7 @@ class PassengerLounge:
         logger.debug("Did not find 'NO COMPLETED MISSIONS' text in Passenger Lounge screen.")
         return True
 
-    def check_mission_destination(self, destination):
+    def is_mission_destination_match(self, destination):
         """ Does the mission destination include the text being checked for.
         Checks if text exists in a region using OCR.
         Return True if found, False if not and None if no item was selected. """
@@ -180,6 +181,27 @@ class PassengerLounge:
             return True
         else:
             logger.debug(f"Did not find '{destination}' text in destination {str(ocr_textlist)}.")
+            return False
+
+    def is_complete_mission_match(self, name):
+        """ Does the mission destination include the text being checked for.
+        Checks if text exists in a region using OCR.
+        Return True if found, False if not and None if no item was selected. """
+
+        img = self.capture_complete_mission_col()
+        img_selected = self.ocr.get_selected_item_in_image(img, 25, 10)
+        if img_selected is None:
+            logger.debug(f"Did not find a selected item in the region.")
+            return None
+
+        ocr_textlist = self.ocr.image_simple_ocr(img_selected)
+        print(str(ocr_textlist))
+
+        if name in str(ocr_textlist):
+            logger.debug(f"Found '{name}' text in item text '{str(ocr_textlist)}'.")
+            return True
+        else:
+            logger.debug(f"Did not find '{name}' text in item text '{str(ocr_textlist)}'.")
             return False
 
     def capture_no_missions(self):
@@ -214,29 +236,76 @@ class PassengerLounge:
         cv2.imwrite('test/mission_det_col.png', image)
         return image
 
+    def capture_complete_mission_col(self):
+        """ Just grab the image based on the region name/rect.
+        Returns an unfiltered image, squared (no perspective).
+         """
+        rect = self.reg['complete_mission_col']['rect']
+
+        if self.parent.using_screen:
+            image = self.parent.screen.get_screen_region_pct(rect)
+        else:
+            if self.parent.screen_image is None:
+                return None
+            image = crop_image_by_pct(self.parent.screen_image, rect)
+
+        cv2.imwrite('test/complete_mission_col.png', image)
+        return image
+
     def find_mission_destination(self, name) -> bool:
         """ Attempt to find the destination in the list of missions.
         If found, leaves it selected for further actions. """
 
         # Goto first mission
-        self.keys.send("UI_Up", hold=3)
-        self.keys.send("UI_Down", repeat=2)
+        #self.keys.send("UI_Up", hold=3)
+        #self.keys.send("UI_Down", repeat=2)
 
         cnt = 0
+        in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
         while cnt < 99:
-            found = self.check_mission_destination(name)
+            found = self.is_mission_destination_match(name)
 
             # Check if end of list.
-            if found is None:
+            if found is None and in_list:
                 return False
 
             if found:
                 logger.debug(f"Found '{name}' in destinations.")
                 return True
             else:
+                # Next item
+                in_list = True
                 self.keys.send("UI_Down")
 
         logger.debug(f"Did not find '{name}' in destinations.")
+        return False
+
+    def find_complete_mission(self, name) -> bool:
+        """ Attempt to find the destination in the list of missions.
+        If found, leaves it selected for further actions. """
+
+        # Goto first mission
+        #self.keys.send("UI_Up", hold=3)
+        #self.keys.send("UI_Down", repeat=2)
+
+        cnt = 0
+        in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
+        while cnt < 99:
+            found = self.is_complete_mission_match(name)
+
+            # Check if end of list.
+            if found is None and in_list:
+                return False
+
+            if found:
+                logger.debug(f"Found '{name}' in mission.")
+                return True
+            else:
+                # Next item
+                in_list = True
+                self.keys.send("UI_Down")
+
+        logger.debug(f"Did not find '{name}' in mission.")
         return False
 
 
@@ -285,7 +354,7 @@ class CommoditiesMarket:
 
         cnt=0
         while cnt < 99:
-            found = self.check_commodity(name)
+            found = self.is_commodity_name_match(name)
 
             # Check if end of list.
             if found is None:
@@ -346,7 +415,7 @@ class CommoditiesMarket:
 
         self.keys.send("UI_Back")
 
-    def check_commodity(self, name):
+    def is_commodity_name_match(self, name):
         """ Does the mission destination include the text being checked for.
         Checks if text exists in a region using OCR.
         Return True if found, False if not and None if no item was selected. """
