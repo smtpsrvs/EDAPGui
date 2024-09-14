@@ -111,7 +111,14 @@ class Screen:
         return image
 
     def get_screen_region_pct(self, reg):
-        image = self.get_screen(int(reg[0] * self.screen_width), int(reg[1] * self.screen_height),
-                                int(reg[2] * self.screen_width), int(reg[3] * self.screen_height))
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # TODO delete this line when COLOR_RGB2BGR is removed from get_screen()
+        abs_rect = self.screen_pct_to_abs(reg)
+        image = self.get_screen(abs_rect[0], abs_rect[1], abs_rect[2], abs_rect[3])
+        # TODO delete this line when COLOR_RGB2BGR is removed from get_screen()
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image
+
+    def screen_pct_to_abs(self, reg):
+        """ Converts and array of real percentage screen values to int absolutes. """
+        abs_rect = [int(reg[0] * self.screen_width), int(reg[1] * self.screen_height),
+                    int(reg[2] * self.screen_width), int(reg[3] * self.screen_height)]
+        return abs_rect

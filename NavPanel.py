@@ -297,7 +297,7 @@ class NavPanel:
             loc_panel = self.capture_location_panel()
 
             # Find the selected item/menu (solid orange)
-            img_selected = self.ocr.get_selected_item_image(loc_panel, 100, 10)
+            img_selected = self.ocr.get_selected_item_in_image(loc_panel, 100, 10)
             if img_selected is not None:
                 # OCR the selected item
                 ocr_textlist = self.ocr.image_simple_ocr(img_selected)

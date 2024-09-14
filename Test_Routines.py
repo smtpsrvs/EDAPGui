@@ -2,6 +2,7 @@ import logging
 import os
 
 from EDKeys import EDKeys
+from ED_AP import EDAutopilot
 from NavPanel import NavPanel
 from OCR import OCR
 from Screen_Regions import *
@@ -91,6 +92,17 @@ def main():
     keys.activate_window = True  # Helps with single steps testing
     stn_svc = StationServicesInShip(scr, keys)
     stn_svc.goto_passenger_lounge()
+
+    stn_svc.goto_commodities_market()
+    stn_svc.commodities_market.select_buy()
+    stn_svc.commodities_market.find_commodity("GOLD")
+
+    stn_svc.commodities_market.select_sell()
+    stn_svc.commodities_market.find_commodity("FISH")
+
+    stn_svc.commodities_market.buy_commodity("GOLD", 10)
+
+    stn_svc.commodities_market.sell_commodity("TEA", 5)
 
 def draw_match_rect(img, pt1, pt2, color, thick):
     """ Utility function to add a rectangle to an image. """

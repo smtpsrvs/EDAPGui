@@ -92,7 +92,7 @@ class OCR:
             @param min_h: The minimum height of the text block.
         """
         # Find the selected item/menu (solid orange)
-        img_selected = self.get_selected_item_image(image, min_w, min_h)
+        img_selected = self.get_selected_item_in_image(image, min_w, min_h)
         if img_selected is not None:
             # cv2.imshow("img", img_selected)
 
@@ -106,7 +106,7 @@ class OCR:
         else:
             return None, None, None
 
-    def get_selected_item_image(self, image, min_w, min_h):
+    def get_selected_item_in_image(self, image, min_w, min_h):
         """ Attempts to find a selected item in an image. The selected item is identified by being solid orange or blue
         rectangle with dark text, instead of orange/blue text on a dark background.
         The image of the first item matching the criteria and minimum width and height is returned, otherwise None.

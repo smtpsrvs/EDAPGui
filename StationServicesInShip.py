@@ -1,7 +1,4 @@
 from time import sleep
-
-import cv2
-
 from EDlogger import logger
 from OCR import OCR, crop_image_by_pct
 
@@ -21,57 +18,10 @@ class StationServicesInShip:
         self.ocr = OCR()
         self.keys = keys
         self.passenger_lounge = PassengerLounge(self, self.ocr, self.keys)
+        self.commodities_market = CommoditiesMarket(self, self.ocr, self.keys)
 
         self.using_screen = True  # True to use screen, false to use an image. Set screen_image to the image
         self.screen_image = None  # Screen image captured from screen, or loaded by user for testing.
-
-    def __capture_station_services_on_screen(self):
-        """ Just grab the screen based on the region name/rect.
-        Returns an unfiltered image, squared (no perspective).
-         """
-        rect = self.reg['nav_panel']['rect']
-
-        abs_rect = [int(rect[0] * self.screen.screen_width), int(rect[1] * self.screen.screen_height),
-                    int(rect[2] * self.screen.screen_width), int(rect[3] * self.screen.screen_height)]
-        image = self.screen.get_screen_region(abs_rect)
-        self.screen_image = image
-
-        return image
-
-    def __capture_station_services_from_image(self):
-        """ Just grab the image based on the region name/rect.
-        Returns an unfiltered image, squared (no perspective).
-         """
-        rect = self.reg['nav_panel']['rect']
-
-        if self.screen_image is None:
-            return None
-
-        image = self.screen_image
-
-        # Existing size
-        h, w, ch = image.shape
-
-        # Crop to leave only the selected rectangle
-        x0 = int(w * rect[0])
-        y0 = int(h * rect[1])
-        x1 = int(w * rect[2])
-        y1 = int(h * rect[3])
-
-        # Crop image
-        cropped = image[y0:y1, x0:x1]
-
-        return cropped
-
-    def capture_station_services(self):
-        """ Just grab the nav_panel image based on the region name/rect.
-            Returns an unfiltered image, squared (no perspective).
-            Capture may be from an image or the screen.
-         """
-        if self.using_screen:
-            return self.__capture_station_services_on_screen()
-        else:
-            return self.__capture_station_services_from_image()
 
     def goto_station_services(self) -> bool:
         """ Goto Station Services. """
@@ -110,9 +60,9 @@ class StationServicesInShip:
         self.keys.send("UI_Up")  # Is up needed?
         self.keys.send("UI_Left", hold=2)
 
-        self.keys.send("UI_Right")
+        self.keys.send("UI_Right")  # Commodities Market
         sleep(0.1)
-        self.keys.send("UI_Select")  # select Mission Board
+        self.keys.send("UI_Select")  # Commodities Market
         sleep(1)
         return True
 
@@ -176,7 +126,7 @@ class PassengerLounge:
 
     def goto_complete_missions(self) -> bool:
         """ Go to the passenger lounge menu. """
-        res = self.goto_passenger_lounge()
+        res = self.parent.goto_passenger_lounge()
         if not res:
             return False
 
@@ -207,12 +157,16 @@ class PassengerLounge:
         logger.debug("Did not find 'NO COMPLETED MISSIONS' text in Passenger Lounge screen.")
         return True
 
-    def check_mission_destination(self, destination) -> bool:
+    def check_mission_destination(self, destination):
         """ Does the mission destination include the text being checked for.
-        Checks if text exists in a region using OCR."""
+        Checks if text exists in a region using OCR.
+        Return True if found, False if not and None if no item was selected. """
 
         img = self.capture_mission_dest()
-        img_selected = self.ocr.get_selected_item_image(img, 25, 10)
+        img_selected = self.ocr.get_selected_item_in_image(img, 25, 10)
+        if img_selected is None:
+            logger.debug(f"Did not find a selected item in the region.")
+            return None
 
         ocr_textlist = self.ocr.image_simple_ocr(img_selected)
         print(str(ocr_textlist))
@@ -245,6 +199,149 @@ class PassengerLounge:
         Returns an unfiltered image, squared (no perspective).
          """
         rect = self.reg['mission_dest']['rect']
+
+        if self.parent.using_screen:
+            image = self.parent.screen.get_screen_region_pct(rect)
+        else:
+            if self.parent.screen_image is None:
+                return None
+            image = crop_image_by_pct(self.parent.screen_image, rect)
+
+        return image
+
+
+class CommoditiesMarket:
+    def __init__(self, station_services_in_ship, ocr, keys):
+        self.parent = station_services_in_ship
+        self.ocr = ocr
+        self.keys = keys
+
+        self.reg = {}
+        # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
+        # Nav Panel region covers the entire navigation panel.
+        self.reg['cargo'] = {'rect': [0.13, 0.25, 0.19, 0.86]}  # Fraction with ref to the screen/image
+        self.reg['commodities'] = {'rect': [0.19, 0.25, 0.41, 0.86]}  # Fraction with ref to the screen/image
+        self.reg['supply_demand'] = {'rect': [0.42, 0.25, 0.49, 0.86]}  # Fraction with ref to the screen/image
+
+    def select_buy(self) -> bool:
+        """ Select Buy. Assumes on Commodities Market screen. """
+
+        # Select Buy
+        self.keys.send("UI_Left", repeat=2)
+        self.keys.send("UI_Up", repeat=4)
+
+        self.keys.send("UI_Select")  # Select Buy
+        return True
+
+    def select_sell(self) -> bool:
+        """ Select Buy. Assumes on Commodities Market screen. """
+
+        # Select Buy
+        self.keys.send("UI_Left", repeat=2)
+        self.keys.send("UI_Up", repeat=4)
+
+        self.keys.send("UI_Down")
+        self.keys.send("UI_Select")  # Select Sell
+        return True
+
+    def find_commodity(self, name) -> bool:
+        """ Attempt to find the commodity in the list of commodities.
+        If found, leaves it selected for further actions. """
+
+        # Loop selecting missions, go up to 20 times, have seen at time up to 17 missions
+        # before getting to Sirius Atmos missions
+        self.keys.send("UI_Right")
+        self.keys.send("UI_Up", hold=2)
+
+        cnt=0
+        while cnt < 99:
+            found = self.check_commodity(name)
+
+            # Check if end of list.
+            if found is None:
+                return False
+
+            if found:
+                logger.debug(f"Found '{name}' in commodities.")
+                return True
+            else:
+                self.keys.send("UI_Down")
+
+        logger.debug(f"Did not find '{name}' in commodities.")
+        return False
+
+    def buy_commodity(self, name, qty) -> bool:
+        """ Buy qty of commodity. If qty >= 9999 then buy as much as possible. """
+        self.select_buy()
+        found = self.find_commodity(name)
+        if not found:
+            return False
+
+        self.keys.send("UI_Select")
+        sleep(0.1)
+        self.keys.send("UI_Left")
+        self.keys.send("UI_Up", repeat=2)
+
+        # Increment count
+        if qty >= 9999:
+            self.keys.send("UI_Right", hold=5)
+        else:
+            self.keys.send("UI_Right", repeat=qty)
+
+        self.keys.send("UI_Down")  # To Buy
+        self.keys.send("UI_Select")  # Buy
+
+        self.keys.send("UI_Back")
+
+    def sell_commodity(self, name, qty) -> bool:
+        """ Sell qty of commodity. If qty >= 9999 then sell as much as possible. """
+        self.select_sell()
+        found = self.find_commodity(name)
+        if not found:
+            return False
+
+        self.keys.send("UI_Select")
+        sleep(0.1)
+        self.keys.send("UI_Left")
+        self.keys.send("UI_Up", repeat=2)
+
+        # Increment count
+        if qty >= 9999:
+            self.keys.send("UI_Right", hold=5)
+        else:
+            self.keys.send("UI_Right", repeat=qty)
+
+        self.keys.send("UI_Down")  # To Sell
+        self.keys.send("UI_Select")  # Sell
+
+        self.keys.send("UI_Back")
+
+    def check_commodity(self, name):
+        """ Does the mission destination include the text being checked for.
+        Checks if text exists in a region using OCR.
+        Return True if found, False if not and None if no item was selected. """
+
+        img = self.capture_commodity()
+        img_selected = self.ocr.get_selected_item_in_image(img, 25, 10)
+        if img_selected is None:
+            logger.debug(f"Did not find a selected item in the region.")
+            return None
+
+        ocr_textlist = self.ocr.image_simple_ocr(img_selected)
+        print(str(ocr_textlist))
+
+        if name in str(ocr_textlist):
+            logger.debug(f"Found '{name}' text in destination {str(ocr_textlist)}.")
+            return True
+        else:
+            logger.debug(f"Did not find '{name}' text in destination {str(ocr_textlist)}.")
+            return False
+
+    def capture_commodity(self):
+        """ Just grab the image based on the region name/rect.
+        Returns an unfiltered image.
+         """
+        rect = self.reg['commodities']['rect']
 
         if self.parent.using_screen:
             image = self.parent.screen.get_screen_region_pct(rect)
