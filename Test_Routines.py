@@ -2,7 +2,6 @@ import logging
 import os
 
 from EDKeys import EDKeys
-from ED_AP import EDAutopilot
 from NavPanel import NavPanel
 from OCR import OCR
 from Screen_Regions import *
@@ -87,18 +86,30 @@ def main():
     #nav_panel_selected_item_text('test/nav-panel/')
     # nav_panel_lock_station("QUAID'S VISION")
     # nav_panel_lock_station("SMITH'S OBLIGATION")
+    # nav_panel_request_docking()
+
+    int = 0
+    if int == 0:
+        buy_sell_commodities()
+    elif int == 1:
+        nav_panel_lock_station("QUAID'S VISION")
+    elif int == 2:
+        nav_panel_request_docking()
+
+
+def buy_sell_commodities():
     scr = Screen()
     keys = EDKeys()
     keys.activate_window = True  # Helps with single steps testing
     stn_svc = StationServicesInShip(scr, keys)
-    stn_svc.goto_passenger_lounge()
+    #stn_svc.goto_passenger_lounge()
 
     stn_svc.goto_commodities_market()
-    stn_svc.commodities_market.select_buy()
-    stn_svc.commodities_market.find_commodity("GOLD")
+    #stn_svc.commodities_market.select_buy()
+    #stn_svc.commodities_market.find_commodity("GOLD")
 
-    stn_svc.commodities_market.select_sell()
-    stn_svc.commodities_market.find_commodity("FISH")
+    #stn_svc.commodities_market.select_sell()
+    #stn_svc.commodities_market.find_commodity("FISH")
 
     stn_svc.commodities_market.buy_commodity("GOLD", 10)
 
@@ -285,6 +296,16 @@ def nav_panel_lock_station(name):
     nav_pnl = NavPanel(scr, keys)
 
     nav_pnl.lock_destination(name)
+
+    nav_pnl.request_docking()
+
+def nav_panel_request_docking():
+    scr = Screen()
+    keys = EDKeys()
+    keys.activate_window = True  # Helps with single steps testing
+    nav_pnl = NavPanel(scr, keys)
+
+    nav_pnl.request_docking()
 
 
 def regions_test(regions):
