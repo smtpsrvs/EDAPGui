@@ -110,7 +110,7 @@ class PassengerLounge:
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         # Nav Panel region covers the entire navigation panel.
         self.reg['missions'] = {'rect': [0.50, 0.72, 0.65, 0.85]}  # Fraction with ref to the screen/image
-        self.reg['mission_dest_col'] = {'rect': [0.47, 0.42, 0.68, 0.82]}  # Fraction with ref to the screen/image
+        self.reg['mission_dest_col'] = {'rect': [0.47, 0.42, 0.64, 0.82]}  # Fraction with ref to the screen/image
 
     def goto_personal_transport_missions(self) -> bool:
         """ Go to the passenger lounge menu. """
@@ -124,6 +124,7 @@ class PassengerLounge:
         self.keys.send("UI_Down", repeat=2)
         sleep(0.2)
         self.keys.send("UI_Select")  # select Personal Transport
+        # TODO - use OCR to check if the screen it up instead of waiting
         sleep(15)  # wait 15 second for missions menu to show up
         return True
 
@@ -210,6 +211,7 @@ class PassengerLounge:
                 return None
             image = crop_image_by_pct(self.parent.screen_image, rect)
 
+        cv2.imwrite('test/mission_det_col.png', image)
         return image
 
     def find_mission_destination(self, name) -> bool:
@@ -220,7 +222,7 @@ class PassengerLounge:
         self.keys.send("UI_Up", hold=3)
         self.keys.send("UI_Down", repeat=2)
 
-        cnt=0
+        cnt = 0
         while cnt < 99:
             found = self.check_mission_destination(name)
 

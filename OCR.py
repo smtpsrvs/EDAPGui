@@ -142,6 +142,7 @@ class OCR:
                 cropped = image[y:y + h, x:x + w]
 
                 # cv2.imshow("cropped", cropped)
+                cv2.imwrite('test/selected_item.png', cropped)
                 return cropped
 
         # No good matches, then return None

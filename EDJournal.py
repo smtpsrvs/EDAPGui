@@ -230,6 +230,10 @@ class EDJournal:
                     self.ship['target'] = None
                 self.ship['dist_jumped'] = log["JumpDist"]
 
+            # parse nav route clear
+            if log_event == 'NavRouteClear':
+                self.ship['target'] = None
+                self.ship['jumps_remains'] = 0
 
         # exceptions
         except Exception as e:

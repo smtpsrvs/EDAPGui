@@ -79,11 +79,11 @@ class Robigo:
             loop_missions = 8
         ap.jn.ship_state()['mission_completed'] = 0
 
-        # found = self.is_found_text(ap, "missions", "missions", "NO COMPLETED MISSIONS")
-        found = not self.ap.station_services_in_ship.any_completed_missions()
+        # Check if "NO COMPLETED MISSIONS" is shown in the passenger lounge2
+        no_missions = not self.ap.station_services_in_ship.passenger_lounge.any_completed_missions()
 
         # we don't have any missions to complete as the screen did not change
-        if found:
+        if no_missions:
             print("no missions to complete")
             ap.keys.send("UI_Left")
             return
@@ -107,10 +107,6 @@ class Robigo:
             sleep(1.5)
 
         ap.keys.send("UI_Back")  # seem to be going back to Mission menu
-
-    def lock_target(self, ap, dst_name) -> bool:
-        """ Goto Nav Panel and do image matching on the passed in image template """
-        return ap.nav_panel.lock_destination(dst_name)
 
     # Finish the selection of the mission by assigning to a Cabin
     # Will use the Auto fill which doesn't do a very good job optimizing the cabin fill
@@ -139,6 +135,8 @@ class Robigo:
                 mission_cnt += 1  # found a mission, select it
                 self.select_mission(ap)
                 sleep(1.5)
+            else:
+                break
 
         # Check if no missions were found.
         if mission_cnt == 0:
@@ -212,25 +210,25 @@ class Robigo:
     def loop(self, ap):
         loop_cnt = 0
 
-        starttime = time.time()
+        start_time = time.time()
 
         self.state = self.determine_state(ap)
 
         while True:
 
             if self.state == STATE_MISSIONS:
-                if self.do_single_loop == False:  # if looping, then do mission processing
+                if not self.do_single_loop:  # if looping, then do mission processing
                     ap.update_ap_status("Completing missions")
 
                     # Complete Missions, if we have any
-                    self.ap.parent.goto_passenger_lounge()
+                    self.ap.station_services_in_ship.goto_passenger_lounge()
                     sleep(2.5)  # wait for new menu comes up
                     self.complete_missions(ap)
 
                     ap.update_ap_status("Get missions")
                     # Select and fill up on Sirius missions   
-                    self.ap.parent.goto_passenger_lounge()
-                    sleep(1)
+                    #self.ap.station_services_in_ship.goto_passenger_lounge()
+                    #sleep(1)
                     self.get_missions(ap)
                 self.state = STATE_ROUTE_TO_SOTHIS
 
@@ -266,9 +264,8 @@ class Robigo:
                 ap.update_ap_status("Target Sirius")
                 # [In Sothis]
                 # select Siruis Atmos
-                found = self.lock_target(ap, "SIRIUS ATMOSPHERICS")
-
-                if found == False:
+                found = ap.nav_panel.lock_destination("SIRIUS ATMOSPHERICS")
+                if not found:
                     ap.update_ap_status("No Sirius Atmos in Nav Panel")
                     return
                 self.state = STATE_SC_TO_SIRIUS
@@ -305,9 +302,8 @@ class Robigo:
                 # In Robigo System, select Robigo Mines in the Nav Panel, which should 1 down (we select in the blind)
                 #   The Robigo Mines position in the list is dependent on distance from current location
                 #   The Speed50 above and waiting 2 seconds ensures Robigo Mines is 2 down from top
-                found = self.lock_target(ap, "ROBIGO MINES")
-
-                if found == False:
+                found = ap.nav_panel.lock_destination("ROBIGO MINES")
+                if not found:
                     ap.update_ap_status("No lock on Robigo Mines in Nav Panel")
                     return
                 self.state = STATE_SC_TO_ROBIGO_MINES
@@ -318,8 +314,8 @@ class Robigo:
                 ap.sc_assist(ap.scrReg)
 
                 # Calc elapsed time for a loop and display it
-                elapsed_time = time.time() - starttime
-                starttime = time.time()
+                elapsed_time = time.time() - start_time
+                start_time = time.time()
                 loop_cnt += 1
                 if loop_cnt != 0:
                     ap.ap_ckb('log', "Loop: " + str(loop_cnt) + " Time: " + time.strftime("%H:%M:%S",
