@@ -1,4 +1,7 @@
 from time import sleep
+
+import cv2
+
 from EDlogger import logger
 from OCR import OCR, crop_image_by_pct
 
@@ -107,7 +110,7 @@ class PassengerLounge:
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         # Nav Panel region covers the entire navigation panel.
         self.reg['missions'] = {'rect': [0.50, 0.72, 0.65, 0.85]}  # Fraction with ref to the screen/image
-        self.reg['mission_dest'] = {'rect': [0.46, 0.38, 0.65, 0.86]}  # Fraction with ref to the screen/image
+        self.reg['mission_dest_col'] = {'rect': [0.47, 0.42, 0.68, 0.82]}  # Fraction with ref to the screen/image
 
     def goto_personal_transport_missions(self) -> bool:
         """ Go to the passenger lounge menu. """
@@ -162,7 +165,7 @@ class PassengerLounge:
         Checks if text exists in a region using OCR.
         Return True if found, False if not and None if no item was selected. """
 
-        img = self.capture_mission_dest()
+        img = self.capture_mission_dest_col()
         img_selected = self.ocr.get_selected_item_in_image(img, 25, 10)
         if img_selected is None:
             logger.debug(f"Did not find a selected item in the region.")
@@ -194,11 +197,11 @@ class PassengerLounge:
         #cv2.imwrite('test/no_missions.png', image)
         return image
 
-    def capture_mission_dest(self):
+    def capture_mission_dest_col(self):
         """ Just grab the image based on the region name/rect.
         Returns an unfiltered image, squared (no perspective).
          """
-        rect = self.reg['mission_dest']['rect']
+        rect = self.reg['mission_dest_col']['rect']
 
         if self.parent.using_screen:
             image = self.parent.screen.get_screen_region_pct(rect)
@@ -208,6 +211,31 @@ class PassengerLounge:
             image = crop_image_by_pct(self.parent.screen_image, rect)
 
         return image
+
+    def find_mission_destination(self, name) -> bool:
+        """ Attempt to find the destination in the list of missions.
+        If found, leaves it selected for further actions. """
+
+        # Goto first mission
+        self.keys.send("UI_Up", hold=3)
+        self.keys.send("UI_Down", repeat=2)
+
+        cnt=0
+        while cnt < 99:
+            found = self.check_mission_destination(name)
+
+            # Check if end of list.
+            if found is None:
+                return False
+
+            if found:
+                logger.debug(f"Found '{name}' in destinations.")
+                return True
+            else:
+                self.keys.send("UI_Down")
+
+        logger.debug(f"Did not find '{name}' in destinations.")
+        return False
 
 
 class CommoditiesMarket:
@@ -219,9 +247,9 @@ class CommoditiesMarket:
         self.reg = {}
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         # Nav Panel region covers the entire navigation panel.
-        self.reg['cargo'] = {'rect': [0.13, 0.25, 0.19, 0.86]}  # Fraction with ref to the screen/image
-        self.reg['commodities'] = {'rect': [0.19, 0.25, 0.41, 0.86]}  # Fraction with ref to the screen/image
-        self.reg['supply_demand'] = {'rect': [0.42, 0.25, 0.49, 0.86]}  # Fraction with ref to the screen/image
+        self.reg['cargo_col'] = {'rect': [0.13, 0.25, 0.19, 0.86]}  # Fraction with ref to the screen/image
+        self.reg['commodity_name_col'] = {'rect': [0.19, 0.25, 0.41, 0.86]}  # Fraction with ref to the screen/image
+        self.reg['supply_demand_col'] = {'rect': [0.42, 0.25, 0.49, 0.86]}  # Fraction with ref to the screen/image
 
     def select_buy(self) -> bool:
         """ Select Buy. Assumes on Commodities Market screen. """
@@ -321,7 +349,7 @@ class CommoditiesMarket:
         Checks if text exists in a region using OCR.
         Return True if found, False if not and None if no item was selected. """
 
-        img = self.capture_commodity()
+        img = self.capture_commodity_name_col()
         img_selected = self.ocr.get_selected_item_in_image(img, 25, 10)
         if img_selected is None:
             logger.debug(f"Did not find a selected item in the region.")
@@ -337,11 +365,12 @@ class CommoditiesMarket:
             logger.debug(f"Did not find '{name}' text in destination {str(ocr_textlist)}.")
             return False
 
-    def capture_commodity(self):
+    def capture_commodity_name_col(self):
         """ Just grab the image based on the region name/rect.
+        Captures the commodity name column from the commodities list.
         Returns an unfiltered image.
          """
-        rect = self.reg['commodities']['rect']
+        rect = self.reg['commodity_name_col']['rect']
 
         if self.parent.using_screen:
             image = self.parent.screen.get_screen_region_pct(rect)

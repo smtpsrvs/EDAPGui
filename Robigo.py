@@ -69,23 +69,6 @@ class Robigo:
     def set_single_loop(self, single_loop):
         self.do_single_loop = single_loop
 
-    def is_found_text(self, ap, region, templ, text) -> bool:
-        """ Checks if text exists in a region using OCR."""
-        (img,
-         (minVal, maxVal, minLoc, maxLoc),
-         match,
-         ) = ap.scrReg.match_template_in_region(region, templ)
-
-        ocr = OCR()
-        ocr_textlist = ocr.image_simple_ocr(img)
-        print(str(ocr_textlist))
-
-        # use high percent
-        if text in str(ocr_textlist):
-            return True
-        else:
-            return False
-
     # Turn in Missions, will do Credit only
     def complete_missions(self, ap):
 
@@ -142,47 +125,18 @@ class Robigo:
 
     # Goes through the missions selecting any that are Sirius Atmos
     def get_missions(self, ap):
-        cnt = 0
         mission_cnt = 0
-        had_selected = False
 
-        # Assume in passenger Lounge. goto Missions Menu
-        ap.keys.send("UI_Up", repeat=3)
-        sleep(0.2)
-        ap.keys.send("UI_Down", repeat=2)
-        sleep(0.2)
-        ap.keys.send("UI_Select")  # select Personal Transport
-        sleep(15)  # wait 15 second for missions menu to show up
-
-        # In Passenger Missions
-        ap.keys.send("UI_Up", hold=3)
-        sleep(0.2)
-        ap.keys.send("UI_Down", repeat=2)
-        sleep(0.2)
+        self.ap.station_services_in_ship.passenger_lounge.goto_personal_transport_missions()
 
         # Loop selecting missions, go up to 20 times, have seen at time up to 17 missions
         # before getting to Sirius Atmos missions
-        while cnt < 20:
-            #found = self.is_found_text(ap, "mission_dest", "dest_sirius", "SIRIUS ATMOSPHERICS")
-            found = self.ap.station_services_in_ship.passenger_lounge.check_mission_destination("SIRIUS ATMOSPHERICS")
+        while mission_cnt < 20:
+            found = self.ap.station_services_in_ship.passenger_lounge.find_mission_destination("SIRIUS ATMOSPHERICS")
 
-            # not a sirius mission
-            if not found:
-                ap.keys.send("UI_Down")  # not sirius, go down to next
-                sleep(0.1)
-                # if we had selected missions and suddenly we are not
-                # then go back to top and scroll down again. This is due to scrolling
-                # missions 
-                if had_selected:
-                    ap.keys.send("UI_Up", hold=2)  # go back to very top
-                    sleep(0.5)
-                    cnt = 1  # reset counter  
-                    had_selected = False
-
-                cnt = cnt + 1
-            else:
+            # found a sirius mission
+            if found:
                 mission_cnt += 1  # found a mission, select it
-                had_selected = True
                 self.select_mission(ap)
                 sleep(1.5)
 
@@ -191,8 +145,6 @@ class Robigo:
             ap.update_ap_status("No missions found!")
 
         ap.keys.send("UI_Back", repeat=4)  # go back to main menu              
-
-
 
     # SC to the Marker and retrieve num of missions redirected (i.e. completed)
     def travel_to_sirius_atmos(self, ap):

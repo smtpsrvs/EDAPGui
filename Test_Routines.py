@@ -4,6 +4,7 @@ import os
 from EDKeys import EDKeys
 from NavPanel import NavPanel
 from OCR import OCR
+from Robigo import Robigo
 from Screen_Regions import *
 from Overlay import *
 from Screen import *
@@ -57,7 +58,7 @@ def main():
     wanted_regions = ["compass", "target", "nav_panel", "disengage", "interdicted", "fss", "mission_dest", "missions",
                       "sun"]
     #wanted_regions = ["compass", "target", "nav_panel", "disengage"]  # The more common regions for navigation
-    #regions_test(wanted_regions)
+    #show_regions(wanted_regions)
 
     # HSV Tester...
     #
@@ -103,8 +104,11 @@ def buy_sell_commodities():
     keys.activate_window = True  # Helps with single steps testing
     stn_svc = StationServicesInShip(scr, keys)
     #stn_svc.goto_passenger_lounge()
+    #stn_svc.passenger_lounge.goto_personal_transport_missions()
+    #show_all_regions(stn_svc.passenger_lounge.reg)
 
     stn_svc.goto_commodities_market()
+    #show_all_regions(stn_svc.commodities_market.reg)
     #stn_svc.commodities_market.select_buy()
     #stn_svc.commodities_market.find_commodity("GOLD")
 
@@ -308,9 +312,9 @@ def nav_panel_request_docking():
     nav_pnl.request_docking()
 
 
-def regions_test(regions):
+def show_regions(region_names):
     """ Draw a rectangle indicating the given region on the Elite Dangerous window.
-        :param regions: An array names of the regions to indicate on screen (i.e. ["compass", "target"])."""
+        :param region_names: An array names of the regions to indicate on screen (i.e. ["compass", "target"])."""
     ov = Overlay("", 0)
     scr = Screen()
     templ = Image_Templates(scr.scaleX, scr.scaleY)
@@ -338,7 +342,7 @@ def regions_test(regions):
         #tgt = scrReg.capture_region_filtered(scr, key)
         #print(key)
         #print(scrReg.reg[key])
-        if key in regions:
+        if key in region_names:
             ov.overlay_rect(key, (scrReg.reg[key]['rect'][0], scrReg.reg[key]['rect'][1]),
                             (scrReg.reg[key]['rect'][2], scrReg.reg[key]['rect'][3]),
                             overlay_colors[i+1], 2)
@@ -351,6 +355,42 @@ def regions_test(regions):
     ov.overlay_quit()
     sleep(2)
 
+def show_all_regions(regions):
+    """ Draw a rectangle indicating the given region on the Elite Dangerous window.
+        :param regions: An array names of the regions to indicate on screen (i.e. ["compass", "target"])."""
+    ov = Overlay("", 0)
+    scr = Screen()
+
+    overlay_colors = [
+        (255, 255, 255),
+        (255, 0, 0),
+        (0, 255, 0),
+        (0, 0, 255),
+        (255, 255, 0),
+        (0, 255, 255),
+        (255, 0, 255),
+        (192, 192, 192),
+        (128, 128, 128),
+        (128, 0, 0),
+        (128, 128, 0),
+        (0, 128, 0),
+        (128, 0, 128),
+        (0, 128, 128),
+        (0, 0, 128)
+    ]
+
+    for i, key in enumerate(regions):
+        rect = regions[key]['rect']
+        rect_abs = scr.screen_pct_to_abs(rect)
+
+        ov.overlay_rect(key, (rect_abs[0], rect_abs[1]), (rect_abs[2], rect_abs[3]), overlay_colors[i + 1], 2)
+        ov.overlay_floating_text(key, key, rect_abs[0], rect_abs[1], overlay_colors[i + 1])
+
+    ov.overlay_paint()
+
+    sleep(10)
+    ov.overlay_quit()
+    sleep(2)
 
 def hsv_tester(image_path):
     """ Brings up a HSV test window with sliders to check the 'inRange' function on the provided image.
