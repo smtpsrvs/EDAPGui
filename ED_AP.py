@@ -18,6 +18,7 @@ from EDKeys import *
 from EDafk_combat import AFK_Combat
 from NavPanel import NavPanel
 from Overlay import *
+from StationServicesInShip import StationServicesInShip
 from Voice import *
 from Robigo import *
 
@@ -117,7 +118,8 @@ class EDAutopilot:
         self.scrReg = Screen_Regions.Screen_Regions(self.scr, self.templ)
         self.jn = EDJournal()
         self.keys = EDKeys()
-        self.nav_panel = NavPanel(self.scr,self.keys)
+        self.nav_panel = NavPanel(self.scr, self.keys)
+        self.station_services_in_ship = StationServicesInShip(self.scr, self.keys)
         self.afk_combat = AFK_Combat(self.keys, self.jn, self.vce)
         self.waypoint = EDWayPoint(self.jn.ship_state()['odyssey'])
         self.robigo = Robigo(self)

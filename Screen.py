@@ -109,7 +109,9 @@ class Screen:
         image = array(self.mss.grab((x_left, y_top, x_right, y_bot)))
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         return image
-        
-       
-   
 
+    def get_screen_region_pct(self, reg):
+        image = self.get_screen(int(reg[0] * self.screen_width), int(reg[1] * self.screen_height),
+                                int(reg[2] * self.screen_width), int(reg[3] * self.screen_height))
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # TODO delete this line when COLOR_RGB2BGR is removed from get_screen()
+        return image

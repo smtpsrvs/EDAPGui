@@ -1,3 +1,4 @@
+import logging
 import os
 
 from EDKeys import EDKeys
@@ -10,6 +11,8 @@ from Image_Templates import *
 from time import sleep
 import numpy as np
 
+from StationServicesInShip import StationServicesInShip
+
 """
 File:Test_Routines.py    
 
@@ -21,6 +24,7 @@ Description:
 def main():
     # Uncomment one tests to be performed as each runs in a loop until exited.
     # Run this file instead of the main EDAPGUI file.
+    logger.setLevel(logging.DEBUG)  # Default to log all debug when running this file.
 
     # Rescale screenshots from the user scaling (i.e. 1920x1080 [0.75,0.75]
     # to the default scaling of 3440x1440 [1.0, 1.0]. Note the scaling is by
@@ -78,11 +82,15 @@ def main():
     #
     # Does NOT require Elite Dangerous to be running.
     # =====================================================================================
-    nav_panel_display_all_text_test('test/nav-panel/')
-    nav_panel_selected_item_text('test/nav-panel/')
+    #nav_panel_display_all_text_test('test/nav-panel/')
+    #nav_panel_selected_item_text('test/nav-panel/')
     # nav_panel_lock_station("QUAID'S VISION")
     # nav_panel_lock_station("SMITH'S OBLIGATION")
-
+    scr = Screen()
+    keys = EDKeys()
+    keys.activate_window = True  # Helps with single steps testing
+    stn_svc = StationServicesInShip(scr, keys)
+    stn_svc.goto_passenger_lounge()
 
 def draw_match_rect(img, pt1, pt2, color, thick):
     """ Utility function to add a rectangle to an image. """
@@ -203,7 +211,7 @@ def nav_panel_display_all_text_test(directory):
             # Extract region
             image = nav_pnl.capture_nav_panel()
 
-            ocr_data, ocr_textlist = ocr.image_ocr_no_filter(image)
+            ocr_data, ocr_textlist = ocr.image_ocr(image)
 
             draw_bounding_boxes(image, ocr_data, 0.25)
             cv2.imwrite(image_out_path, image)
@@ -247,7 +255,7 @@ def nav_panel_selected_item_text(directory):
             #crop_with_border = cv2.copyMakeBorder(img_item, 40, 20, 20, 20, cv2.BORDER_CONSTANT)
             #ocr_data, ocr_textlist = nav_pnl.get_selected_location_data(crop_with_border, 100, 10)
 
-            image, ocr_data, ocr_textlist = nav_pnl.get_selected_item_data(loc_panel, 100, 10)
+            image, ocr_data, ocr_textlist = ocr.get_selected_item_data(loc_panel, 100, 10)
             if image is not None:
                 draw_bounding_boxes(image, ocr_data, 0.25)
                 cv2.imwrite(image_out_path, image)
@@ -437,7 +445,7 @@ def ocr_tester(image_path):
         result = adjusted.copy()
         result = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
 
-        ocr_data, ocr_textlist = ocr.image_ocr_no_filter(adjusted)
+        ocr_data, ocr_textlist = ocr.image_ocr(adjusted)
 
         draw_bounding_boxes(result, ocr_data, 0.25)
 

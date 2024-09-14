@@ -2,7 +2,7 @@ from time import sleep
 
 import numpy as np
 import cv2
-from OCR import OCR
+from OCR import OCR, crop_image_by_pct
 
 """
 File:navPanel.py    
@@ -12,6 +12,7 @@ Description:
 
 Author: Stumpii
 """
+
 
 
 class NavPanel:
@@ -30,9 +31,9 @@ class NavPanel:
         self.reg = {}
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         # Nav Panel region covers the entire navigation panel.
-        self.reg['nav_panel'] = {'rect': [0.10, 0.23, 0.72, 0.83]} # Fraction with ref to the screen/image
-        self.reg['tab_bar'] = {'rect': [0.0, 0.0, 1.0, 0.1152]} # Fraction with ref to the Nav Panel
-        self.reg['location_panel'] = {'rect': [0.2218, 0.3069, 0.8537, 0.9652]} # Fraction with ref to the Nav Panel
+        self.reg['nav_panel'] = {'rect': [0.10, 0.23, 0.72, 0.83]}  # Fraction with ref to the screen/image
+        self.reg['tab_bar'] = {'rect': [0.0, 0.0, 1.0, 0.1152]}  # Fraction with ref to the Nav Panel
+        self.reg['location_panel'] = {'rect': [0.2218, 0.3069, 0.8537, 0.9652]}  # Fraction with ref to the Nav Panel
 
     def __capture_nav_panel_on_screen(self):
         """ Just grab the screen based on the region name/rect.
@@ -79,10 +80,20 @@ class NavPanel:
             Returns an unfiltered image, squared (no perspective).
             Capture may be from an image or the screen.
          """
+        rect = self.reg['nav_panel']['rect']
+
         if self.using_screen:
-            return self.__capture_nav_panel_on_screen()
+            # return self.__capture_nav_panel_on_screen()
+            #image = self.screen.get_full_screen()
+            image = self.screen.get_screen_region_pct(rect)
         else:
-            return self.__capture_nav_panel_from_image()
+            #return self.__capture_nav_panel_from_image()
+            if self.screen_image is None:
+                return None
+            image = crop_image_by_pct(self.screen_image, rect)
+
+        straightened = self.__nav_panel_perspective_warp(image)
+        return straightened
 
     def __nav_panel_perspective_warp(self, image):
         """ Performs warping of the nav panel image and returns the result.
@@ -195,15 +206,18 @@ class NavPanel:
             # Do nothing
             return True
         elif active_tab_name is self.transactions_tab_text:
-            self.keys.send('CycleNextPanel', hold=0.2)
-            sleep(0.2)
-            self.keys.send('CycleNextPanel', hold=0.2)
+            # self.keys.send('CycleNextPanel', hold=0.2)
+            # sleep(0.2)
+            # self.keys.send('CycleNextPanel', hold=0.2)
+            self.keys.send('CycleNextPanel', repeat=2)
             return True
         elif active_tab_name is self.contacts_tab_text:
-            self.keys.send('CycleNextPanel', hold=0.2)
+            # self.keys.send('CycleNextPanel', hold=0.2)
+            self.keys.send('CycleNextPanel')
             return True
         elif active_tab_name is self.target_tab_text:
-            self.keys.send('CycleNextPanel', hold=0.2)
+            # self.keys.send('CycleNextPanel', hold=0.2)
+            self.keys.send('CycleNextPanel')
             return True
 
     def show_contacts_tab(self) -> bool:
@@ -216,20 +230,23 @@ class NavPanel:
             print("Nav Panel could not be opened")
             return False
         elif active_tab_name is self.navigation_tab_text:
-            self.keys.send('CycleNextPanel', hold=0.2)
-            sleep(0.2)
-            self.keys.send('CycleNextPanel', hold=0.2)
+            # self.keys.send('CycleNextPanel', hold=0.2)
+            # sleep(0.2)
+            # self.keys.send('CycleNextPanel', hold=0.2)
+            self.keys.send('CycleNextPanel', repeat=2)
             return True
         elif active_tab_name is self.transactions_tab_text:
-            self.keys.send('CycleNextPanel', hold=0.2)
+            # self.keys.send('CycleNextPanel', hold=0.2)
+            self.keys.send('CycleNextPanel')
             return True
         elif active_tab_name is self.contacts_tab_text:
             # Do nothing
             return True
         elif active_tab_name is self.target_tab_text:
-            self.keys.send('CycleNextPanel', hold=0.2)
-            sleep(0.2)
-            self.keys.send('CycleNextPanel', hold=0.2)
+            # self.keys.send('CycleNextPanel', hold=0.2)
+            # sleep(0.2)
+            # self.keys.send('CycleNextPanel', hold=0.2)
+            self.keys.send('CycleNextPanel', repeat=2)
             return True
 
     def hide_nav_panel(self):
@@ -246,7 +263,7 @@ class NavPanel:
             Returns True if active, False if not and also the string of the tab name.
         """
         tab_bar = self.capture_tab_bar()
-        img_selected, ocr_data, ocr_textlist = self.get_selected_item_data(tab_bar, 50, 10)
+        img_selected, ocr_data, ocr_textlist = self.ocr.get_selected_item_data(tab_bar, 50, 10)
         if img_selected is not None:
             if self.navigation_tab_text in str(ocr_textlist):
                 return True, self.navigation_tab_text
@@ -259,78 +276,9 @@ class NavPanel:
 
         return False, ""
 
-    def get_selected_item_image(self, image, min_w, min_h):
-        """ Attempts to find a selected item in an image. The selected item is identified by being solid orange or blue
-        rectangle with dark text, instead of orange/blue text on a dark background.
-        The image of the first item matching the criteria and minimum width and height is returned, otherwise None.
-        """
-        # Perform HSV mask
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        lower_range = np.array([0, 0, 180])
-        upper_range = np.array([255, 255, 255])
-        mask = cv2.inRange(hsv, lower_range, upper_range)
-        masked_image = cv2.bitwise_and(image, image, mask=mask)
-        # cv2.imwrite('test/nav-panel/out/masked.png', masked_image)
-
-        # Convert to gray scale and invert
-        gray = cv2.cvtColor(masked_image, cv2.COLOR_BGR2GRAY)
-        # cv2.imwrite('test/nav-panel/out/gray.png', gray)
-
-        # Convert to B&W to allow FindContours to find rectangles.
-        ret, thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # | cv2.THRESH_BINARY_INV)
-        # cv2.imwrite('test/nav-panel/out/thresh1.png', thresh1)
-
-        # Finding contours in B&W image. White are the areas detected
-        contours, hierarchy = cv2.findContours(thresh1, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        cropped = image
-        for cnt in contours:
-            x, y, w, h = cv2.boundingRect(cnt)
-            # The whole row will be wider than random matching elements.
-            if w > min_w and h > min_h:
-                # Drawing a rectangle on the copied image
-                # rect = cv2.rectangle(crop, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-                # Crop to leave only the contour (the selected rectangle)
-                cropped = image[y:y + h, x:x + w]
-
-                # cv2.imshow("cropped", cropped)
-                return cropped
-
-        # No good matches, then return None
-        return None
-
-    def get_selected_item_data(self, image, min_w, min_h):
-        """ Attempts to find a selected item in an image. The selected item is identified by being solid orange or blue
-            rectangle with dark text, instead of orange/blue text on a dark background.
-            The OCR daya of the first item matching the criteria is returned, otherwise None.
-            @param image: The image to check.
-            @param min_w: The minimum width of the text block.
-            @param min_h: The minimum height of the text block.
-        """
-        # Find the selected item/menu (solid orange)
-        img_selected = self.get_selected_item_image(image, min_w, min_h)
-        if img_selected is not None:
-            # cv2.imshow("img", img_selected)
-
-            #crop_with_border = cv2.copyMakeBorder(img_selected, 40, 20, 20, 20, cv2.BORDER_CONSTANT)
-            ocr_data, ocr_textlist = self.ocr.image_ocr_no_filter(img_selected)
-
-            #draw_bounding_boxes(crop_with_border, ocr_data, 0.25)
-            #cv2.imwrite(image_out_path, crop_with_border)
-            #draw_bounding_boxes(crop_with_border, ocr_data, 0.25)
-            #cv2.imwrite(image_out_path, crop_with_border)
-            #cv2.imshow("ocr", crop_with_border)
-            if ocr_data is not None:
-                return img_selected, ocr_data, ocr_textlist
-            else:
-                return None, None, None
-
-        else:
-            return None, None, None
-
     def lock_destination(self, dst_name) -> bool:
-        """ For test to try to lock target to a location.
+        """ Opens Nav Panel, Navigation Tab, scrolls locations and if the requested
+        location is found, lock onto destination. Close Nav Panel.
         """
         res = self.show_navigation_tab()
         if not res:
@@ -349,13 +297,14 @@ class NavPanel:
             loc_panel = self.capture_location_panel()
 
             # Find the selected item/menu (solid orange)
-            img_selected = self.get_selected_item_image(loc_panel, 100, 10)
+            img_selected = self.ocr.get_selected_item_image(loc_panel, 100, 10)
             if img_selected is not None:
                 # OCR the selected item
-                ocr_textlist = self.ocr.image_simple_ocr_no_filter(img_selected)
+                ocr_textlist = self.ocr.image_simple_ocr(img_selected)
                 if ocr_textlist is not None:
                     if dst_name in str(ocr_textlist):
                         self.keys.send("UI_Select", repeat=2)  # Select it and lock target
+                        found = True
                         break
                     else:
                         tries += 1
@@ -363,7 +312,7 @@ class NavPanel:
                         sleep(0.2)
 
         self.hide_nav_panel()
-        return True
+        return found
 
     def request_docking(self) -> bool:
         """ Try to request docking.
