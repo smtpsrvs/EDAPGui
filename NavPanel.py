@@ -2,6 +2,8 @@ from time import sleep
 
 import numpy as np
 import cv2
+
+from EDlogger import logger
 from OCR import OCR, crop_image_by_pct
 
 """
@@ -35,64 +37,22 @@ class NavPanel:
         self.reg['tab_bar'] = {'rect': [0.0, 0.0, 1.0, 0.1152]}  # Fraction with ref to the Nav Panel
         self.reg['location_panel'] = {'rect': [0.2218, 0.3069, 0.8537, 0.9652]}  # Fraction with ref to the Nav Panel
 
-    def __capture_nav_panel_on_screen(self):
-        """ Just grab the screen based on the region name/rect.
-        Returns an unfiltered image, squared (no perspective).
+    def capture_region_straightened(self, region):
+        """ Grab the image based on the region name/rect.
+        Returns an unfiltered image, either from screenshot or provided image.
          """
-        rect = self.reg['nav_panel']['rect']
-
-        abs_rect = [int(rect[0] * self.screen.screen_width), int(rect[1] * self.screen.screen_height),
-                    int(rect[2] * self.screen.screen_width), int(rect[3] * self.screen.screen_height)]
-        image = self.screen.get_screen_region(abs_rect)
-        self.screen_image = image
-
-        straightened = self.__nav_panel_perspective_warp(image)
-        return straightened
-
-    def __capture_nav_panel_from_image(self):
-        """ Just grab the image based on the region name/rect.
-        Returns an unfiltered image, squared (no perspective).
-         """
-        rect = self.reg['nav_panel']['rect']
-
-        if self.screen_image is None:
-            return None
-
-        image = self.screen_image
-
-        # Existing size
-        h, w, ch = image.shape
-
-        # Crop to leave only the selected rectangle
-        x0 = int(w * rect[0])
-        y0 = int(h * rect[1])
-        x1 = int(w * rect[2])
-        y1 = int(h * rect[3])
-
-        # Crop image
-        cropped = image[y0:y1, x0:x1]
-
-        straightened = self.__nav_panel_perspective_warp(cropped)
-        return straightened
-
-    def capture_nav_panel(self):
-        """ Just grab the nav_panel image based on the region name/rect.
-            Returns an unfiltered image, squared (no perspective).
-            Capture may be from an image or the screen.
-         """
-        rect = self.reg['nav_panel']['rect']
+        rect = self.reg[region]['rect']
 
         if self.using_screen:
-            # return self.__capture_nav_panel_on_screen()
-            #image = self.screen.get_full_screen()
             image = self.screen.get_screen_region_pct(rect)
         else:
-            #return self.__capture_nav_panel_from_image()
             if self.screen_image is None:
                 return None
             image = crop_image_by_pct(self.screen_image, rect)
 
+        # Straighten the image
         straightened = self.__nav_panel_perspective_warp(image)
+        # cv2.imwrite(f'test/{region}.png', straightened)
         return straightened
 
     def __nav_panel_perspective_warp(self, image):
@@ -124,7 +84,7 @@ class NavPanel:
         """ Get the location panel from within the nav panel.
         Returns an image.
         """
-        nav_panel = self.capture_nav_panel()
+        nav_panel = self.capture_region_straightened('nav_panel')
 
         # Existing size
         h, w, ch = nav_panel.shape
@@ -146,7 +106,7 @@ class NavPanel:
         """ Get the tab bar (NAVIGATION/TRANSACTIONS/CONTACTS/TARGET).
         Returns an image.
         """
-        nav_pnl = self.capture_nav_panel()
+        nav_pnl = self.capture_region_straightened('nav_panel')
 
         # Existing size
         h, w, ch = nav_pnl.shape
@@ -288,31 +248,42 @@ class NavPanel:
         self.keys.send("UI_Down")  # go down
         self.keys.send("UI_Up", hold=2)  # got to top row
 
+        found = self.find_destination_in_list(dst_name)
+        if found:
+            self.keys.send("UI_Select", repeat=2)  # Select it and lock target
+
+        self.hide_nav_panel()
+        return found
+
+    def find_destination_in_list(self, dst_name) -> bool:
         # tries is the number of rows to go through to find the item looking for
         # the Nav Panel should be filtered to reduce the number of rows in the list
-        found = False
         tries = 0
-        while not found and tries < 50:
+        in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
+        while tries < 50:
             # Get the location panel image
             loc_panel = self.capture_location_panel()
 
             # Find the selected item/menu (solid orange)
             img_selected = self.ocr.get_selected_item_in_image(loc_panel, 100, 10)
-            if img_selected is not None:
-                # OCR the selected item
-                ocr_textlist = self.ocr.image_simple_ocr(img_selected)
-                if ocr_textlist is not None:
-                    if dst_name in str(ocr_textlist):
-                        self.keys.send("UI_Select", repeat=2)  # Select it and lock target
-                        found = True
-                        break
-                    else:
-                        tries += 1
-                        self.keys.send("UI_Down")  # up to next item
-                        sleep(0.2)
+            # Check if end of list.
+            if img_selected is None and in_list:
+                logger.debug(f"Did not find '{dst_name}' in list.")
+                return False
 
-        self.hide_nav_panel()
-        return found
+            # OCR the selected item
+            ocr_textlist = self.ocr.image_simple_ocr(img_selected)
+            if ocr_textlist is not None:
+                if dst_name in str(ocr_textlist):
+                    logger.debug(f"Found '{dst_name}' in list.")
+                    return True
+                else:
+                    in_list = True
+                    tries += 1
+                    self.keys.send("UI_Down")  # up to next item
+
+        logger.debug(f"Did not find '{dst_name}' in list.")
+        return False
 
     def request_docking(self) -> bool:
         """ Try to request docking.

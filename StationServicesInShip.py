@@ -140,75 +140,53 @@ class PassengerLounge:
         self.keys.send("UI_Select")
         return True
 
-    def any_completed_missions(self) -> bool:
-        """ Are there completed missions? If NO COMPLETED MISSIONS return False, else True.
-        Checks if text exists in a region using OCR."""
-        no_missions = ["NO COMPLETED MISSIONS", "NOCOMPLETED MISSIONS"]
+    def is_text_in_region(self, text, region):
+        """ Does the region include the text being checked for. The region does not need
+        to include highlighted areas.
+        Checks if text exists in a region using OCR.
+        Return True if found, False if not and None if no item was selected. """
+        # TODO - combine this with the other capture_region methods in other classes
 
-        img = self.capture_no_missions()
+        img = self.capture_region(region)
 
         ocr_textlist = self.ocr.image_simple_ocr(img)
         # print(str(ocr_textlist))
 
-        if ocr_textlist is None:
-            logger.debug("OCR data is [None] in Passenger Lounge screen.")
+        if text in str(ocr_textlist):
+            logger.debug(f"Found '{text}' text in item text '{str(ocr_textlist)}'.")
+            return True
+        else:
+            logger.debug(f"Did not find '{text}' text in item text '{str(ocr_textlist)}'.")
             return False
 
-        for name in no_missions:
-            if name in str(ocr_textlist):
-                logger.debug("Found 'NO COMPLETED MISSIONS' text in Passenger Lounge screen.")
-                return False
-
-        logger.debug("Did not find 'NO COMPLETED MISSIONS' text in Passenger Lounge screen.")
-        return True
-
-    def is_mission_destination_match(self, destination):
-        """ Does the mission destination include the text being checked for.
+    def is_text_in_selected_item_in_region(self, text, region):
+        """ Does the selected item in the region include the text being checked for.
         Checks if text exists in a region using OCR.
         Return True if found, False if not and None if no item was selected. """
+        # TODO - combine this with the other capture_region methods in other classes
+        img = self.capture_region(region)
 
-        img = self.capture_mission_dest_col()
+        # Find the selected (highlighted) area within the image
         img_selected = self.ocr.get_selected_item_in_image(img, 25, 10)
         if img_selected is None:
             logger.debug(f"Did not find a selected item in the region.")
             return None
 
         ocr_textlist = self.ocr.image_simple_ocr(img_selected)
-        print(str(ocr_textlist))
+        # print(str(ocr_textlist))
 
-        if destination in str(ocr_textlist):
-            logger.debug(f"Found '{destination}' text in destination {str(ocr_textlist)}.")
+        if text in str(ocr_textlist):
+            logger.debug(f"Found '{text}' text in item text '{str(ocr_textlist)}'.")
             return True
         else:
-            logger.debug(f"Did not find '{destination}' text in destination {str(ocr_textlist)}.")
+            logger.debug(f"Did not find '{text}' text in item text '{str(ocr_textlist)}'.")
             return False
 
-    def is_complete_mission_match(self, name):
-        """ Does the mission destination include the text being checked for.
-        Checks if text exists in a region using OCR.
-        Return True if found, False if not and None if no item was selected. """
-
-        img = self.capture_complete_mission_col()
-        img_selected = self.ocr.get_selected_item_in_image(img, 25, 10)
-        if img_selected is None:
-            logger.debug(f"Did not find a selected item in the region.")
-            return None
-
-        ocr_textlist = self.ocr.image_simple_ocr(img_selected)
-        print(str(ocr_textlist))
-
-        if name in str(ocr_textlist):
-            logger.debug(f"Found '{name}' text in item text '{str(ocr_textlist)}'.")
-            return True
-        else:
-            logger.debug(f"Did not find '{name}' text in item text '{str(ocr_textlist)}'.")
-            return False
-
-    def capture_no_missions(self):
-        """ Just grab the image based on the region name/rect.
-        Returns an unfiltered image, squared (no perspective).
+    def capture_region(self, region):
+        """ Grab the image based on the region name/rect.
+        Returns an unfiltered image, either from screenshot or provided image.
          """
-        rect = self.reg['missions']['rect']
+        rect = self.reg[region]['rect']
 
         if self.parent.using_screen:
             image = self.parent.screen.get_screen_region_pct(rect)
@@ -217,95 +195,33 @@ class PassengerLounge:
                 return None
             image = crop_image_by_pct(self.parent.screen_image, rect)
 
-        #cv2.imwrite('test/no_missions.png', image)
+        # cv2.imwrite(f'test/{region}.png', image)
         return image
 
-    def capture_mission_dest_col(self):
-        """ Just grab the image based on the region name/rect.
-        Returns an unfiltered image, squared (no perspective).
-         """
-        rect = self.reg['mission_dest_col']['rect']
-
-        if self.parent.using_screen:
-            image = self.parent.screen.get_screen_region_pct(rect)
-        else:
-            if self.parent.screen_image is None:
-                return None
-            image = crop_image_by_pct(self.parent.screen_image, rect)
-
-        cv2.imwrite('test/mission_det_col.png', image)
-        return image
-
-    def capture_complete_mission_col(self):
-        """ Just grab the image based on the region name/rect.
-        Returns an unfiltered image, squared (no perspective).
-         """
-        rect = self.reg['complete_mission_col']['rect']
-
-        if self.parent.using_screen:
-            image = self.parent.screen.get_screen_region_pct(rect)
-        else:
-            if self.parent.screen_image is None:
-                return None
-            image = crop_image_by_pct(self.parent.screen_image, rect)
-
-        cv2.imwrite('test/complete_mission_col.png', image)
-        return image
-
-    def find_mission_destination(self, name) -> bool:
-        """ Attempt to find the destination in the list of missions.
+    def find_select_item_in_list(self, text, region) -> bool:
+        """ Attempt to find the item by text in t a list defined by the region.
         If found, leaves it selected for further actions. """
-
-        # Goto first mission
-        #self.keys.send("UI_Up", hold=3)
-        #self.keys.send("UI_Down", repeat=2)
-
-        cnt = 0
+        # TODO - combine this with the other capture_region methods in other classes
+        tries = 0
         in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
-        while cnt < 99:
-            found = self.is_mission_destination_match(name)
+        while tries < 50:
+            found = self.is_text_in_selected_item_in_region(text, region)
 
             # Check if end of list.
             if found is None and in_list:
+                logger.debug(f"Did not find '{text}' in {region} list.")
                 return False
 
             if found:
-                logger.debug(f"Found '{name}' in destinations.")
+                logger.debug(f"Found '{text}' in {region} list.")
                 return True
             else:
                 # Next item
                 in_list = True
+                tries = tries + 1
                 self.keys.send("UI_Down")
 
-        logger.debug(f"Did not find '{name}' in destinations.")
-        return False
-
-    def find_complete_mission(self, name) -> bool:
-        """ Attempt to find the destination in the list of missions.
-        If found, leaves it selected for further actions. """
-
-        # Goto first mission
-        #self.keys.send("UI_Up", hold=3)
-        #self.keys.send("UI_Down", repeat=2)
-
-        cnt = 0
-        in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
-        while cnt < 99:
-            found = self.is_complete_mission_match(name)
-
-            # Check if end of list.
-            if found is None and in_list:
-                return False
-
-            if found:
-                logger.debug(f"Found '{name}' in mission.")
-                return True
-            else:
-                # Next item
-                in_list = True
-                self.keys.send("UI_Down")
-
-        logger.debug(f"Did not find '{name}' in mission.")
+        logger.debug(f"Did not find '{text}' in {region} list.")
         return False
 
 
@@ -343,36 +259,38 @@ class CommoditiesMarket:
         self.keys.send("UI_Select")  # Select Sell
         return True
 
-    def find_commodity(self, name) -> bool:
-        """ Attempt to find the commodity in the list of commodities.
+    def find_select_item_in_list(self, text, region) -> bool:
+        """ Attempt to find the item by text in t a list defined by the region.
         If found, leaves it selected for further actions. """
-
-        # Loop selecting missions, go up to 20 times, have seen at time up to 17 missions
-        # before getting to Sirius Atmos missions
-        self.keys.send("UI_Right")
-        self.keys.send("UI_Up", hold=2)
-
-        cnt=0
-        while cnt < 99:
-            found = self.is_commodity_name_match(name)
+        # TODO - combine this with the other capture_region methods in other classes
+        tries = 0
+        in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
+        while tries < 50:
+            found = self.is_text_in_selected_item_in_region(text, region)
 
             # Check if end of list.
-            if found is None:
+            if found is None and in_list:
+                logger.debug(f"Did not find '{text}' in {region} list.")
                 return False
 
             if found:
-                logger.debug(f"Found '{name}' in commodities.")
+                logger.debug(f"Found '{text}' in {region} list.")
                 return True
             else:
+                # Next item
+                in_list = True
+                tries = tries + 1
                 self.keys.send("UI_Down")
 
-        logger.debug(f"Did not find '{name}' in commodities.")
+        logger.debug(f"Did not find '{text}' in {region} list.")
         return False
 
     def buy_commodity(self, name, qty) -> bool:
         """ Buy qty of commodity. If qty >= 9999 then buy as much as possible. """
         self.select_buy()
-        found = self.find_commodity(name)
+        self.keys.send("UI_Right")
+        self.keys.send("UI_Up", hold=2)
+        found = self.find_select_item_in_list(name, 'commodity_name_col')
         if not found:
             return False
 
@@ -395,7 +313,9 @@ class CommoditiesMarket:
     def sell_commodity(self, name, qty) -> bool:
         """ Sell qty of commodity. If qty >= 9999 then sell as much as possible. """
         self.select_sell()
-        found = self.find_commodity(name)
+        self.keys.send("UI_Right")
+        self.keys.send("UI_Up", hold=2)
+        found = self.find_select_item_in_list(name, 'commodity_name_col')
         if not found:
             return False
 
@@ -415,33 +335,12 @@ class CommoditiesMarket:
 
         self.keys.send("UI_Back")
 
-    def is_commodity_name_match(self, name):
-        """ Does the mission destination include the text being checked for.
-        Checks if text exists in a region using OCR.
-        Return True if found, False if not and None if no item was selected. """
-
-        img = self.capture_commodity_name_col()
-        img_selected = self.ocr.get_selected_item_in_image(img, 25, 10)
-        if img_selected is None:
-            logger.debug(f"Did not find a selected item in the region.")
-            return None
-
-        ocr_textlist = self.ocr.image_simple_ocr(img_selected)
-        print(str(ocr_textlist))
-
-        if name in str(ocr_textlist):
-            logger.debug(f"Found '{name}' text in destination {str(ocr_textlist)}.")
-            return True
-        else:
-            logger.debug(f"Did not find '{name}' text in destination {str(ocr_textlist)}.")
-            return False
-
-    def capture_commodity_name_col(self):
-        """ Just grab the image based on the region name/rect.
-        Captures the commodity name column from the commodities list.
-        Returns an unfiltered image.
+    def capture_region(self, region):
+        """ Grab the image based on the region name/rect.
+        Returns an unfiltered image, either from screenshot or provided image.
          """
-        rect = self.reg['commodity_name_col']['rect']
+        # TODO - combine this with the other capture_region methods in other classes
+        rect = self.reg[region]['rect']
 
         if self.parent.using_screen:
             image = self.parent.screen.get_screen_region_pct(rect)
@@ -450,4 +349,27 @@ class CommoditiesMarket:
                 return None
             image = crop_image_by_pct(self.parent.screen_image, rect)
 
+        # cv2.imwrite(f'test/{region}.png', image)
         return image
+
+    def is_text_in_selected_item_in_region(self, text, region):
+        """ Does the selected item in the region include the text being checked for.
+        Checks if text exists in a region using OCR.
+        Return True if found, False if not and None if no item was selected. """
+        # TODO - combine this with the other capture_region methods in other classes
+
+        img = self.capture_region(region)
+        img_selected = self.ocr.get_selected_item_in_image(img, 25, 10)
+        if img_selected is None:
+            logger.debug(f"Did not find a selected item in the region.")
+            return None
+
+        ocr_textlist = self.ocr.image_simple_ocr(img_selected)
+        print(str(ocr_textlist))
+
+        if text in str(ocr_textlist):
+            logger.debug(f"Found '{text}' text in item text '{str(ocr_textlist)}'.")
+            return True
+        else:
+            logger.debug(f"Did not find '{text}' text in item text '{str(ocr_textlist)}'.")
+            return False

@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 from paddleocr import PaddleOCR
 
+from EDlogger import logger
+
 """
 File:OCR.py    
 
@@ -147,3 +149,4 @@ class OCR:
 
         # No good matches, then return None
         return None
+

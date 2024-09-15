@@ -105,7 +105,7 @@ def buy_sell_commodities():
     stn_svc = StationServicesInShip(scr, keys)
     #stn_svc.goto_passenger_lounge()
     #stn_svc.passenger_lounge.goto_personal_transport_missions()
-    #show_all_regions(stn_svc.passenger_lounge.reg)
+    # show_all_regions(stn_svc.passenger_lounge.reg)
 
     stn_svc.goto_commodities_market()
     #show_all_regions(stn_svc.commodities_market.reg)
@@ -236,7 +236,7 @@ def nav_panel_display_all_text_test(directory):
             nav_pnl.screen_image = orig_image
 
             # Extract region
-            image = nav_pnl.capture_nav_panel()
+            image = nav_pnl.capture_region_straightened('nav_panel')
 
             ocr_data, ocr_textlist = ocr.image_ocr(image)
 

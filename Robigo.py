@@ -80,11 +80,9 @@ class Robigo:
         ap.jn.ship_state()['mission_completed'] = 0
 
         # Check if "NO COMPLETED MISSIONS" is shown in the passenger lounge
-        no_missions = not self.ap.station_services_in_ship.passenger_lounge.any_completed_missions()
-
-        # we don't have any missions to complete as the screen did not change
-        if no_missions:
-            print("no missions to complete")
+        found = self.ap.station_services_in_ship.passenger_lounge.is_text_in_region("COMPLETE MISSIONS", 'missions')
+        if not found:
+            print("No missions to complete")
             ap.keys.send("UI_Left")
             return
 
@@ -94,7 +92,8 @@ class Robigo:
         sleep(2)  # give time for mission page to come up
 
         while True:
-            found = self.ap.station_services_in_ship.passenger_lounge.find_complete_mission("COMPLETE MISSION")
+            found = self.ap.station_services_in_ship.passenger_lounge.find_select_item_in_list("COMPLETE MISSION",
+                                                                                               'complete_mission_col')
             if found:
                 ap.keys.send("UI_Select")  # select mission
                 sleep(0.1)
@@ -130,7 +129,8 @@ class Robigo:
         # Loop selecting missions, go up to 20 times, have seen at time up to 17 missions
         # before getting to Sirius Atmos missions
         while mission_cnt < 20:
-            found = self.ap.station_services_in_ship.passenger_lounge.find_mission_destination("SIRIUS ATMOSPHERICS")
+            found = self.ap.station_services_in_ship.passenger_lounge.find_select_item_in_list("SIRIUS ATMOSPHERICS",
+                                                                                               'mission_dest_col')
 
             # found a sirius mission
             if found:
