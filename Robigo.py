@@ -1,8 +1,6 @@
 from time import sleep
 import time
 
-from OCR import OCR
-
 '''
 import keyboard
 import win32gui
@@ -80,7 +78,7 @@ class Robigo:
         ap.jn.ship_state()['mission_completed'] = 0
 
         # Check if "NO COMPLETED MISSIONS" is shown in the passenger lounge
-        found = self.ap.station_services_in_ship.passenger_lounge.is_text_in_region("COMPLETE MISSIONS", 'missions')
+        found = self.ap.stn_svcs_in_ship.passenger_lounge.missions_ready_to_complete()
         if not found:
             print("No missions to complete")
             ap.keys.send("UI_Left")
@@ -92,8 +90,8 @@ class Robigo:
         sleep(2)  # give time for mission page to come up
 
         while True:
-            found = self.ap.station_services_in_ship.passenger_lounge.find_select_item_in_list("COMPLETE MISSION",
-                                                                                               'complete_mission_col')
+            # TODO move this to pass lounge so region is locally defined.
+            found = self.ap.stn_svcs_in_ship.passenger_lounge.find_mission_to_complete()
             if found:
                 ap.keys.send("UI_Select")  # select mission
                 sleep(0.1)
@@ -124,13 +122,13 @@ class Robigo:
     def get_missions(self, ap):
         mission_cnt = 0
 
-        self.ap.station_services_in_ship.passenger_lounge.goto_personal_transport_missions()
+        self.ap.stn_svcs_in_ship.passenger_lounge.goto_personal_transport_missions()
 
         # Loop selecting missions, go up to 20 times, have seen at time up to 17 missions
         # before getting to Sirius Atmos missions
         while mission_cnt < 20:
-            found = self.ap.station_services_in_ship.passenger_lounge.find_select_item_in_list("SIRIUS ATMOSPHERICS",
-                                                                                               'mission_dest_col')
+            # TODO move this to pass lounge so region is locally defined.
+            found = self.ap.stn_svcs_in_ship.passenger_lounge.select_mission_with_dest("SIRIUS ATMOSPHERICS")
 
             # found a sirius mission
             if found:
@@ -223,7 +221,7 @@ class Robigo:
                     ap.update_ap_status("Completing missions")
 
                     # Complete Missions, if we have any
-                    self.ap.station_services_in_ship.goto_passenger_lounge()
+                    self.ap.stn_svcs_in_ship.goto_passenger_lounge()
                     sleep(2.5)  # wait for new menu comes up
                     self.complete_missions(ap)
 

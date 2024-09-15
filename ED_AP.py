@@ -119,7 +119,7 @@ class EDAutopilot:
         self.jn = EDJournal()
         self.keys = EDKeys()
         self.nav_panel = NavPanel(self.scr, self.keys)
-        self.station_services_in_ship = StationServicesInShip(self.scr, self.keys)
+        self.stn_svcs_in_ship = StationServicesInShip(self.scr, self.keys)
         self.afk_combat = AFK_Combat(self.keys, self.jn, self.vce)
         self.waypoint = EDWayPoint(self.jn.ship_state()['odyssey'])
         self.robigo = Robigo(self)

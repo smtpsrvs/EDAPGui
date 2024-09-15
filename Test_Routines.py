@@ -4,7 +4,6 @@ import os
 from EDKeys import EDKeys
 from NavPanel import NavPanel
 from OCR import OCR
-from Robigo import Robigo
 from Screen_Regions import *
 from Overlay import *
 from Screen import *
@@ -212,7 +211,7 @@ def nav_panel_display_all_text_test(directory):
         :param directory: The directory to process.
     """
     scr = Screen()
-    ocr = OCR()
+    ocr = OCR(scr)
     keys = EDKeys()
     keys.activate_window = True  # Helps with single steps testing
     nav_pnl = NavPanel(scr, keys)
@@ -254,7 +253,7 @@ def nav_panel_selected_item_text(directory):
 
     nav_pnl = NavPanel(scr, keys)
     nav_pnl.using_screen = False
-    ocr = OCR()
+    ocr = OCR(scr)
 
     directory_out = os.path.join(directory, 'out_selected')
     if not os.path.exists(directory_out):
@@ -282,7 +281,7 @@ def nav_panel_selected_item_text(directory):
             #crop_with_border = cv2.copyMakeBorder(img_item, 40, 20, 20, 20, cv2.BORDER_CONSTANT)
             #ocr_data, ocr_textlist = nav_pnl.get_selected_location_data(crop_with_border, 100, 10)
 
-            image, ocr_data, ocr_textlist = ocr.get_selected_item_data(loc_panel, 100, 10)
+            image, ocr_data, ocr_textlist = ocr.get_highlighted_item_data(loc_panel, 100, 10)
             if image is not None:
                 draw_bounding_boxes(image, ocr_data, 0.25)
                 cv2.imwrite(image_out_path, image)
@@ -452,7 +451,7 @@ def ocr_tester(image_path):
     scr = Screen()
     templ = Image_Templates(scr.scaleX, scr.scaleY)
     scr_reg = Screen_Regions(scr, templ)
-    ocr = OCR()
+    ocr = OCR(scr)
 
     cv2.namedWindow("Trackbars", cv2.WINDOW_NORMAL)  # cv2.WINDOW_AUTOSIZE)
 

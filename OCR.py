@@ -35,9 +35,12 @@ def crop_image_by_pct(image, rect):
 
 
 class OCR:
-    def __init__(self):
+    def __init__(self, screen):
+        self.screen = screen
         self.paddleocr = PaddleOCR(use_angle_cls=True, lang='en', use_gpu=False, show_log=False, use_dilation=True,
                                    use_space_char=True)
+        self.using_screen = True  # True to use screen, false to use an image. Set screen_image to the image
+        self.screen_image = None  # Screen image captured from screen, or loaded by user for testing.
 
     def image_ocr(self, image):
         """ Perform OCR with no filtering. Returns the full OCR data and a simplified list of strings.
@@ -85,7 +88,7 @@ class OCR:
 
             return ocr_textlist
 
-    def get_selected_item_data(self, image, min_w, min_h):
+    def get_highlighted_item_data(self, image, min_w, min_h):
         """ Attempts to find a selected item in an image. The selected item is identified by being solid orange or blue
             rectangle with dark text, instead of orange/blue text on a dark background.
             The OCR daya of the first item matching the criteria is returned, otherwise None.
@@ -94,7 +97,7 @@ class OCR:
             @param min_h: The minimum height of the text block.
         """
         # Find the selected item/menu (solid orange)
-        img_selected = self.get_selected_item_in_image(image, min_w, min_h)
+        img_selected = self.get_highlighted_item_in_image(image, min_w, min_h)
         if img_selected is not None:
             # cv2.imshow("img", img_selected)
 
@@ -108,7 +111,7 @@ class OCR:
         else:
             return None, None, None
 
-    def get_selected_item_in_image(self, image, min_w, min_h):
+    def get_highlighted_item_in_image(self, image, min_w, min_h):
         """ Attempts to find a selected item in an image. The selected item is identified by being solid orange or blue
         rectangle with dark text, instead of orange/blue text on a dark background.
         The image of the first item matching the criteria and minimum width and height is returned, otherwise None.
@@ -149,4 +152,89 @@ class OCR:
 
         # No good matches, then return None
         return None
+
+    def capture_region(self, region):
+        """ Grab the image based on the region name/rect.
+        Returns an unfiltered image, either from screenshot or provided image.
+        @param region: The region to check.
+         """
+        # TODO - combine this with the other capture_region methods in other classes
+        rect = region['rect']
+
+        if self.using_screen:
+            image = self.screen.get_screen_region_pct(rect)
+        else:
+            if self.screen_image is None:
+                return None
+            image = crop_image_by_pct(self.screen_image, rect)
+
+        # cv2.imwrite(f'test/{region}.png', image)
+        return image
+
+    def is_text_in_selected_item_in_region(self, text, region):
+        """ Does the selected item in the region include the text being checked for.
+        Checks if text exists in a region using OCR.
+        Return True if found, False if not and None if no item was selected. """
+        # TODO - combine this with the other capture_region methods in other classes
+
+        img = self.capture_region(region)
+        img_selected = self.get_highlighted_item_in_image(img, 25, 10)
+        if img_selected is None:
+            logger.debug(f"Did not find a selected item in the region.")
+            return None
+
+        ocr_textlist = self.image_simple_ocr(img_selected)
+        print(str(ocr_textlist))
+
+        if text in str(ocr_textlist):
+            logger.debug(f"Found '{text}' text in item text '{str(ocr_textlist)}'.")
+            return True
+        else:
+            logger.debug(f"Did not find '{text}' text in item text '{str(ocr_textlist)}'.")
+            return False
+
+    def is_text_in_region(self, text, region):
+        """ Does the region include the text being checked for. The region does not need
+        to include highlighted areas.
+        Checks if text exists in a region using OCR.
+        Return True if found, False if not and None if no item was selected. """
+        # TODO - combine this with the other capture_region methods in other classes
+
+        img = self.capture_region(region)
+
+        ocr_textlist = self.image_simple_ocr(img)
+        # print(str(ocr_textlist))
+
+        if text in str(ocr_textlist):
+            logger.debug(f"Found '{text}' text in item text '{str(ocr_textlist)}'.")
+            return True
+        else:
+            logger.debug(f"Did not find '{text}' text in item text '{str(ocr_textlist)}'.")
+            return False
+
+    def select_item_in_list(self, text, region, keys) -> bool:
+        """ Attempt to find the item by text in a list defined by the region.
+        If found, leaves it selected for further actions. """
+        # TODO - combine this with the other capture_region methods in other classes
+        tries = 0
+        in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
+        while tries < 50:
+            found = self.is_text_in_selected_item_in_region(text, region)
+
+            # Check if end of list.
+            if found is None and in_list:
+                logger.debug(f"Did not find '{text}' in {region} list.")
+                return False
+
+            if found:
+                logger.debug(f"Found '{text}' in {region} list.")
+                return True
+            else:
+                # Next item
+                in_list = True
+                tries = tries + 1
+                keys.send("UI_Down")
+
+        logger.debug(f"Did not find '{text}' in {region} list.")
+        return False
 

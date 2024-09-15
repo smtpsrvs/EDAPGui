@@ -20,7 +20,7 @@ Author: Stumpii
 class NavPanel:
     def __init__(self, screen, keys):
         self.screen = screen
-        self.ocr = OCR()
+        self.ocr = OCR(screen)
         self.keys = keys
 
         self.using_screen = True  # True to use screen, false to use an image. Set screen_image to the image
@@ -223,7 +223,7 @@ class NavPanel:
             Returns True if active, False if not and also the string of the tab name.
         """
         tab_bar = self.capture_tab_bar()
-        img_selected, ocr_data, ocr_textlist = self.ocr.get_selected_item_data(tab_bar, 50, 10)
+        img_selected, ocr_data, ocr_textlist = self.ocr.get_highlighted_item_data(tab_bar, 50, 10)
         if img_selected is not None:
             if self.navigation_tab_text in str(ocr_textlist):
                 return True, self.navigation_tab_text
@@ -265,7 +265,7 @@ class NavPanel:
             loc_panel = self.capture_location_panel()
 
             # Find the selected item/menu (solid orange)
-            img_selected = self.ocr.get_selected_item_in_image(loc_panel, 100, 10)
+            img_selected = self.ocr.get_highlighted_item_in_image(loc_panel, 100, 10)
             # Check if end of list.
             if img_selected is None and in_list:
                 logger.debug(f"Did not find '{dst_name}' in list.")
