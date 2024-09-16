@@ -1,4 +1,8 @@
+import time
 from time import sleep
+
+import cv2
+
 from OCR import OCR
 
 """
@@ -18,9 +22,8 @@ class StationServicesInShip:
         self.keys = keys
         self.passenger_lounge = PassengerLounge(self, self.ocr, self.keys)
         self.commodities_market = CommoditiesMarket(self, self.ocr, self.keys)
-
-        self.using_screen = True  # True to use screen, false to use an image. Set screen_image to the image
-        self.screen_image = None  # Screen image captured from screen, or loaded by user for testing.
+        self.region_connected_to = {'rect': [0.0, 0.0, 0.25, 0.25]}
+        self.region_commodities_market = {'rect': [0.0, 0.0, 0.25, 0.25]}
 
     def goto_station_services(self) -> bool:
         """ Goto Station Services. """
@@ -31,8 +34,10 @@ class StationServicesInShip:
 
         self.keys.send("UI_Down")  # station services
         self.keys.send("UI_Select")  # station services
-        sleep(3)  # give time for station services to come up
-        return True
+
+        # Wait for screen to appear
+        res = self.ocr.wait_for_text("CONNECTED TO", self.region_connected_to)
+        return res
 
     def goto_select_mission_board(self) -> bool:
         """ Go to the Mission Board. Shows 3 buttons: COMMUNITY GOALS, MISSION BOARD and PASSENGER LOUNGE. """
@@ -60,10 +65,11 @@ class StationServicesInShip:
         self.keys.send("UI_Left", hold=2)
 
         self.keys.send("UI_Right")  # Commodities Market
-        sleep(0.1)
         self.keys.send("UI_Select")  # Commodities Market
-        sleep(1)
-        return True
+
+        # Wait for screen to appear
+        res = self.ocr.wait_for_text("CONNECTED TO", self.region_commodities_market)
+        return res
 
     def goto_mission_board(self) -> bool:
         """ Go to the passenger lounge menu. """
@@ -90,7 +96,6 @@ class StationServicesInShip:
 
         # Select Passenger Lounge
         self.keys.send("UI_Right")  # Passenger lounge
-        sleep(0.1)
         self.keys.send("UI_Select")
         sleep(1)  # give time to bring up menu
         return True
@@ -117,13 +122,12 @@ class PassengerLounge:
 
         # Select Personal Transportation
         self.keys.send("UI_Up", repeat=3)
-        sleep(0.2)
         self.keys.send("UI_Down", repeat=2)
-        sleep(0.2)
         self.keys.send("UI_Select")  # select Personal Transport
-        # TODO - use OCR to check if the screen it up instead of waiting
-        sleep(15)  # wait 15 second for missions menu to show up
-        return True
+
+        # Wait for screen to appear
+        res = self.ocr.wait_for_text("DESTINATION", self.reg['mission_dest_col'])
+        return res
 
     def goto_complete_missions(self) -> bool:
         """ Go to the passenger lounge menu. """
@@ -139,7 +143,7 @@ class PassengerLounge:
     def find_mission_to_complete(self) -> bool:
         """ Find the first mission in the completed missions list.
         True if a completed mission is selected, else False (no missions left to turn in). """
-        return self.ocr.select_item_in_list("COMPLETE MISSION", self.reg['complete_mission_col'])
+        return self.ocr.select_item_in_list("COMPLETE MISSION", self.reg['complete_mission_col'], self.keys)
 
     def missions_ready_to_complete(self) -> bool:
         """ Check if the COMPLETE MISSIONS button is enabled (we have missions to turn in.
@@ -149,7 +153,7 @@ class PassengerLounge:
     def select_mission_with_dest(self, dest) -> bool:
         """ Select a mission with the required destination.
         True if there are missions, else False. """
-        return self.ocr.select_item_in_list(dest, self.reg['mission_dest_col'])
+        return self.ocr.select_item_in_list(dest, self.reg['mission_dest_col'], self.keys)
 
 
 class CommoditiesMarket:
@@ -196,7 +200,7 @@ class CommoditiesMarket:
             return False
 
         self.keys.send("UI_Select")
-        sleep(0.1)
+        sleep(0.2) # Wait for popup
         self.keys.send("UI_Left")
         self.keys.send("UI_Up", repeat=2)
 
@@ -221,7 +225,7 @@ class CommoditiesMarket:
             return False
 
         self.keys.send("UI_Select")
-        sleep(0.1)
+        sleep(0.2) # Wait for popup
         self.keys.send("UI_Left")
         self.keys.send("UI_Up", repeat=2)
 

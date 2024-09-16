@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import numpy as np
 from paddleocr import PaddleOCR
@@ -156,9 +158,8 @@ class OCR:
     def capture_region(self, region):
         """ Grab the image based on the region name/rect.
         Returns an unfiltered image, either from screenshot or provided image.
-        @param region: The region to check.
+        @param region: The region to check in % (0.0 - 1.0).
          """
-        # TODO - combine this with the other capture_region methods in other classes
         rect = region['rect']
 
         if self.using_screen:
@@ -175,7 +176,6 @@ class OCR:
         """ Does the selected item in the region include the text being checked for.
         Checks if text exists in a region using OCR.
         Return True if found, False if not and None if no item was selected. """
-        # TODO - combine this with the other capture_region methods in other classes
 
         img = self.capture_region(region)
         img_selected = self.get_highlighted_item_in_image(img, 25, 10)
@@ -197,8 +197,10 @@ class OCR:
         """ Does the region include the text being checked for. The region does not need
         to include highlighted areas.
         Checks if text exists in a region using OCR.
-        Return True if found, False if not and None if no item was selected. """
-        # TODO - combine this with the other capture_region methods in other classes
+        Return True if found, False if not and None if no item was selected.
+        @param text: The text to check for.
+        @param region: The region to check in % (0.0 - 1.0).
+        """
 
         img = self.capture_region(region)
 
@@ -215,7 +217,7 @@ class OCR:
     def select_item_in_list(self, text, region, keys) -> bool:
         """ Attempt to find the item by text in a list defined by the region.
         If found, leaves it selected for further actions. """
-        # TODO - combine this with the other capture_region methods in other classes
+
         tries = 0
         in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
         while tries < 50:
@@ -238,3 +240,21 @@ class OCR:
         logger.debug(f"Did not find '{text}' in {region} list.")
         return False
 
+    def wait_for_text(self, text, region, timeout=30) -> bool:
+        """ Wait for a screen to appear by checking for text to appear in the region.
+        @param text: The text to check for.
+        @param region: The region to check in % (0.0 - 1.0).
+        @param timeout: Time to wait for screen in seconds
+        """
+        start_time = time.time()
+        while True:
+            # Check for timeout.
+            if time.time() > (start_time + timeout):
+                return False
+
+            # Check if screen has appeared.
+            res = self.is_text_in_region(text, region)
+            if res:
+                return True
+            else:
+                time.sleep(0.25)

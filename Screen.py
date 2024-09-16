@@ -110,8 +110,11 @@ class Screen:
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         return image
 
-    def get_screen_region_pct(self, reg):
-        abs_rect = self.screen_pct_to_abs(reg)
+    def get_screen_region_pct(self, region):
+        """ Grabs a screenshot and returns the selected region as an image.
+        @param region: The region to check in % (0.0 - 1.0).
+        """
+        abs_rect = self.screen_pct_to_abs(region)
         image = self.get_screen(abs_rect[0], abs_rect[1], abs_rect[2], abs_rect[3])
         # TODO delete this line when COLOR_RGB2BGR is removed from get_screen()
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -122,3 +125,11 @@ class Screen:
         abs_rect = [int(reg[0] * self.screen_width), int(reg[1] * self.screen_height),
                     int(reg[2] * self.screen_width), int(reg[3] * self.screen_height)]
         return abs_rect
+
+    def get_screen_full(self):
+        """ Grabs a full screenshot and returns the image.
+        """
+        image = self.get_screen(0, 0, self.screen_width, self.screen_height)
+        # TODO delete this line when COLOR_RGB2BGR is removed from get_screen()
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        return image

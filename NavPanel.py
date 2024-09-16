@@ -40,7 +40,8 @@ class NavPanel:
     def capture_region_straightened(self, region):
         """ Grab the image based on the region name/rect.
         Returns an unfiltered image, either from screenshot or provided image.
-         """
+        @param region: The region to check in % (0.0 - 1.0).
+        """
         rect = self.reg[region]['rect']
 
         if self.using_screen:

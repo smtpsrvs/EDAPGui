@@ -90,13 +90,11 @@ class Robigo:
         sleep(2)  # give time for mission page to come up
 
         while True:
-            # TODO move this to pass lounge so region is locally defined.
             found = self.ap.stn_svcs_in_ship.passenger_lounge.find_mission_to_complete()
             if found:
                 ap.keys.send("UI_Select")  # select mission
                 sleep(0.1)
                 ap.keys.send("UI_Up")  # Up to Credit
-                ap.keys.send("UI_Right")  # Right for Materials
                 sleep(0.1)
                 ap.keys.send("UI_Select")  # Select it
                 sleep(10)  # wait until the "skip" button changes to "back" button
@@ -127,7 +125,6 @@ class Robigo:
         # Loop selecting missions, go up to 20 times, have seen at time up to 17 missions
         # before getting to Sirius Atmos missions
         while mission_cnt < 20:
-            # TODO move this to pass lounge so region is locally defined.
             found = self.ap.stn_svcs_in_ship.passenger_lounge.select_mission_with_dest("SIRIUS ATMOSPHERICS")
 
             # found a sirius mission
