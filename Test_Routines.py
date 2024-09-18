@@ -12,6 +12,7 @@ from time import sleep
 import numpy as np
 
 from StationServicesInShip import StationServicesInShip
+from Voice import Voice
 
 """
 File:Test_Routines.py    
@@ -100,14 +101,17 @@ def main():
 def buy_sell_commodities():
     scr = Screen()
     keys = EDKeys()
+    vce = Voice()
+    vce.v_enabled=True
     keys.activate_window = True  # Helps with single steps testing
-    stn_svc = StationServicesInShip(scr, keys)
+    stn_svc = StationServicesInShip(scr, keys, vce)
     #stn_svc.goto_passenger_lounge()
     #stn_svc.passenger_lounge.goto_personal_transport_missions()
-    # show_all_regions(stn_svc.passenger_lounge.reg)
-
+    #show_all_regions(stn_svc.passenger_lounge.reg)
+    #return
     stn_svc.goto_commodities_market()
     #show_all_regions(stn_svc.commodities_market.reg)
+
     #stn_svc.commodities_market.select_buy()
     #stn_svc.commodities_market.find_commodity("GOLD")
 
@@ -116,7 +120,8 @@ def buy_sell_commodities():
 
     stn_svc.commodities_market.buy_commodity("GOLD", 10)
 
-    stn_svc.commodities_market.sell_commodity("TEA", 5)
+    stn_svc.commodities_market.sell_commodity("WINE", 5)
+    stn_svc.goto_station_services()
 
 def draw_match_rect(img, pt1, pt2, color, thick):
     """ Utility function to add a rectangle to an image. """
@@ -297,10 +302,11 @@ def nav_panel_lock_station(name):
     keys = EDKeys()
     keys.activate_window = True  # Helps with single steps testing
     nav_pnl = NavPanel(scr, keys)
+    #show_all_regions(nav_pnl.reg)
 
     nav_pnl.lock_destination(name)
 
-    nav_pnl.request_docking()
+    #nav_pnl.request_docking()
 
 def nav_panel_request_docking():
     scr = Screen()
@@ -357,7 +363,7 @@ def show_regions(region_names):
 def show_all_regions(regions):
     """ Draw a rectangle indicating the given region on the Elite Dangerous window.
         :param regions: An array names of the regions to indicate on screen (i.e. ["compass", "target"])."""
-    ov = Overlay("", 0)
+    ov = Overlay("", 1)
     scr = Screen()
 
     overlay_colors = [

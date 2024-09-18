@@ -1,8 +1,4 @@
-import time
 from time import sleep
-
-import cv2
-
 from OCR import OCR
 
 """
@@ -16,10 +12,11 @@ Author: Stumpii
 
 
 class StationServicesInShip:
-    def __init__(self, screen, keys):
+    def __init__(self, screen, keys, voice):
         self.screen = screen
         self.ocr = OCR(screen)
         self.keys = keys
+        self.vce = voice
         self.passenger_lounge = PassengerLounge(self, self.ocr, self.keys)
         self.commodities_market = CommoditiesMarket(self, self.ocr, self.keys)
         self.region_connected_to = {'rect': [0.0, 0.0, 0.25, 0.25]}
@@ -36,7 +33,7 @@ class StationServicesInShip:
         self.keys.send("UI_Select")  # station services
 
         # Wait for screen to appear
-        res = self.ocr.wait_for_text("CONNECTED TO", self.region_connected_to)
+        res = self.ocr.wait_for_text("CONNECTED TO", self.region_connected_to,'region_connected_to')
         return res
 
     def goto_select_mission_board(self) -> bool:
@@ -60,6 +57,8 @@ class StationServicesInShip:
         if not res:
             return False
 
+        self.vce.say("Connecting to commodities market, commander. ")
+
         # Select Mission Board
         self.keys.send("UI_Up")  # Is up needed?
         self.keys.send("UI_Left", hold=2)
@@ -68,7 +67,7 @@ class StationServicesInShip:
         self.keys.send("UI_Select")  # Commodities Market
 
         # Wait for screen to appear
-        res = self.ocr.wait_for_text("CONNECTED TO", self.region_commodities_market)
+        res = self.ocr.wait_for_text("CONNECTED TO", self.region_commodities_market, 'region_commodities_market')
         return res
 
     def goto_mission_board(self) -> bool:
@@ -126,7 +125,7 @@ class PassengerLounge:
         self.keys.send("UI_Select")  # select Personal Transport
 
         # Wait for screen to appear
-        res = self.ocr.wait_for_text("DESTINATION", self.reg['mission_dest_col'])
+        res = self.ocr.wait_for_text("DESTINATION", self.reg['mission_dest_col'],'mission_dest_col')
         return res
 
     def goto_complete_missions(self) -> bool:
@@ -143,7 +142,8 @@ class PassengerLounge:
     def find_mission_to_complete(self) -> bool:
         """ Find the first mission in the completed missions list.
         True if a completed mission is selected, else False (no missions left to turn in). """
-        return self.ocr.select_item_in_list("COMPLETE MISSION", self.reg['complete_mission_col'], self.keys)
+        return self.ocr.select_item_in_list("COMPLETE MISSION", self.reg['complete_mission_col'],
+                                            self.keys, 'complete_mission_col')
 
     def missions_ready_to_complete(self) -> bool:
         """ Check if the COMPLETE MISSIONS button is enabled (we have missions to turn in.
@@ -153,7 +153,7 @@ class PassengerLounge:
     def select_mission_with_dest(self, dest) -> bool:
         """ Select a mission with the required destination.
         True if there are missions, else False. """
-        return self.ocr.select_item_in_list(dest, self.reg['mission_dest_col'], self.keys)
+        return self.ocr.select_item_in_list(dest, self.reg['mission_dest_col'], self.keys, 'mission_dest_col')
 
 
 class CommoditiesMarket:
@@ -195,9 +195,13 @@ class CommoditiesMarket:
         self.select_buy()
         self.keys.send("UI_Right")
         self.keys.send("UI_Up", hold=2)
-        found = self.ocr.select_item_in_list(name, self.reg['commodity_name_col'], self.keys)
+
+        self.parent.vce.say(f"Locating {name} to buy.")
+        found = self.ocr.select_item_in_list(name, self.reg['commodity_name_col'], self.keys, 'commodity_name_col')
         if not found:
             return False
+
+        self.parent.vce.say(f"Buying {qty} units of {name}, commander.")
 
         self.keys.send("UI_Select")
         sleep(0.2) # Wait for popup
@@ -220,9 +224,13 @@ class CommoditiesMarket:
         self.select_sell()
         self.keys.send("UI_Right")
         self.keys.send("UI_Up", hold=2)
-        found = self.ocr.select_item_in_list(name, self.reg['commodity_name_col'], self.keys)
+
+        self.parent.vce.say(f"Locating {name} to sell.")
+        found = self.ocr.select_item_in_list(name, self.reg['commodity_name_col'], self.keys, 'commodity_name_col')
         if not found:
             return False
+
+        self.parent.vce.say(f"Selling {qty} units of {name}, commander.")
 
         self.keys.send("UI_Select")
         sleep(0.2) # Wait for popup

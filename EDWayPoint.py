@@ -14,6 +14,14 @@ Description:
    Class will load file called waypoints.json which contains a list of System name to jump to.
    Provides methods to select a waypoint pass into it.  
 
+Example file:
+    { 
+        "Ninabin":   {"DockWithStation": null, "StationCoord": [0,0], "StationBookmark": -1, "SellNumDown": -1, "BuyNumDown": -1, "Completed": false}, 
+        "Wailaroju": {"DockWithStation": null, "StationCoord": [0,0], "StationBookmark": -1, "SellNumDown": -1, "BuyNumDown": -1, "Completed": false},
+        "Enayex":    {"DockWithStation": "Watt Port", "StationCoord": [1977,509], "StationBookmark": -1, "SellNumDown": 12, "BuyNumDown": 5, "Completed": false}, 
+        "Eurybia":   {"DockWithStation": null, "StationCoord": [0,0], "StationBookmark": -1, "SellNumDown": -1, "BuyNumDown": -1, "Completed": false} 
+    }
+
 Author: sumzer0@yahoo.com
 """
 
@@ -22,7 +30,6 @@ class EDWayPoint:
         
         self.is_odyssey = is_odyssey
         self.filename = './waypoints.json'
-
         self.waypoints = {}
         #  { "Ninabin": {"DockWithTarget": false, "TradeSeq": None, "Completed": false} }
         # for i, key in enumerate(self.waypoints):
@@ -125,40 +132,42 @@ class EDWayPoint:
     def is_station_targeted(self, dest) -> bool:
         return self.waypoints[dest]['DockWithStation']
     
-    
     def set_station_target(self, ap, dest):
-        (x, y) = self.waypoints[dest]['StationCoord']
+        station = self.waypoints[dest]['DockWithStation']
+        ap.nav_panel.lock_destination(station)
 
-        # check if StationBookmark exists to get the transition compatibility with old waypoint lists
-        if "StationBookmark" in self.waypoints[dest]:
-            bookmark = self.waypoints[dest]['StationBookmark']
-        else:
-            bookmark = -1
-               
-        ap.keys.send('SystemMapOpen')
-        sleep(3.5)
-        if self.is_odyssey and bookmark != -1:
-            ap.keys.send('UI_Left')
-            sleep(1)
-            ap.keys.send('UI_Select')
-            sleep(.5)
-            ap.keys.send('UI_Down', repeat=2)
-            sleep(.5)
-            ap.keys.send('UI_Right')
-            sleep(.5)
-            ap.keys.send('UI_Down', repeat=bookmark)
-            sleep(.5)
-            ap.keys.send('UI_Select', hold=4.0)
-        else:
-            self.mouse.do_click(x, y)
-            self.mouse.do_click(x, y, 1.25)
-
-            # for horizons we need to select it
-            if self.is_odyssey == False:
-                ap.keys.send('UI_Select')            
-        
-        ap.keys.send('SystemMapOpen')
-        sleep(0.5)
+        # (x, y) = self.waypoints[dest]['StationCoord']
+        #
+        # # check if StationBookmark exists to get the transition compatibility with old waypoint lists
+        # if "StationBookmark" in self.waypoints[dest]:
+        #     bookmark = self.waypoints[dest]['StationBookmark']
+        # else:
+        #     bookmark = -1
+        #
+        # ap.keys.send('SystemMapOpen')
+        # sleep(3.5)
+        # if self.is_odyssey and bookmark != -1:
+        #     ap.keys.send('UI_Left')
+        #     sleep(1)
+        #     ap.keys.send('UI_Select')
+        #     sleep(.5)
+        #     ap.keys.send('UI_Down', repeat=2)
+        #     sleep(.5)
+        #     ap.keys.send('UI_Right')
+        #     sleep(.5)
+        #     ap.keys.send('UI_Down', repeat=bookmark)
+        #     sleep(.5)
+        #     ap.keys.send('UI_Select', hold=4.0)
+        # else:
+        #     self.mouse.do_click(x, y)
+        #     self.mouse.do_click(x, y, 1.25)
+        #
+        #     # for horizons we need to select it
+        #     if self.is_odyssey == False:
+        #         ap.keys.send('UI_Select')
+        #
+        # ap.keys.send('SystemMapOpen')
+        # sleep(0.5)
         
     
     # Call either the Odyssey or Horizons version of the Galatic Map sequence
@@ -302,7 +311,7 @@ class EDWayPoint:
             ap.keys.send('UI_Select')  # Select to Sell all
         
         # TODO: Note, if the waypoint plan has sell_down != -1, then we are assuming we have
-        # cargo to sell, if not we are in limbo here as the Sell button not selectable
+        #  cargo to sell, if not we are in limbo here as the Sell button not selectable
         #  Could look at the ship_status['MarketSel'] == True (to be added), to see that we sold
         #  and if not, go down 1 and select cancel
                    

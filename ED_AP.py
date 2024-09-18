@@ -119,7 +119,7 @@ class EDAutopilot:
         self.jn = EDJournal()
         self.keys = EDKeys()
         self.nav_panel = NavPanel(self.scr, self.keys)
-        self.stn_svcs_in_ship = StationServicesInShip(self.scr, self.keys)
+        self.stn_svcs_in_ship = StationServicesInShip(self.scr, self.keys, self.vce)
         self.afk_combat = AFK_Combat(self.keys, self.jn, self.vce)
         self.waypoint = EDWayPoint(self.jn.ship_state()['odyssey'])
         self.robigo = Robigo(self)
@@ -1239,7 +1239,7 @@ class EDAutopilot:
     # also can then perform trades if specific in the waypoints file
     #
     def waypoint_assist(self, scr_reg):
-        self.waypoint.step = 0  #start at first waypoint
+        self.waypoint.step = 0  # start at first waypoint
         docked_at_station = False
 
         self.ap_ckb('log', "Waypoint file: "+str(Path(self.waypoint.filename).name))
@@ -1265,13 +1265,13 @@ class EDAutopilot:
             reached_dest = self.fsd_assist(scr_reg)
 
             # If waypoint file has a Station Name associated then attempt targeting it
-            if self.waypoint.is_station_targeted(dest) != None:
+            if self.waypoint.is_station_targeted(dest) is not None:
 
                 self.update_ap_status("Targeting Station")
                 self.waypoint.set_station_target(self, dest)
 
                 # Successful targeting of Station, lets go to it
-                if self.have_destination(scr_reg) == True:
+                if self.have_destination(scr_reg):
                     self.ap_ckb('log', " - Station: "+self.waypoint.waypoints[dest]['DockWithStation'])
                     self.update_ap_status("SC to Station")
                     self.sc_assist(scr_reg)
@@ -1286,7 +1286,7 @@ class EDAutopilot:
                 else:
                     self.ap_ckb('log', " - Could not target station: "+self.waypoint.waypoints[dest]['DockWithStation'])
 
-                    # Mark this waypoint as complated
+            # Mark this waypoint as completed
             self.waypoint.mark_waypoint_complete(dest)
 
             self.update_ap_status("Setting route to next waypoint")

@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 
 import cv2
 import numpy as np
@@ -155,10 +156,11 @@ class OCR:
         # No good matches, then return None
         return None
 
-    def capture_region(self, region):
+    def capture_region(self, region, region_name):
         """ Grab the image based on the region name/rect.
         Returns an unfiltered image, either from screenshot or provided image.
         @param region: The region to check in % (0.0 - 1.0).
+        @param region_name: The region name for debug.
          """
         rect = region['rect']
 
@@ -169,15 +171,20 @@ class OCR:
                 return None
             image = crop_image_by_pct(self.screen_image, rect)
 
-        # cv2.imwrite(f'test/{region}.png', image)
+        # Convert to string with milliseconds
+        formatted_datetime = datetime.now().strftime("%Y-%m-%d %H.%M.%S.%f")[:-3]
+        cv2.imwrite(f'test/{formatted_datetime} {region_name}.png', image)
         return image
 
-    def is_text_in_selected_item_in_region(self, text, region):
+    def is_text_in_selected_item_in_region(self, text, region, region_name):
         """ Does the selected item in the region include the text being checked for.
         Checks if text exists in a region using OCR.
-        Return True if found, False if not and None if no item was selected. """
+        Return True if found, False if not and None if no item was selected.
+        @param region: The region to check in % (0.0 - 1.0).
+        @param region_name: The region name for debug.
+        """
 
-        img = self.capture_region(region)
+        img = self.capture_region(region, region_name)
         img_selected = self.get_highlighted_item_in_image(img, 25, 10)
         if img_selected is None:
             logger.debug(f"Did not find a selected item in the region.")
@@ -193,16 +200,17 @@ class OCR:
             logger.debug(f"Did not find '{text}' text in item text '{str(ocr_textlist)}'.")
             return False
 
-    def is_text_in_region(self, text, region):
+    def is_text_in_region(self, text, region,region_name):
         """ Does the region include the text being checked for. The region does not need
         to include highlighted areas.
         Checks if text exists in a region using OCR.
         Return True if found, False if not and None if no item was selected.
         @param text: The text to check for.
         @param region: The region to check in % (0.0 - 1.0).
+        @param region_name: The region name for debug.
         """
 
-        img = self.capture_region(region)
+        img = self.capture_region(region,region_name)
 
         ocr_textlist = self.image_simple_ocr(img)
         # print(str(ocr_textlist))
@@ -214,14 +222,17 @@ class OCR:
             logger.debug(f"Did not find '{text}' text in item text '{str(ocr_textlist)}'.")
             return False
 
-    def select_item_in_list(self, text, region, keys) -> bool:
+    def select_item_in_list(self, text, region, keys, region_name) -> bool:
         """ Attempt to find the item by text in a list defined by the region.
-        If found, leaves it selected for further actions. """
+        If found, leaves it selected for further actions.
+        @param region: The region to check in % (0.0 - 1.0).
+        @param region_name: The region name for debug.
+        """
 
         tries = 0
         in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
         while tries < 50:
-            found = self.is_text_in_selected_item_in_region(text, region)
+            found = self.is_text_in_selected_item_in_region(text, region, region_name)
 
             # Check if end of list.
             if found is None and in_list:
@@ -240,12 +251,13 @@ class OCR:
         logger.debug(f"Did not find '{text}' in {region} list.")
         return False
 
-    def wait_for_text(self, text, region, timeout=30) -> bool:
+    def wait_for_text(self, text, region, region_name,timeout=30) -> bool:
         """ Wait for a screen to appear by checking for text to appear in the region.
         @param text: The text to check for.
         @param region: The region to check in % (0.0 - 1.0).
         @param timeout: Time to wait for screen in seconds
-        """
+          @param region_name: The region name for debug.
+      """
         start_time = time.time()
         while True:
             # Check for timeout.
@@ -253,7 +265,7 @@ class OCR:
                 return False
 
             # Check if screen has appeared.
-            res = self.is_text_in_region(text, region)
+            res = self.is_text_in_region(text, region,region_name)
             if res:
                 return True
             else:

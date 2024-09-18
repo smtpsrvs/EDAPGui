@@ -122,10 +122,13 @@ class Robigo:
 
         self.ap.stn_svcs_in_ship.passenger_lounge.goto_personal_transport_missions()
 
+        dest = "SIRIUS ATMOSPHERICS"
+        ap.vce.say(f"Locating passenger missions to {dest}.")
+
         # Loop selecting missions, go up to 20 times, have seen at time up to 17 missions
         # before getting to Sirius Atmos missions
         while mission_cnt < 20:
-            found = self.ap.stn_svcs_in_ship.passenger_lounge.select_mission_with_dest("SIRIUS ATMOSPHERICS")
+            found = self.ap.stn_svcs_in_ship.passenger_lounge.select_mission_with_dest(dest)
 
             # found a sirius mission
             if found:

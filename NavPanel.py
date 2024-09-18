@@ -1,3 +1,4 @@
+from datetime import datetime
 from time import sleep
 
 import numpy as np
@@ -53,7 +54,10 @@ class NavPanel:
 
         # Straighten the image
         straightened = self.__nav_panel_perspective_warp(image)
-        # cv2.imwrite(f'test/{region}.png', straightened)
+
+        #cv2.imwrite(f'test/nav panel straight.png', straightened)
+        formatted_datetime = datetime.now().strftime("%Y-%m-%d %H.%M.%S.%f")[:-3]
+        cv2.imwrite(f'test/{formatted_datetime} Nav Panel.png', straightened)
         return straightened
 
     def __nav_panel_perspective_warp(self, image):
