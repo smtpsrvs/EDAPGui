@@ -279,7 +279,7 @@ class NavPanel:
             # OCR the selected item
             ocr_textlist = self.ocr.image_simple_ocr(img_selected)
             if ocr_textlist is not None:
-                if dst_name in str(ocr_textlist):
+                if dst_name.upper() in str(ocr_textlist):
                     logger.debug(f"Found '{dst_name}' in list.")
                     return True
                 else:

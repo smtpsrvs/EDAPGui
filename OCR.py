@@ -66,7 +66,7 @@ class OCR:
 
             return ocr_data, ocr_textlist
 
-    def image_simple_ocr(self, image):
+    def image_simple_ocr(self, image) -> list[str] | None:
         """ Perform OCR with no filtering. Returns a simplified list of strings with no positional data.
         This routine is faster than the function that returns the full data. Generally good when you
         expect to only return one or two lines of text.
@@ -193,7 +193,7 @@ class OCR:
         ocr_textlist = self.image_simple_ocr(img_selected)
         print(str(ocr_textlist))
 
-        if text in str(ocr_textlist):
+        if text.upper() in str(ocr_textlist):
             logger.debug(f"Found '{text}' text in item text '{str(ocr_textlist)}'.")
             return True
         else:
@@ -215,7 +215,7 @@ class OCR:
         ocr_textlist = self.image_simple_ocr(img)
         # print(str(ocr_textlist))
 
-        if text in str(ocr_textlist):
+        if text.upper() in str(ocr_textlist):
             logger.debug(f"Found '{text}' text in item text '{str(ocr_textlist)}'.")
             return True
         else:
@@ -256,8 +256,8 @@ class OCR:
         @param text: The text to check for.
         @param region: The region to check in % (0.0 - 1.0).
         @param timeout: Time to wait for screen in seconds
-          @param region_name: The region name for debug.
-      """
+        @param region_name: The region name for debug.
+        """
         start_time = time.time()
         while True:
             # Check for timeout.

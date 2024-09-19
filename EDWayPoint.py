@@ -171,7 +171,7 @@ class EDWayPoint:
         
     
     # Call either the Odyssey or Horizons version of the Galatic Map sequence
-    def set_waypoint_target(self, ap, target_name, target_select_cb=None) -> bool:
+    def set_waypoint_target(self, ap, target_name: str, target_select_cb=None) -> bool:
         # No waypoints defined, then return False
         if self.waypoints == None:
             return False
@@ -185,7 +185,7 @@ class EDWayPoint:
     #
     # This sequence for the Horizons
     #      
-    def set_waypoint_target_horizons(self, ap, target_name, target_select_cb=None) -> bool:
+    def set_waypoint_target_horizons(self, ap, target_name: str, target_select_cb=None) -> bool:
     
         ap.keys.send('GalaxyMapOpen')
         sleep(2)
@@ -281,34 +281,39 @@ class EDWayPoint:
         
         if sell_down == -1 and buy_down == -1:
             return
-            
-        # We start off on the Main Menu in the Station
-        ap.keys.send('UI_Up', repeat=3)  # make sure at the top
-        ap.keys.send('UI_Down')
-        ap.keys.send('UI_Select')  # Select StarPort Services
-                
-        sleep(8)   # wait for new menu to finish rendering
 
-        ap.keys.send('UI_Down')
-        ap.keys.send('UI_Select')  # Select Commodities
-                    
-        sleep(2.5)   
-        
+        # Go to commodities market
+        ap.stn_svcs_in_ship.goto_commodities_market()
+
+        # # We start off on the Main Menu in the Station
+        # ap.keys.send('UI_Up', repeat=3)  # make sure at the top
+        # ap.keys.send('UI_Down')
+        # ap.keys.send('UI_Select')  # Select StarPort Services
+        #
+        # sleep(8)   # wait for new menu to finish rendering
+        #
+        # ap.keys.send('UI_Down')
+        # ap.keys.send('UI_Select')  # Select Commodities
+        #
+        # sleep(2.5)
+
         # --------- SELL ----------
         if sell_down != -1:
-            ap.keys.send('UI_Down')
-            ap.keys.send('UI_Select')  # Select Sell
-            
-            sleep(1.5)   # give time to bring up, if needed
-            ap.keys.send('UI_Right')   # Go to top of commodities list
-            ap.keys.send('UI_Up', repeat=10)  # go up 10x in case were not on top of list
-            ap.keys.send('UI_Down', repeat=sell_down)  # go down # of times user specified
-            ap.keys.send('UI_Select')  # Select that commodity
-    
-            sleep(3)  # give time for popup
-            ap.keys.send('UI_Up', repeat=3)  # make sure at top
-            ap.keys.send('UI_Down')    # Down to the Sell button (already assume sell all)     
-            ap.keys.send('UI_Select')  # Select to Sell all
+            ap.stn_svcs_in_ship.sell_commodity(sell_down, 9999)
+
+            # ap.keys.send('UI_Down')
+            # ap.keys.send('UI_Select')  # Select Sell
+            #
+            # sleep(1.5)   # give time to bring up, if needed
+            # ap.keys.send('UI_Right')   # Go to top of commodities list
+            # ap.keys.send('UI_Up', repeat=10)  # go up 10x in case were not on top of list
+            # ap.keys.send('UI_Down', repeat=sell_down)  # go down # of times user specified
+            # ap.keys.send('UI_Select')  # Select that commodity
+            #
+            # sleep(3)  # give time for popup
+            # ap.keys.send('UI_Up', repeat=3)  # make sure at top
+            # ap.keys.send('UI_Down')    # Down to the Sell button (already assume sell all)
+            # ap.keys.send('UI_Select')  # Select to Sell all
         
         # TODO: Note, if the waypoint plan has sell_down != -1, then we are assuming we have
         #  cargo to sell, if not we are in limbo here as the Sell button not selectable
@@ -317,34 +322,36 @@ class EDWayPoint:
                    
         # --------- BUY ----------
         if buy_down != -1:
-            sleep(3)  # give time to popdown
-            ap.keys.send('UI_Left')    # back to left menu
-            sleep(0.5)
-            ap.keys.send('UI_Up', repeat=2)      # go up to Buy
-            ap.keys.send('UI_Select')  # Select Buy               
-            
-            sleep(1.5) # give time to bring up list
-            ap.keys.send('UI_Right')   # Go to top of commodities list
-            ap.keys.send('UI_Up', repeat=sell_down+5)  # go up sell_down times in case were not on top of list (+5 for pad)
-            ap.keys.send('UI_Down', repeat=buy_down)  # go down # of times user specified
-            ap.keys.send('UI_Select')  # Select that commodity     
-            
-            sleep(2) # give time to popup
-            ap.keys.send('UI_Up', repeat=3)      # go up to quantity to buy (may not default to this)
-            ap.keys.send('UI_Right', hold=4.0)   # Hold down Right key to buy will fill cargo
-            ap.keys.send('UI_Down')
-            ap.keys.send('UI_Select')  # Select Buy             
+            ap.stn_svcs_in_ship.buy_commodity(buy_down, 9999)
 
-        sleep(1.5)  # give time to popdown
-        ap.keys.send('UI_Left')    # back to left menu
-        ap.keys.send('UI_Down', repeat=8)    # go down 4x to highlight Exit
-        ap.keys.send('UI_Select')  # Select Exit, back to StartPort Menu
-        sleep(1) # give time to get back to menu
-        if self.is_odyssey == True:
-            ap.keys.send('UI_Down', repeat=4)    # go down 4x to highlight Exit
-            
-        ap.keys.send('UI_Select')  # Select Exit, back to top menu
-        sleep(2)  # give time to popdown menu    
+            # sleep(3)  # give time to popdown
+            # ap.keys.send('UI_Left')    # back to left menu
+            # sleep(0.5)
+            # ap.keys.send('UI_Up', repeat=2)      # go up to Buy
+            # ap.keys.send('UI_Select')  # Select Buy
+            #
+            # sleep(1.5) # give time to bring up list
+            # ap.keys.send('UI_Right')   # Go to top of commodities list
+            # ap.keys.send('UI_Up', repeat=sell_down+5)  # go up sell_down times in case were not on top of list (+5 for pad)
+            # ap.keys.send('UI_Down', repeat=buy_down)  # go down # of times user specified
+            # ap.keys.send('UI_Select')  # Select that commodity
+            #
+            # sleep(2) # give time to popup
+            # ap.keys.send('UI_Up', repeat=3)      # go up to quantity to buy (may not default to this)
+            # ap.keys.send('UI_Right', hold=4.0)   # Hold down Right key to buy will fill cargo
+            # ap.keys.send('UI_Down')
+            # ap.keys.send('UI_Select')  # Select Buy
+
+        # sleep(1.5)  # give time to popdown
+        # ap.keys.send('UI_Left')    # back to left menu
+        # ap.keys.send('UI_Down', repeat=8)    # go down 4x to highlight Exit
+        # ap.keys.send('UI_Select')  # Select Exit, back to StartPort Menu
+        # sleep(1) # give time to get back to menu
+        # if self.is_odyssey == True:
+        #     ap.keys.send('UI_Down', repeat=4)    # go down 4x to highlight Exit
+        #
+        # ap.keys.send('UI_Select')  # Select Exit, back to top menu
+        # sleep(2)  # give time to popdown menu
 
 
 # this import the temp class needed for unit testing

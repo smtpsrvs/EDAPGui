@@ -13,14 +13,17 @@ Author: Stumpii
 
 class StationServicesInShip:
     def __init__(self, screen, keys, voice):
+        self.commodities_at_bottom = False
+        self.commodities_in_middle = False
         self.screen = screen
         self.ocr = OCR(screen)
         self.keys = keys
         self.vce = voice
         self.passenger_lounge = PassengerLounge(self, self.ocr, self.keys)
         self.commodities_market = CommoditiesMarket(self, self.ocr, self.keys)
-        self.region_connected_to = {'rect': [0.0, 0.0, 0.25, 0.25]}
-        self.region_commodities_market = {'rect': [0.0, 0.0, 0.25, 0.25]}
+        self.region_connected_to = {'rect': [0.0, 0.0, 0.25, 0.25]}  # top left x, y, and bottom right x, y
+        self.region_stn_svc_layout = {'rect': [0.05, 0.40, 0.60, 0.75]}  # top left x, y, and bottom right x, y
+        self.region_commodities_market = {'rect': [0.0, 0.0, 0.25, 0.25]}  # top left x, y, and bottom right x, y
 
     def goto_station_services(self) -> bool:
         """ Goto Station Services. """
@@ -35,6 +38,33 @@ class StationServicesInShip:
         # Wait for screen to appear
         res = self.ocr.wait_for_text("CONNECTED TO", self.region_connected_to,'region_connected_to')
         return res
+
+    def determine_commodities_location(self):
+        # Get the services layout as the layout may be different per station
+        # There is probably a better way to do this!
+        self.commodities_in_middle = False
+        self.commodities_at_bottom = False
+
+        image = self.ocr.capture_region(self.region_stn_svc_layout, 'region_stn_svc_layout')
+        ocr_data, ocr_textlist = self.ocr.image_ocr(image)
+        for res in ocr_data:
+            for line in res:
+                if "COMMODITIES MARKET" in line[1][0]:
+                    loc = line[0]
+                    tl_x, tl_y = loc[0]  # top left
+                    tr = loc[1]
+                    br = loc[2]
+                    bl = loc[3]
+
+                    # Check if button is in the middle column (right of mission board)
+                    if tl_x > 300:
+                        self.commodities_in_middle = True
+
+                    # Check if button is in the bottom half (below mission board)
+                    if tl_y > 200:
+                        self.commodities_at_bottom = True
+
+                    break
 
     def goto_select_mission_board(self) -> bool:
         """ Go to the Mission Board. Shows 3 buttons: COMMUNITY GOALS, MISSION BOARD and PASSENGER LOUNGE. """
@@ -57,13 +87,22 @@ class StationServicesInShip:
         if not res:
             return False
 
+        # Try to determine commodities button on the services screen. Have seen it below Mission Board and too
+        # right of the mission board.
+        self.determine_commodities_location()
+
         self.vce.say("Connecting to commodities market, commander. ")
 
         # Select Mission Board
         self.keys.send("UI_Up")  # Is up needed?
         self.keys.send("UI_Left", hold=2)
 
-        self.keys.send("UI_Right")  # Commodities Market
+        if self.commodities_at_bottom:
+            self.keys.send("UI_Down")  # Commodities Market
+
+        if self.commodities_in_middle:
+            self.keys.send("UI_Right")  # Commodities Market
+
         self.keys.send("UI_Select")  # Commodities Market
 
         # Wait for screen to appear
@@ -101,7 +140,7 @@ class StationServicesInShip:
 
 
 class PassengerLounge:
-    def __init__(self, station_services_in_ship, ocr, keys):
+    def __init__(self, station_services_in_ship: StationServicesInShip, ocr, keys):
         self.parent = station_services_in_ship
         self.ocr = ocr
         self.keys = keys
@@ -157,7 +196,7 @@ class PassengerLounge:
 
 
 class CommoditiesMarket:
-    def __init__(self, station_services_in_ship, ocr, keys):
+    def __init__(self, station_services_in_ship: StationServicesInShip, ocr, keys):
         self.parent = station_services_in_ship
         self.ocr = ocr
         self.keys = keys
@@ -190,8 +229,9 @@ class CommoditiesMarket:
         self.keys.send("UI_Select")  # Select Sell
         return True
 
-    def buy_commodity(self, name, qty) -> bool:
-        """ Buy qty of commodity. If qty >= 9999 then buy as much as possible. """
+    def buy_commodity(self, name: str, qty: int) -> bool:
+        """ Buy qty of commodity. If qty >= 9999 then buy as much as possible.
+        Assumed to be in the commodities screen. """
         self.select_buy()
         self.keys.send("UI_Right")
         self.keys.send("UI_Up", hold=2)
@@ -219,8 +259,9 @@ class CommoditiesMarket:
 
         self.keys.send("UI_Back")
 
-    def sell_commodity(self, name, qty) -> bool:
-        """ Sell qty of commodity. If qty >= 9999 then sell as much as possible. """
+    def sell_commodity(self, name: str, qty: int) -> bool:
+        """ Sell qty of commodity. If qty >= 9999 then sell as much as possible.
+        Assumed to be in the commodities screen. """
         self.select_sell()
         self.keys.send("UI_Right")
         self.keys.send("UI_Up", hold=2)
@@ -233,7 +274,7 @@ class CommoditiesMarket:
         self.parent.vce.say(f"Selling {qty} units of {name}, commander.")
 
         self.keys.send("UI_Select")
-        sleep(0.2) # Wait for popup
+        sleep(0.5) # Wait for popup
         self.keys.send("UI_Left")
         self.keys.send("UI_Up", repeat=2)
 
