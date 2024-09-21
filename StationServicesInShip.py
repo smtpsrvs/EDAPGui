@@ -232,6 +232,9 @@ class CommoditiesMarket:
     def buy_commodity(self, name: str, qty: int) -> bool:
         """ Buy qty of commodity. If qty >= 9999 then buy as much as possible.
         Assumed to be in the commodities screen. """
+        # TODO determine if station buys the commodity!
+
+
         self.select_buy()
         self.keys.send("UI_Right")
         self.keys.send("UI_Up", hold=2)
@@ -262,6 +265,9 @@ class CommoditiesMarket:
     def sell_commodity(self, name: str, qty: int) -> bool:
         """ Sell qty of commodity. If qty >= 9999 then sell as much as possible.
         Assumed to be in the commodities screen. """
+        # TODO determine if station buys the commodity!
+
+
         self.select_sell()
         self.keys.send("UI_Right")
         self.keys.send("UI_Up", hold=2)
@@ -289,3 +295,34 @@ class CommoditiesMarket:
 
         self.keys.send("UI_Back")
 
+   # def sell_all_commodities(self) -> bool:
+   #      """ Sell qty of commodity. If qty >= 9999 then sell as much as possible.
+   #      Assumed to be in the commodities screen. """
+   #      # TODO determine if station buys the commodity!
+   #
+   #      self.select_sell()
+   #      self.keys.send("UI_Right")
+   #      self.keys.send("UI_Up", hold=2)
+   #
+   #      self.parent.vce.say(f"Locating {name} to sell.")
+   #      found = self.ocr.select_item_in_list(name, self.reg['commodity_name_col'], self.keys, 'commodity_name_col')
+   #      if not found:
+   #          return False
+   #
+   #      self.parent.vce.say(f"Selling {qty} units of {name}, commander.")
+   #
+   #      self.keys.send("UI_Select")
+   #      sleep(0.5) # Wait for popup
+   #      self.keys.send("UI_Left")
+   #      self.keys.send("UI_Up", repeat=2)
+   #
+   #      # Increment count
+   #      if qty >= 9999:
+   #          self.keys.send("UI_Right", hold=5)
+   #      else:
+   #          self.keys.send("UI_Right", repeat=qty)
+   #
+   #      self.keys.send("UI_Down")  # To Sell
+   #      self.keys.send("UI_Select")  # Sell
+   #
+   #      self.keys.send("UI_Back")
