@@ -93,7 +93,8 @@ def main():
     if int == 0:
         buy_sell_commodities()
     elif int == 1:
-        nav_panel_lock_station("QUAID'S VISION")
+        #nav_panel_lock_station("QUAID'S VISION")
+        nav_panel_lock_station("Hauser's Reach")
     elif int == 2:
         nav_panel_request_docking()
 
@@ -118,9 +119,11 @@ def buy_sell_commodities():
     #stn_svc.commodities_market.select_sell()
     #stn_svc.commodities_market.find_commodity("FISH")
 
-    stn_svc.commodities_market.buy_commodity("GOLD", 10)
+    #stn_svc.commodities_market.buy_commodity("GOLD", 10)
 
-    stn_svc.commodities_market.sell_commodity("WINE", 5)
+    #stn_svc.commodities_market.sell_commodity("WINE", 5)
+    stn_svc.commodities_market.sell_all_commodities()
+
     stn_svc.goto_station_services()
 
 def draw_match_rect(img, pt1, pt2, color, thick):
@@ -320,7 +323,7 @@ def nav_panel_request_docking():
 def show_regions(region_names):
     """ Draw a rectangle indicating the given region on the Elite Dangerous window.
         :param region_names: An array names of the regions to indicate on screen (i.e. ["compass", "target"])."""
-    ov = Overlay("", 0)
+    ov = Overlay("", 1)
     scr = Screen()
     templ = Image_Templates(scr.scaleX, scr.scaleY)
     scrReg = Screen_Regions(scr, templ)
