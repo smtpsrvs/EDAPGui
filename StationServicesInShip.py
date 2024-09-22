@@ -1,4 +1,9 @@
+import time
 from time import sleep
+
+from CargoParser import CargoParser
+from EDlogger import logger
+from MarketParser import MarketParser
 from OCR import OCR
 
 """
@@ -107,6 +112,11 @@ class StationServicesInShip:
 
         # Wait for screen to appear
         res = self.ocr.wait_for_text("CONNECTED TO", self.region_commodities_market, 'region_commodities_market')
+        if not res:
+            return False
+
+        # Load Market.json data for the market
+        res = self.commodities_market.get_market_data()
         return res
 
     def goto_mission_board(self) -> bool:
@@ -201,12 +211,35 @@ class CommoditiesMarket:
         self.ocr = ocr
         self.keys = keys
 
+        self.market_parser = MarketParser()
         self.reg = {}
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         # Nav Panel region covers the entire navigation panel.
         self.reg['cargo_col'] = {'rect': [0.13, 0.25, 0.19, 0.86]}  # Fraction with ref to the screen/image
         self.reg['commodity_name_col'] = {'rect': [0.19, 0.25, 0.41, 0.86]}  # Fraction with ref to the screen/image
         self.reg['supply_demand_col'] = {'rect': [0.42, 0.25, 0.49, 0.86]}  # Fraction with ref to the screen/image
+
+    def get_market_data(self) -> bool:
+        """ Check to see if market data is updated (recent modified time) before loading it.
+         Timeout if file modified time is unchanged
+         @return: True if file modified time changed and new data loaded. False if file did not change.
+         """
+        start_time = time.time()
+        while 1:
+            # Check if market file modified within 15 secs
+            if self.__get_time_since_market_mod() < 15:
+                # read file
+                self.market_parser.get_market_data()
+                return True
+
+            # Wait up to 15 secs before failing
+            if time.time() - start_time > 15:
+                return False
+
+            sleep(1)
+
+    def __get_time_since_market_mod(self) -> float:
+        return time.time() - self.market_parser.get_file_modified_time()
 
     def select_buy(self) -> bool:
         """ Select Buy. Assumes on Commodities Market screen. """
@@ -232,8 +265,10 @@ class CommoditiesMarket:
     def buy_commodity(self, name: str, qty: int) -> bool:
         """ Buy qty of commodity. If qty >= 9999 then buy as much as possible.
         Assumed to be in the commodities screen. """
-        # TODO determine if station buys the commodity!
-
+        # Determine if station sells the commodity!
+        if not self.market_parser.can_buy_item(name):
+            logger.debug(f"Item '{name}' is not sold or has no stock at {self.market_parser.get_market_name()}.")
+            return False
 
         self.select_buy()
         self.keys.send("UI_Right")
@@ -261,12 +296,15 @@ class CommoditiesMarket:
         self.keys.send("UI_Select")  # Buy
 
         self.keys.send("UI_Back")
+        return True
 
     def sell_commodity(self, name: str, qty: int) -> bool:
         """ Sell qty of commodity. If qty >= 9999 then sell as much as possible.
         Assumed to be in the commodities screen. """
-        # TODO determine if station buys the commodity!
-
+        # Determine if station buys the commodity!
+        if not self.market_parser.can_sell_item(name):
+            logger.debug(f"Item '{name}' is not bought or has no demand at {self.market_parser.get_market_name()}.")
+            return False
 
         self.select_sell()
         self.keys.send("UI_Right")
@@ -285,44 +323,27 @@ class CommoditiesMarket:
         self.keys.send("UI_Up", repeat=2)
 
         # Increment count
-        if qty >= 9999:
-            self.keys.send("UI_Right", hold=5)
-        else:
+        if qty != 9999:
+            # TODO - need to determine how to reduce count to what is required to sell.
             self.keys.send("UI_Right", repeat=qty)
 
         self.keys.send("UI_Down")  # To Sell
         self.keys.send("UI_Select")  # Sell
 
         self.keys.send("UI_Back")
+        return True
 
-   # def sell_all_commodities(self) -> bool:
-   #      """ Sell qty of commodity. If qty >= 9999 then sell as much as possible.
-   #      Assumed to be in the commodities screen. """
-   #      # TODO determine if station buys the commodity!
-   #
-   #      self.select_sell()
-   #      self.keys.send("UI_Right")
-   #      self.keys.send("UI_Up", hold=2)
-   #
-   #      self.parent.vce.say(f"Locating {name} to sell.")
-   #      found = self.ocr.select_item_in_list(name, self.reg['commodity_name_col'], self.keys, 'commodity_name_col')
-   #      if not found:
-   #          return False
-   #
-   #      self.parent.vce.say(f"Selling {qty} units of {name}, commander.")
-   #
-   #      self.keys.send("UI_Select")
-   #      sleep(0.5) # Wait for popup
-   #      self.keys.send("UI_Left")
-   #      self.keys.send("UI_Up", repeat=2)
-   #
-   #      # Increment count
-   #      if qty >= 9999:
-   #          self.keys.send("UI_Right", hold=5)
-   #      else:
-   #          self.keys.send("UI_Right", repeat=qty)
-   #
-   #      self.keys.send("UI_Down")  # To Sell
-   #      self.keys.send("UI_Select")  # Sell
-   #
-   #      self.keys.send("UI_Back")
+    def sell_all_commodities(self) -> bool:
+        """ Sell all commodities.
+        Assumed to be in the commodities screen. """
+
+        # Get the current cargo from the cargo.json file
+        cargo_parser = CargoParser()
+        current_data = cargo_parser.current_data
+
+        # Go through cargo and attempt to sell it all.
+        for good in current_data["Inventory"]:
+            self.sell_commodity(good['Name'], 9999)
+
+        return True
+

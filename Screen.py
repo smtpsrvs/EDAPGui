@@ -1,3 +1,5 @@
+import logging
+
 import cv2
 import win32gui
 from numpy import array
@@ -33,20 +35,23 @@ class Screen:
         ed_rect = self.get_elite_window_rect()
         if ed_rect is None:
             logger.error(f'Could not find window {elite_dangerous_window}.')
+        else:
+            logger.debug(f'Found Elite Dangerous window position: {ed_rect}')
 
         # Examine all monitors to determine match with ED
         self.mons = self.mss.monitors
         mon_num = 0
         for item in self.mons:
             if mon_num > 0:  # ignore monitor 0 as it is the complete desktop (dims of all monitors)
+                logger.debug(f'Found monitor {mon_num} with details: {item}')
                 if item['left'] == ed_rect[0] and item['top'] == ed_rect[1]:
                     # Get information of monitor 2
                     self.monitor_number = mon_num
                     self.mon = self.mss.monitors[self.monitor_number]
+                    logger.debug(f'Elite Dangerous is on monitor {mon_num}.')
 
                     self.screen_width = item['width']
                     self.screen_height = item['height']
-                    break
 
             # Next monitor
             mon_num = mon_num + 1

@@ -300,7 +300,8 @@ class NavPanel:
 
         # On the CONTACT TAB, go to top selection, do this 4 seconds to ensure at top
         # then go right, which will be "REQUEST DOCKING" and select it
-        self.keys.send('UI_Up', hold=4)
+        self.keys.send("UI_Down")  # go down
+        self.keys.send('UI_Up', hold=2)  # got to top row
         self.keys.send('UI_Right')
         self.keys.send('UI_Select')
         sleep(0.3)

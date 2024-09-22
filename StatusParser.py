@@ -6,7 +6,6 @@ from sys import platform
 import threading
 from time import sleep
 from EDlogger import logger
-from WindowsKnownPaths import *
 
 
 class StatusParser:
@@ -20,29 +19,29 @@ class StatusParser:
                                                           + "/Frontier Developments/Elite Dangerous/Status.json")
 
         self.current_status = self.get_cleaned_data()
-        # self.watch_thread = threading.Thread(target=self._watch_file_thread, daemon=True)
-        # self.watch_thread.start()
-        # self.status_queue = queue.Queue()
+        self.watch_thread = threading.Thread(target=self._watch_file_thread, daemon=True)
+        self.watch_thread.start()
+        self.status_queue = queue.Queue()
 
-    # def _watch_file_thread(self):
-    #     backoff = 1
-    #     while True:
-    #         try:
-    #             self._watch_file()
-    #         except Exception as e:
-    #             logger.error('An error occurred when reading status file')
-    #             sleep(backoff)
-    #             logger.debug('Attempting to restart status file reader after failure')
-    #             backoff *= 2
-    #
-    # def _watch_file(self):
-    #     """Detects changes in the Status.json file."""
-    #     while True:
-    #         status = self.get_cleaned_data()
-    #         if status != self.current_status:
-    #             self.status_queue.put(status)
-    #             self.current_status = status
-    #         sleep(1)
+    def _watch_file_thread(self):
+        backoff = 1
+        while True:
+            try:
+                self._watch_file()
+            except Exception as e:
+                logger.error('An error occurred when reading status file')
+                sleep(backoff)
+                logger.debug('Attempting to restart status file reader after failure')
+                backoff *= 2
+
+    def _watch_file(self):
+        """Detects changes in the Status.json file."""
+        while True:
+            status = self.get_cleaned_data()
+            if status != self.current_status:
+                self.status_queue.put(status)
+                self.current_status = status
+            sleep(1)
 
     def translate_flags(self, flags_value):
         """Translates flags integer to a dictionary of only True flags."""
@@ -163,7 +162,7 @@ class StatusParser:
         return cleaned_data
 
     # Loads data from the JSON file and returns only GuiFocus field.
-    def get_gui_focus(self):
+    def get_gui_focus(self) -> int:
         with open(self.file_path, 'r') as file:
             data = json.load(file)
 
