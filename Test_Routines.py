@@ -91,15 +91,42 @@ def main():
 
     int = 0
     if int == 0:
-        buy_sell_commodities()
+        find_commodity("gold")
     elif int == 1:
-        #nav_panel_lock_station("QUAID'S VISION")
-        nav_panel_lock_station("Hauser's Reach")
+        buy_commodity("gold", 4)
     elif int == 2:
+        sell_all_commodities()
+    elif int == 3:
+        nav_panel_lock_station("Hauser's Reach")
+    elif int == 4:
         nav_panel_request_docking()
+    elif int == 5:
+        goto_personal_transport_missions()
 
+def find_commodity(name):
+    scr = Screen()
+    keys = EDKeys()
+    vce = Voice()
+    vce.v_enabled=True
+    keys.activate_window = True  # Helps with single steps testing
+    stn_svc = StationServicesInShip(scr, keys, vce)
 
-def buy_sell_commodities():
+    stn_svc.goto_commodities_market()
+    stn_svc.commodities_market.select_buy()
+    stn_svc.commodities_market.find_commodity(name)
+
+def buy_commodity(name, count):
+    scr = Screen()
+    keys = EDKeys()
+    vce = Voice()
+    vce.v_enabled=True
+    keys.activate_window = True  # Helps with single steps testing
+    stn_svc = StationServicesInShip(scr, keys, vce)
+
+    stn_svc.goto_commodities_market()
+    stn_svc.commodities_market.buy_commodity(name, count)
+
+def sell_all_commodities():
     scr = Screen()
     keys = EDKeys()
     vce = Voice()
@@ -111,20 +138,18 @@ def buy_sell_commodities():
     #show_all_regions(stn_svc.passenger_lounge.reg)
     #return
     stn_svc.goto_commodities_market()
-    #show_all_regions(stn_svc.commodities_market.reg)
-
-    #stn_svc.commodities_market.select_buy()
-    #stn_svc.commodities_market.find_commodity("GOLD")
-
-    #stn_svc.commodities_market.select_sell()
-    #stn_svc.commodities_market.find_commodity("FISH")
-
-    #stn_svc.commodities_market.buy_commodity("GOLD", 10)
-
-    #stn_svc.commodities_market.sell_commodity("WINE", 5)
     stn_svc.commodities_market.sell_all_commodities()
 
-    stn_svc.goto_station_services()
+def goto_personal_transport_missions():
+    scr = Screen()
+    keys = EDKeys()
+    vce = Voice()
+    vce.v_enabled=True
+    keys.activate_window = True  # Helps with single steps testing
+    stn_svc = StationServicesInShip(scr, keys, vce)
+
+    stn_svc.goto_passenger_lounge()
+    stn_svc.passenger_lounge.goto_personal_transport_missions()
 
 def draw_match_rect(img, pt1, pt2, color, thick):
     """ Utility function to add a rectangle to an image. """
