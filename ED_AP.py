@@ -1270,6 +1270,7 @@ class EDAutopilot:
                 self.update_ap_status("Targeting Station")
                 self.waypoint.set_station_target(self, dest)
 
+                sleep(3)  # Wait for compass to stop flashing blue!
                 # Successful targeting of Station, lets go to it
                 if self.have_destination(scr_reg):
                     self.ap_ckb('log', " - Station: "+self.waypoint.waypoints[dest]['DockWithStation'])

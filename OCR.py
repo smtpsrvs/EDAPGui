@@ -76,9 +76,10 @@ class OCR:
         """
         ocr_data = self.paddleocr.ocr(image)
 
-        print(ocr_data)
+        # print(ocr_data)
 
         if ocr_data is None:
+            print(ocr_data)
             return None
         else:
             ocr_textlist = []
@@ -89,6 +90,7 @@ class OCR:
                 for line in res:
                     ocr_textlist.append(line[1][0])
 
+            print(ocr_textlist)
             return ocr_textlist
 
     def get_highlighted_item_data(self, image, min_w, min_h):
@@ -100,7 +102,7 @@ class OCR:
             @param min_h: The minimum height of the text block.
         """
         # Find the selected item/menu (solid orange)
-        img_selected = self.get_highlighted_item_in_image(image, min_w, min_h)
+        img_selected, x, y = self.get_highlighted_item_in_image(image, min_w, min_h)
         if img_selected is not None:
             # cv2.imshow("img", img_selected)
 
@@ -117,7 +119,8 @@ class OCR:
     def get_highlighted_item_in_image(self, image, min_w, min_h):
         """ Attempts to find a selected item in an image. The selected item is identified by being solid orange or blue
         rectangle with dark text, instead of orange/blue text on a dark background.
-        The image of the first item matching the criteria and minimum width and height is returned, otherwise None.
+        The image of the first item matching the criteria and minimum width and height is returned
+        with x and y co-ordinates, otherwise None.
         """
         # Perform HSV mask
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -151,10 +154,10 @@ class OCR:
 
                 # cv2.imshow("cropped", cropped)
                 cv2.imwrite('test/selected_item.png', cropped)
-                return cropped
+                return cropped, x, y
 
         # No good matches, then return None
-        return None
+        return None, 0, 0
 
     def capture_region(self, region, region_name):
         """ Grab the image based on the region name/rect.
@@ -185,7 +188,7 @@ class OCR:
         """
 
         img = self.capture_region(region, region_name)
-        img_selected = self.get_highlighted_item_in_image(img, 25, 10)
+        img_selected, x, y = self.get_highlighted_item_in_image(img, 25, 10)
         if img_selected is None:
             logger.debug(f"Did not find a selected item in the region.")
             return None

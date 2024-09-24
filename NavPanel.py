@@ -4,8 +4,10 @@ from time import sleep
 import numpy as np
 import cv2
 
+from EDKeys import EDKeys
 from EDlogger import logger
 from OCR import OCR, crop_image_by_pct
+from Screen import Screen
 
 """
 File:navPanel.py    
@@ -15,7 +17,6 @@ Description:
 
 Author: Stumpii
 """
-
 
 
 class NavPanel:
@@ -55,7 +56,7 @@ class NavPanel:
         # Straighten the image
         straightened = self.__nav_panel_perspective_warp(image)
 
-        #cv2.imwrite(f'test/nav panel straight.png', straightened)
+        # cv2.imwrite(f'test/nav panel straight.png', straightened)
         formatted_datetime = datetime.now().strftime("%Y-%m-%d %H.%M.%S.%f")[:-3]
         cv2.imwrite(f'test/{formatted_datetime} Nav Panel.png', straightened)
         return straightened
@@ -250,8 +251,8 @@ class NavPanel:
             print("Nav Panel could not be opened")
             return False
 
-        self.keys.send("UI_Down")  # go down
-        self.keys.send("UI_Up", hold=2)  # got to top row
+        #self.keys.send("UI_Down")  # go down
+        #self.keys.send("UI_Up", hold=3)  # got to top row
 
         found = self.find_destination_in_list(dst_name)
         if found:
@@ -260,21 +261,74 @@ class NavPanel:
         self.hide_nav_panel()
         return found
 
-    def find_destination_in_list(self, dst_name) -> bool:
-        # tries is the number of rows to go through to find the item looking for
-        # the Nav Panel should be filtered to reduce the number of rows in the list
+    def scroll_to_top_of_list(self) -> bool:
+        """ Attempts to scroll to the top of the list by holding 'up' and waiting until the resulting OCR
+        stops changing. This should be at the top of the list.
+        """
+
+        self.keys.send("UI_Down")  # go down in case we are at the top and don't want to go to the bottom
+        self.keys.send("UI_Up", state=1)  # got to top row
+
+        ocr_textlist_last = ""
         tries = 0
         in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
-        while tries < 50:
+        while 1:
             # Get the location panel image
             loc_panel = self.capture_location_panel()
 
             # Find the selected item/menu (solid orange)
-            img_selected = self.ocr.get_highlighted_item_in_image(loc_panel, 100, 10)
+            img_selected, x, y = self.ocr.get_highlighted_item_in_image(loc_panel, 100, 10)
             # Check if end of list.
             if img_selected is None and in_list:
-                logger.debug(f"Did not find '{dst_name}' in list.")
+                #logger.debug(f"Off end of list. Did not find '{dst_name}' in list.")
+                self.keys.send("UI_Up", state=0)  # got to top row
                 return False
+
+            # OCR the selected item
+            ocr_textlist = self.ocr.image_simple_ocr(img_selected)
+            if ocr_textlist is not None:
+                # Check if list has not changed (we are at the top)
+                if ocr_textlist == ocr_textlist_last:
+                    tries = tries + 1
+                else:
+                    tries = 0
+                    ocr_textlist_last = ocr_textlist
+
+                # Require some counts in case we hit multiple 'UNIDENTIFIED SIGNAL SOURCE',
+                # 'CONFLICT ZONE' or other repetitive text
+                if tries >= 3:
+                    self.keys.send("UI_Up", state=0)  # got to top row
+                    return True
+
+    def find_destination_in_list(self, dst_name) -> bool:
+        # tries is the number of rows to go through to find the item looking for
+        # the Nav Panel should be filtered to reduce the number of rows in the list
+
+        # Scroll to top of list
+        res = self.scroll_to_top_of_list()
+        if not res:
+            logger.debug(f"Unable to scroll to top of list.")
+            return False
+
+        y_last = -1
+        in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
+        while 1:
+            # Get the location panel image
+            loc_panel = self.capture_location_panel()
+
+            # Find the selected item/menu (solid orange)
+            img_selected, x, y = self.ocr.get_highlighted_item_in_image(loc_panel, 100, 10)
+            # Check if end of list.
+            if img_selected is None and in_list:
+                logger.debug(f"Off end of list. Did not find '{dst_name}' in list.")
+                return False
+
+            # Check if this item is above the last item (we cycled to top).
+            if y < y_last:
+                logger.debug(f"Cycled back to top. Did not find '{dst_name}' in list.")
+                return False
+            else:
+                y_last = y
 
             # OCR the selected item
             ocr_textlist = self.ocr.image_simple_ocr(img_selected)
@@ -284,11 +338,8 @@ class NavPanel:
                     return True
                 else:
                     in_list = True
-                    tries += 1
                     self.keys.send("UI_Down")  # up to next item
 
-        logger.debug(f"Did not find '{dst_name}' in list.")
-        return False
 
     def request_docking(self) -> bool:
         """ Try to request docking.
@@ -308,3 +359,12 @@ class NavPanel:
 
         self.hide_nav_panel()
         return True
+
+# Usage Example
+if __name__ == "__main__":
+    scr = Screen()
+    keys = EDKeys()
+    keys.activate_window = True  # Helps with single steps testing
+    nav_pnl = NavPanel(scr, keys)
+    nav_pnl.scroll_to_top_of_list()
+    #nav_pnl.find_destination_in_list("ssss")

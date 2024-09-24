@@ -44,6 +44,14 @@ class StationServicesInShip:
         res = self.ocr.wait_for_text("CONNECTED TO", self.region_connected_to,'region_connected_to')
         return res
 
+    def goto_ship_view(self) -> bool:
+        """ Goto ship view. """
+        # Go down to ship view
+        self.keys.send("UI_Back", repeat=5)  # make sure back in ship view
+        self.keys.send("UI_Up", repeat=3)  # go to very top (refuel)
+
+        return True
+
     def determine_commodities_location(self):
         # Get the services layout as the layout may be different per station
         # There is probably a better way to do this!
@@ -319,7 +327,7 @@ class CommoditiesMarket:
 
         self.keys.send("UI_Select")
         sleep(0.5) # Wait for popup
-        self.keys.send("UI_Left")
+        #self.keys.send("UI_Left")
         self.keys.send("UI_Up", repeat=2)
 
         # Increment count

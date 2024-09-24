@@ -77,8 +77,18 @@ class MarketParser:
                 "Rare": false
             }, { etc. } ]
         """
-        with open(self.file_path, 'r') as file:
-            data = json.load(file)
+
+        backoff = 1
+        while True:
+            try:
+                with open(self.file_path, 'r') as file:
+                    data = json.load(file)
+                    break
+            except Exception as e:
+                logger.error('An error occurred when reading status file')
+                sleep(backoff)
+                logger.debug('Attempting to restart status file reader after failure')
+                backoff *= 2
 
         self.current_data = data
         #print(json.dumps(data, indent=4))

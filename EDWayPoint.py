@@ -1,4 +1,5 @@
 from time import sleep
+
 from EDlogger import logger
 import json
 from pyautogui import typewrite, keyUp, keyDown
@@ -243,9 +244,9 @@ class EDWayPoint:
         sleep(0.1)
 
         # go down 6x's to plot to target
-        for i in range(7):  # ED 4.0 update, since have new menu item
-            ap.keys.send('UI_Down')
-            sleep(0.05)
+        #for i in range(7):  # ED 4.0 update, since have new menu item
+        ap.keys.send('UI_Down', repeat=7)
+        #    sleep(0.05)
 
         sleep(0.1)
 
@@ -290,7 +291,7 @@ class EDWayPoint:
 
         # --------- SELL ----------
         if sell_down != -1:
-            ap.stn_svcs_in_ship.sell_commodity(sell_down, 9999)
+            ap.stn_svcs_in_ship.commodities_market.sell_commodity(sell_down, 9999)
 
             # ap.keys.send('UI_Down')
             # ap.keys.send('UI_Select')  # Select Sell
@@ -313,7 +314,10 @@ class EDWayPoint:
 
         # --------- BUY ----------
         if buy_down != -1:
-            ap.stn_svcs_in_ship.buy_commodity(buy_down, 9999)
+            ap.stn_svcs_in_ship.commodities_market.buy_commodity(buy_down, 9999)
+
+        # Go back to the station services
+        ap.stn_svcs_in_ship.goto_ship_view()
 
             # sleep(3)  # give time to popdown
             # ap.keys.send('UI_Left')    # back to left menu
