@@ -232,9 +232,8 @@ class OCR:
         @param region_name: The region name for debug.
         """
 
-        tries = 0
         in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
-        while tries < 50:
+        while 1:
             found = self.is_text_in_selected_item_in_region(text, region, region_name)
 
             # Check if end of list.
@@ -248,11 +247,7 @@ class OCR:
             else:
                 # Next item
                 in_list = True
-                tries = tries + 1
                 keys.send("UI_Down")
-
-        logger.debug(f"Did not find '{text}' in {region} list.")
-        return False
 
     def wait_for_text(self, text, region, region_name,timeout=30) -> bool:
         """ Wait for a screen to appear by checking for text to appear in the region.

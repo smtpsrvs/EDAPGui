@@ -76,6 +76,7 @@ class EDJournal:
             'fuel_level': None,
             'fuel_percent': None,
             'is_scooping': False,
+            'cur_star_system': None,
             'curr_station': None,
             'cargo_capacity': None,
             'ship_size': None,
@@ -184,8 +185,11 @@ class EDJournal:
 
             elif log_event == 'Docked':
                 self.ship['status'] = 'in_station'
-                
+
+                # parse location
             elif log_event == 'Location':
+                self.ship['location'] = log['StarSystem']
+                self.ship['cur_star_system'] = log['StarSystem']
                 self.ship['curr_station'] = log['StationName']
                 if log['Docked'] == True:
                     self.ship['status'] = 'in_station'
@@ -226,10 +230,9 @@ class EDJournal:
             else:
                 self.ship['is_scooping'] = False
 
-
-            # parse location
-            if (log_event == 'Location' or log_event == 'FSDJump') and 'StarSystem' in log:
+            if log_event == 'FSDJump':
                 self.ship['location'] = log['StarSystem']
+                self.ship['cur_star_system'] = log['StarSystem']
 #TODO                if 'StarClass' in log:
 #TODO                    self.ship['star_class'] = log['StarClass']
 
