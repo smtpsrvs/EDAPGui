@@ -1247,10 +1247,11 @@ class EDAutopilot:
         self.jn.ship_state()['target'] = None  # clear last target
 
         # Set the Route for the waypoint
-        dest = self.waypoint.waypoint_next(self, self.jn.ship_state)
+        dest_key = self.waypoint.waypoint_next(self, self.jn.ship_state)
 
         # if we are starting the waypoint docked at a station, we need to undock first
-        if dest != "" and self.jn.ship_state()['status'] == 'in_station':
+
+        if dest_key != "" and self.jn.ship_state()['status'] == 'in_station':
             self.waypoint_undock_seq()
 
         # if we are in space but not in supercruise, get into supercruise
@@ -1258,49 +1259,52 @@ class EDAutopilot:
             self.sc_engage()
 
         # keep looping while we have a destination defined
-        while dest != "":
-            self.ap_ckb('log', "Waypoint: "+dest)
+        while dest_key != "":
+            self.ap_ckb('log', "Waypoint: "+ self.waypoint.dest_system(dest_key))
             docked_at_station = False
-            # Route sent...  FSD Assist to that destination
-            reached_dest = self.fsd_assist(scr_reg)
+
+            # Don't FSD if we are already in system
+            if dest_key.upper() != self.jn.ship_state()['cur_star_system'].upper():
+                # Route sent...  FSD Assist to that destination
+                reached_dest = self.fsd_assist(scr_reg)
 
             # If waypoint file has a Station Name associated then attempt targeting it
-            if self.waypoint.is_station_targeted(dest) is not None:
+            if self.waypoint.is_station_targeted(dest_key) is not None:
 
                 self.update_ap_status("Targeting Station")
-                self.waypoint.set_station_target(self, dest)
+                self.waypoint.set_station_target(self, dest_key)
 
                 sleep(3)  # Wait for compass to stop flashing blue!
                 # Successful targeting of Station, lets go to it
                 if self.have_destination(scr_reg):
-                    self.ap_ckb('log', " - Station: "+self.waypoint.waypoints[dest]['DockWithStation'])
+                    self.ap_ckb('log', " - Station: "+self.waypoint.waypoints[dest_key]['DockWithStation'])
                     self.update_ap_status("SC to Station")
                     self.sc_assist(scr_reg)
 
                     #
                     # Successful dock, let do trade, if a seq exists
                     if self.jn.ship_state()['status'] == 'in_station':
-                        self.waypoint.execute_trade(self, dest)
+                        self.waypoint.execute_trade(self, dest_key)
                         docked_at_station = True
                     else:
                         logger.warning("Waypoint: Did not dock with station in limbo")
                 else:
-                    self.ap_ckb('log', " - Could not target station: "+self.waypoint.waypoints[dest]['DockWithStation'])
+                    self.ap_ckb('log', " - Could not target station: "+self.waypoint.waypoints[dest_key]['DockWithStation'])
 
             # Mark this waypoint as completed
-            self.waypoint.mark_waypoint_complete(dest)
+            self.waypoint.mark_waypoint_complete(dest_key)
 
             self.update_ap_status("Setting route to next waypoint")
             self.jn.ship_state()['target'] = None  # clear last target
 
             # set target to next waypoint and loop)
-            dest = self.waypoint.waypoint_next(self, self.jn.ship_state)
+            dest_key = self.waypoint.waypoint_next(self, self.jn.ship_state)
 
             # if we have another waypoint and we're docked, then undock first before moving on
-            if dest != "" and docked_at_station:
+            if dest_key != "" and docked_at_station:
                 self.waypoint_undock_seq()
 
-                # Done with waypoints
+        # Done with waypoints
         self.ap_ckb('log', "Waypoint Route Complete, total distance jumped: "+str(self.total_dist_jumped)+"LY")
         self.update_ap_status("Idle")
 
@@ -1406,7 +1410,7 @@ class EDAutopilot:
                 # Align and stay on target. If false is returned, we have lost the target behind us.
                 if self.sc_target_align(scr_reg) == False:
                     # Continue ahead before aligning to prevent us circling the target
-                    self.keys.send('SetSpeed100')
+                    #self.keys.send('SetSpeed100')
                     sleep(5)
                     self.keys.send('SetSpeed50')
                     self.nav_align(scr_reg) # Align to target

@@ -20,7 +20,9 @@ class CargoParser:
 
             self.file_path = file_path if file_path else (get_path(FOLDERID.SavedGames, UserHandle.current)
                                                           + "/Frontier Developments/Elite Dangerous/Cargo.json")
+        self.last_mod_time = None
 
+        # Read json file data
         self.current_data = self.get_cargo_data()
 
         # self.watch_thread = threading.Thread(target=self._watch_file_thread, daemon=True)
@@ -47,6 +49,9 @@ class CargoParser:
     #             self.current_data = status
     #         sleep(1)
 
+    def get_file_modified_time(self) -> float:
+        return os.path.getmtime(self.file_path)
+
     def get_cargo_data(self):
         """Loads data from the JSON file and returns the data.
         {
@@ -63,18 +68,34 @@ class CargoParser:
                 { etc. } ]
         }
         """
-        with open(self.file_path, 'r') as file:
-            data = json.load(file)
+        # Check if file changed
+        if self.get_file_modified_time() == self.last_mod_time:
+            logger.debug(f'Cargo.json mod timestamp {self.last_mod_time} unchanged.')
+            return self.current_data
 
+        # Read file
+        backoff = 1
+        while True:
+            try:
+                with open(self.file_path, 'r') as file:
+                    data = json.load(file)
+                    break
+            except Exception as e:
+                logger.error('An error occurred when reading Cargo.json file')
+                sleep(backoff)
+                logger.debug('Attempting to restart status file reader after failure')
+                backoff *= 2
+
+        # Store data
         self.current_data = data
-        #print(json.dumps(data, indent=4))
+        self.last_mod_time = self.get_file_modified_time()
+        logger.debug(f'Cargo.json mod timestamp {self.last_mod_time} updated.')
+        # print(json.dumps(data, indent=4))
         return data
-
-    def get_file_modified_time(self) -> float:
-        return os.path.getmtime(self.file_path)
 
     def get_item(self, item_name) -> dict[any] | None:
         """ Get details of one item. Returns the item detail as below, or None if item does not exist.
+            Will not trigger a read of the json file.
         {
             "Name":"tritium",
             "Count":356,

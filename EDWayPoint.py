@@ -6,6 +6,8 @@ from pyautogui import typewrite, keyUp, keyDown
 from MousePt import MousePoint
 from pathlib import Path
 
+from OCR import OCR
+
 """
 File: EDWayPoint.py    
 
@@ -88,10 +90,12 @@ class EDWayPoint:
         self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name)
 
     def waypoint_next(self, ap, target_select_cb=None) -> str:
-        dest_key = "REPEAT"
+        """ Sets the destination system in the galaxy map and return the key.
+        """
+        dest_key = "-1"
 
         # loop back to beginning if last record is "REPEAT"
-        while dest_key == "REPEAT":
+        while dest_key == "-1":
             for i, key in enumerate(self.waypoints):
 
                 # skip records we already processed
@@ -99,18 +103,20 @@ class EDWayPoint:
                     continue
 
                 # if this step is marked to skip.. i.e. completed, go to next step
-                if self.waypoints[key]['Completed'] == True:
+                if self.waypoints[key]['Completed']:
                     continue
 
                 # if this entry is REPEAT, loop through all and mark them all as Completed = False
-                if key == "REPEAT":
+                if self.waypoints[key]['System'] == "REPEAT":
                     self.mark_all_waypoints_not_complete()
                 else:
-                    # Call sequence to select route
-                    if self.set_waypoint_target(ap, key, target_select_cb) == False:
-                        # Error setting target
-                        logger.warning("Error setting waypoint, breaking")
-                    self.step = i
+                    # Don't set system in galaxy map if we are in system
+                    if self.waypoints[key]['System'].upper() != ap.jn.ship_state()['cur_star_system'].upper():
+                        # Call sequence to select route
+                        if not self.set_waypoint_target(ap, self.waypoints[key]['System'], target_select_cb):
+                            # Error setting target
+                            logger.warning("Error setting waypoint, breaking")
+                        self.step = i
                 dest_key = key
 
                 break
@@ -125,11 +131,14 @@ class EDWayPoint:
             self.step = 0
         self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name)
 
-    def is_station_targeted(self, dest) -> bool:
-        return self.waypoints[dest]['DockWithStation']
+    def is_station_targeted(self, key) -> bool:
+        return self.waypoints[key]['DockWithStation']
 
-    def set_station_target(self, ap, dest):
-        station = self.waypoints[dest]['DockWithStation']
+    def dest_system(self, key) -> str:
+        return self.waypoints[key]['System']
+
+    def set_station_target(self, ap, key):
+        station = self.waypoints[key]['DockWithStation']
         ap.nav_panel.lock_destination(station)
 
         # (x, y) = self.waypoints[dest]['StationCoord']
@@ -174,7 +183,7 @@ class EDWayPoint:
         if self.is_odyssey != True:
             return self.set_waypoint_target_horizons(ap, target_name, target_select_cb)
         else:
-            return self.set_waypoint_target_odyssey(ap, target_name, target_select_cb)
+            return self.set_waypoint_target_odyssey(ap.scr, ap.keys, target_name, target_select_cb)
 
     #
     # This sequence for the Horizons
@@ -214,16 +223,14 @@ class EDWayPoint:
     #
     # This sequence for the Odyssey
 
-    def set_waypoint_target_odyssey(self, ap, target_name, target_select_cb=None) -> bool:
+    def set_waypoint_target_odyssey(self, scr, keys, target_name, target_select_cb=None) -> bool:
 
-        x = ap.scr.screen_width / 2
-        y = ap.scr.screen_height / 2
+        keys.send('GalaxyMapOpen')
 
-        ap.keys.send('GalaxyMapOpen')
         sleep(2)
-        ap.keys.send('UI_Up')
+        keys.send('UI_Up')
         sleep(.5)
-        ap.keys.send('UI_Select')
+        keys.send('UI_Select')
         sleep(.5)
 
         # print("Target:"+target_name)
@@ -232,26 +239,31 @@ class EDWayPoint:
         sleep(1)
 
         # send enter key
-        ap.keys.send_key('Down', 28)
+        keys.send_key('Down', 28)
         sleep(0.15)
-        ap.keys.send_key('Up', 28)
+        keys.send_key('Up', 28)
 
         sleep(1)
+
+        keys.send('UI_Right')  # Select the right arrow on search bar
+
+        # Check if the selected system is the actual system or one starting with the same char's
+        # i.e. We want LHS 54 and the system list gives us LHS 547, LHS 546 and LHS 54
+        res = self.system_in_system_info_panel(scr, target_name)
+        while not res:
+            keys.send('UI_Select')  # CLick to go to next system in the list
+            sleep(1)
+            res = self.system_in_system_info_panel(scr, target_name)
+
+        # Clicking the system is required by ED when only one system is found matching the name
+        # because nothing on the screen is selected.
+        x = scr.screen_width / 2
+        y = scr.screen_height / 2
         self.mouse.do_click(x, y)
-        sleep(0.1)
-        ap.keys.send('UI_Right', repeat=4)
 
-        sleep(0.1)
-
-        # go down 6x's to plot to target
-        #for i in range(7):  # ED 4.0 update, since have new menu item
-        ap.keys.send('UI_Down', repeat=7)
-        #    sleep(0.05)
-
-        sleep(0.1)
-
-        # select Plot course
-        ap.keys.send('UI_Select')
+        keys.send('UI_Right', repeat=3)
+        keys.send('UI_Down', repeat=7)  # go down 6x's to plot to target
+        keys.send('UI_Select')  # select Plot course
 
         # if got passed through the ship() object, lets call it to see if a target has been
         # selected yet.. otherwise we wait.  If long route, it may take a few seconds
@@ -261,14 +273,33 @@ class EDWayPoint:
 
         sleep(1)
 
-        ap.keys.send('GalaxyMapOpen')
+        keys.send('GalaxyMapOpen')
         sleep(1)
 
         return True
 
-    def execute_trade(self, ap, dest):
-        buy_down = self.waypoints[dest]['BuyItem']
-        sell_down = self.waypoints[dest]['SellItem']
+
+    def system_in_system_info_panel(self, scr, system_name: str) -> bool:
+        reg = {}
+        # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
+        reg['gal_map_system_info'] = {'rect': [0.65, 0.15, 0.95, 0.35]}  # top left x, y, and bottom right x, y
+
+        ocr = OCR(scr)
+        image = ocr.capture_region(reg['gal_map_system_info'], 'gal_map_system_info')
+        ocr_textlist = ocr.image_simple_ocr(image)
+        if ocr_textlist is None:
+            return False
+
+        if system_name in ocr_textlist:
+            logger.debug("Target found in system info panel: " + system_name)
+            return True
+        else:
+            logger.debug("Target NOT found in system info panel: " + system_name)
+            return False
+
+    def execute_trade(self, ap, dest_key):
+        buy_down = self.waypoints[dest_key]['BuyItem']
+        sell_down = self.waypoints[dest_key]['SellItem']
 
         if sell_down == "" and buy_down == "":
             return

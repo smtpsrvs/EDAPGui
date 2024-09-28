@@ -153,7 +153,7 @@ class OCR:
                 cropped = image[y:y + h, x:x + w]
 
                 # cv2.imshow("cropped", cropped)
-                cv2.imwrite('test/selected_item.png', cropped)
+                # cv2.imwrite('test/selected_item.png', cropped)
                 return cropped, x, y
 
         # No good matches, then return None
@@ -175,8 +175,8 @@ class OCR:
             image = crop_image_by_pct(self.screen_image, rect)
 
         # Convert to string with milliseconds
-        formatted_datetime = datetime.now().strftime("%Y-%m-%d %H.%M.%S.%f")[:-3]
-        cv2.imwrite(f'test/{formatted_datetime} {region_name}.png', image)
+        #formatted_datetime = datetime.now().strftime("%Y-%m-%d %H.%M.%S.%f")[:-3]
+        #cv2.imwrite(f'test/{formatted_datetime} {region_name}.png', image)
         return image
 
     def is_text_in_selected_item_in_region(self, text, region, region_name):

@@ -2,6 +2,7 @@ import logging
 import os
 
 from EDKeys import EDKeys
+from EDWayPoint import EDWayPoint
 from NavPanel import NavPanel
 from OCR import OCR
 from Screen_Regions import *
@@ -89,7 +90,7 @@ def main():
     # nav_panel_lock_station("SMITH'S OBLIGATION")
     # nav_panel_request_docking()
 
-    int = 0
+    int = 6
     if int == 0:
         find_commodity("gold")
     elif int == 1:
@@ -97,11 +98,35 @@ def main():
     elif int == 2:
         sell_all_commodities()
     elif int == 3:
-        nav_panel_lock_station("Hauser's Reach")
+        nav_panel_lock_station("o'connor dock")
     elif int == 4:
         nav_panel_request_docking()
     elif int == 5:
         goto_personal_transport_missions()
+    elif int == 6:
+        select_system("LHS 54")
+        select_system("GULLION")
+
+
+def select_system(target_name):
+    scr = Screen()
+    keys = EDKeys()
+    keys.activate_window = True  # Helps with single steps testing
+
+    waypoint = EDWayPoint(True)
+    waypoint.set_waypoint_target_odyssey(scr, keys, target_name, None)
+
+    # reg = {}
+    # # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
+    # reg['gal_map_system_info'] = {'rect': [0.65, 0.15, 0.95, 0.35]}  # top left x, y, and bottom right x, y
+    #
+    # ocr = OCR(scr)
+    # image = ocr.capture_region(reg['gal_map_system_info'], 'gal_map_system_info')
+    # ocr_textlist = ocr.image_simple_ocr(image)
+    # if target_name in ocr_textlist:
+    #     print("Target found:" + target_name)
+    # else:
+    #     print("Target NOT found:" + target_name)
 
 def find_commodity(name):
     scr = Screen()
