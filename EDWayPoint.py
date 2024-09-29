@@ -75,7 +75,6 @@ class EDWayPoint:
 
         return s
 
-
     def write_waypoints(self, data, fileName='./waypoints/waypoints.json'):
         if data is None:
             data = self.waypoints
@@ -88,6 +87,44 @@ class EDWayPoint:
     def mark_waypoint_complete(self, key):
         self.waypoints[key]['Completed'] = True
         self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name)
+
+    def get_waypoint(self):
+        """ Returns the next waypoint list or None if we are at the end of the waypoints.
+        """
+        dest_key = "-1"
+
+        # loop back to beginning if last record is "REPEAT"
+        while dest_key == "-1":
+            for i, key in enumerate(self.waypoints):
+                # skip records we already processed
+                if i < self.step:
+                    continue
+
+                # if this step is marked to skip.. i.e. completed, go to next step
+                if self.waypoints[key]['Completed']:
+                    continue
+
+                # if this entry is REPEAT, mark them all as Completed = False
+                if self.waypoints[key]['System'] == "REPEAT":
+                    self.mark_all_waypoints_not_complete()
+                else:
+                    self.step = i
+                    dest_key = key
+                break
+            else:
+                return None, None
+
+        return dest_key, self.waypoints[dest_key]
+
+    def set_next_system(self, ap, target_system) -> bool:
+        # TODO Don't set system in galaxy map if we are in system
+        # Call sequence to select route
+        if self.set_waypoint_target(ap, target_system, None):
+            return True
+        else:
+            # Error setting target
+            logger.warning("Error setting waypoint, breaking")
+            return False
 
     def waypoint_next(self, ap, target_select_cb=None) -> str:
         """ Sets the destination system in the galaxy map and return the key.
@@ -131,14 +168,9 @@ class EDWayPoint:
             self.step = 0
         self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name)
 
-    def is_station_targeted(self, key) -> bool:
-        return self.waypoints[key]['DockWithStation']
-
-    def dest_system(self, key) -> str:
-        return self.waypoints[key]['System']
-
     def set_station_target(self, ap, key):
         station = self.waypoints[key]['DockWithStation']
+
         ap.nav_panel.lock_destination(station)
 
         # (x, y) = self.waypoints[dest]['StationCoord']
@@ -176,6 +208,7 @@ class EDWayPoint:
 
     # Call either the Odyssey or Horizons version of the Galatic Map sequence
     def set_waypoint_target(self, ap, target_name: str, target_select_cb=None) -> bool:
+        """ Set System target using galaxy map """
         # No waypoints defined, then return False
         if self.waypoints == None:
             return False
@@ -224,7 +257,9 @@ class EDWayPoint:
     # This sequence for the Odyssey
 
     def set_waypoint_target_odyssey(self, scr, keys, target_name, target_select_cb=None) -> bool:
+        # TODO - separate the functions for the gal map to a separate class
 
+        # TODO - check that the system is not already targeted!!!
         keys.send('GalaxyMapOpen')
 
         sleep(2)
@@ -290,7 +325,7 @@ class EDWayPoint:
         if ocr_textlist is None:
             return False
 
-        if system_name in ocr_textlist:
+        if system_name.upper() in ocr_textlist:
             logger.debug("Target found in system info panel: " + system_name)
             return True
         else:
@@ -347,10 +382,12 @@ def main():
     # wp.execute_trade(keys, dest)
 
     # Set the Route for the waypoint^#
-    dest = wp.waypoint_next(ap=None)
+    while 1:
+        dest = wp.get_waypoint()
+        print("Doing: "+str(dest))
+        if dest is None:
+            break
 
-    while dest != "":
-        #  print("Doing: "+str(dest))
         #  print(wp.waypoints[dest])
         # print("Dock w/station: "+  str(wp.is_station_targeted(dest)))
 
@@ -360,7 +397,7 @@ def main():
         # wp.mark_waypoint_complete(dest)
 
         # set target to next waypoint and loop)::@
-        dest = wp.waypoint_next(ap=None)
+        #dest = wp.get_next_waypoint()
 
 
 if __name__ == "__main__":

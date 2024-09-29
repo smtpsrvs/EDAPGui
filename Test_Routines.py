@@ -70,6 +70,7 @@ def main():
     # hsv_tester("test/navpoint/Screenshot 2024-07-04 20-02-01.png")
     # hsv_tester("test/navpoint-behind/Screenshot 2024-07-04 20-01-33.png")
     # hsv_tester("test/target/Screenshot 2024-07-04 23-22-02.png")
+    # hsv_tester("test/nav panel location_panel - Copy.png")
 
     # Testing of OCR...
     #
@@ -79,6 +80,8 @@ def main():
     # image_ocr_alltext_test('test/dest-sirius-atmos/','mission_dest')
     # image_ocr_test('test/dest-sirius-atmos/', 'nav_panel')
     # image_ocr_alltext_test('test/robigo-no-completed-missions/','missions')
+    get_highlighted_item_in_image("test/nav panel location_panel - Copy.png")
+    return
 
     # Testing of Nav Panel OCR...
     #
@@ -90,7 +93,7 @@ def main():
     # nav_panel_lock_station("SMITH'S OBLIGATION")
     # nav_panel_request_docking()
 
-    int = 6
+    int = 0
     if int == 0:
         find_commodity("gold")
     elif int == 1:
@@ -98,7 +101,7 @@ def main():
     elif int == 2:
         sell_all_commodities()
     elif int == 3:
-        nav_panel_lock_station("o'connor dock")
+        nav_panel_lock_station("P.T.N. Perseverance")
     elif int == 4:
         nav_panel_request_docking()
     elif int == 5:
@@ -589,6 +592,14 @@ def ocr_tester(image_path):
 
     cv2.destroyAllWindows()
 
+def get_highlighted_item_in_image(image_path):
+    scr = Screen()
+    ocr = OCR(scr)
+
+    orig_image = cv2.imread(image_path)
+    img_selected, x , y = ocr.get_highlighted_item_in_image(orig_image, 500, 25)
+    if img_selected is not None:
+        cv2.imwrite('test/hl.png', img_selected)
 
 def rescale_screenshots(directory, scalex, scaley):
     """ Rescale all images in a folder. Also convert BMP to PNG

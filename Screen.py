@@ -44,14 +44,21 @@ class Screen:
         for item in self.mons:
             if mon_num > 0:  # ignore monitor 0 as it is the complete desktop (dims of all monitors)
                 logger.debug(f'Found monitor {mon_num} with details: {item}')
-                if item['left'] == ed_rect[0] and item['top'] == ed_rect[1]:
-                    # Get information of monitor 2
+                if ed_rect is None:
                     self.monitor_number = mon_num
                     self.mon = self.mss.monitors[self.monitor_number]
-                    logger.debug(f'Elite Dangerous is on monitor {mon_num}.')
-
+                    logger.debug(f'Defaulting to monitor {mon_num}.')
                     self.screen_width = item['width']
                     self.screen_height = item['height']
+                    break
+                else:
+                    if item['left'] == ed_rect[0] and item['top'] == ed_rect[1]:
+                        # Get information of monitor 2
+                        self.monitor_number = mon_num
+                        self.mon = self.mss.monitors[self.monitor_number]
+                        logger.debug(f'Elite Dangerous is on monitor {mon_num}.')
+                        self.screen_width = item['width']
+                        self.screen_height = item['height']
 
             # Next monitor
             mon_num = mon_num + 1

@@ -1246,50 +1246,86 @@ class EDAutopilot:
 
         self.jn.ship_state()['target'] = None  # clear last target
 
-        # Set the Route for the waypoint
-        dest_key = self.waypoint.waypoint_next(self, self.jn.ship_state)
+        # Loop until complete, or error
+        while 1:
+            cur_star_system = self.jn.ship_state()['cur_star_system'].upper()
+            cur_station = self.jn.ship_state()['cur_station']
+            if cur_station is not None:
+                cur_station = cur_station.upper()
+            cur_station_type = self.jn.ship_state()['cur_station_type']
+            if cur_station_type is not None:
+                cur_station_type = cur_station_type.upper()
 
-        # if we are starting the waypoint docked at a station, we need to undock first
+            self.ap_ckb('log', f"Currently: {cur_star_system} | {cur_station}")
 
-        if dest_key != "" and self.jn.ship_state()['status'] == 'in_station':
-            self.waypoint_undock_seq()
+            # Get the waypoint details
+            dest_key, next_waypoint = self.waypoint.get_waypoint()
+            if dest_key is None:
+                break
 
-        # if we are in space but not in supercruise, get into supercruise
-        if self.jn.ship_state()['status'] != 'in_supercruise':
-            self.sc_engage()
+            next_system = next_waypoint['System'].upper()
+            next_station = next_waypoint['DockWithStation'].upper()
 
-        # keep looping while we have a destination defined
-        while dest_key != "":
-            self.ap_ckb('log', "Waypoint: "+ self.waypoint.dest_system(dest_key))
-            docked_at_station = False
+            self.ap_ckb('log', f"Next Waypoint: {next_system} | {next_station}")
 
-            # Don't FSD if we are already in system
-            if dest_key.upper() != self.jn.ship_state()['cur_star_system'].upper():
+            # Check current system and go to it if different
+            if next_system != "" and (cur_star_system != next_system):
+                self.update_ap_status(f"Targeting System: {next_system}")
+                ret = self.waypoint.set_next_system(self, next_system)
+
+                # Set the Route for the waypoint
+                #dest_key = self.waypoint.waypoint_next(self, self.jn.ship_state)
+
+                # if we are starting the waypoint docked at a station, we need to undock first
+                if self.jn.ship_state()['status'] == 'in_station':
+                    self.waypoint_undock_seq()
+
+                # if we are in space but not in supercruise, get into supercruise
+                if self.jn.ship_state()['status'] != 'in_supercruise':
+                    self.sc_engage()
+
                 # Route sent...  FSD Assist to that destination
                 reached_dest = self.fsd_assist(scr_reg)
+                continue
 
-            # If waypoint file has a Station Name associated then attempt targeting it
-            if self.waypoint.is_station_targeted(dest_key) is not None:
+            # Check if we are at the correct station. Note that for FCs, the station name
+            # reported by the Journal is only the ship identifier (ABC-123) and not the carrier name.
+            # So we need to check if the ID (ABC-123) is in the station target ('Fleety McFleet ABC-123').
+            if cur_station_type == 'FleetCarrier':
+                at_station = next_station.endswith(cur_station)
+            else:
+                at_station = cur_station == next_station
 
-                self.update_ap_status("Targeting Station")
+            # Check current station and go to it if different
+            if next_station != "" and not at_station:
+                # If waypoint file has a Station Name associated then attempt targeting it
+                self.update_ap_status(f"Targeting Station: {next_station}")
                 self.waypoint.set_station_target(self, dest_key)
 
-                sleep(3)  # Wait for compass to stop flashing blue!
+                # if we are starting the waypoint docked at a station, we need to undock first
+                if self.jn.ship_state()['status'] == 'in_station':
+                    self.waypoint_undock_seq()
+
+                # if we are in space but not in supercruise, get into supercruise
+                if self.jn.ship_state()['status'] != 'in_supercruise':
+                    self.sc_engage()
+
                 # Successful targeting of Station, lets go to it
+                sleep(3)  # Wait for compass to stop flashing blue!
                 if self.have_destination(scr_reg):
-                    self.ap_ckb('log', " - Station: "+self.waypoint.waypoints[dest_key]['DockWithStation'])
+                    self.ap_ckb('log', " - Station: " + next_station)
                     self.update_ap_status("SC to Station")
                     self.sc_assist(scr_reg)
-
-                    #
-                    # Successful dock, let do trade, if a seq exists
-                    if self.jn.ship_state()['status'] == 'in_station':
-                        self.waypoint.execute_trade(self, dest_key)
-                        docked_at_station = True
-                    else:
-                        logger.warning("Waypoint: Did not dock with station in limbo")
                 else:
-                    self.ap_ckb('log', " - Could not target station: "+self.waypoint.waypoints[dest_key]['DockWithStation'])
+                    self.ap_ckb('log', " - Could not target station: " + next_station)
+
+                continue
+
+            # Are we at the correct station to trade?
+            if next_station != "" and at_station:
+                # Successful dock, let do trade, if a seq exists
+                if self.jn.ship_state()['status'] == 'in_station':
+                    self.waypoint.execute_trade(self, dest_key)
 
             # Mark this waypoint as completed
             self.waypoint.mark_waypoint_complete(dest_key)
@@ -1297,12 +1333,12 @@ class EDAutopilot:
             self.update_ap_status("Setting route to next waypoint")
             self.jn.ship_state()['target'] = None  # clear last target
 
-            # set target to next waypoint and loop)
-            dest_key = self.waypoint.waypoint_next(self, self.jn.ship_state)
-
-            # if we have another waypoint and we're docked, then undock first before moving on
-            if dest_key != "" and docked_at_station:
-                self.waypoint_undock_seq()
+            # # set target to next waypoint and loop)
+            # dest_key = self.waypoint.waypoint_next(self, self.jn.ship_state)
+            #
+            # # if we have another waypoint and we're docked, then undock first before moving on
+            # if dest_key != "" and docked_at_station:
+            #     self.waypoint_undock_seq()
 
         # Done with waypoints
         self.ap_ckb('log', "Waypoint Route Complete, total distance jumped: "+str(self.total_dist_jumped)+"LY")

@@ -8,6 +8,7 @@ from EDKeys import EDKeys
 from EDlogger import logger
 from OCR import OCR, crop_image_by_pct
 from Screen import Screen
+from StatusParser import StatusParser
 
 """
 File:navPanel.py    
@@ -24,6 +25,7 @@ class NavPanel:
         self.screen = screen
         self.ocr = OCR(screen)
         self.keys = keys
+        self.status_parser = StatusParser()
 
         self.using_screen = True  # True to use screen, false to use an image. Set screen_image to the image
         self.screen_image = None  # Screen image captured from screen, or loaded by user for testing.
@@ -37,7 +39,7 @@ class NavPanel:
         # Nav Panel region covers the entire navigation panel.
         self.reg['nav_panel'] = {'rect': [0.10, 0.23, 0.72, 0.83]}  # Fraction with ref to the screen/image
         self.reg['tab_bar'] = {'rect': [0.0, 0.0, 1.0, 0.1152]}  # Fraction with ref to the Nav Panel
-        self.reg['location_panel'] = {'rect': [0.2218, 0.3069, 0.8537, 0.9652]}  # Fraction with ref to the Nav Panel
+        self.reg['location_panel'] = {'rect': [0.2218, 0.3069, 0.8, 1.0]}  # Fraction with ref to the Nav Panel
 
     def capture_region_straightened(self, region):
         """ Grab the image based on the region name/rect.
@@ -57,8 +59,8 @@ class NavPanel:
         straightened = self.__nav_panel_perspective_warp(image)
 
         # cv2.imwrite(f'test/nav panel straight.png', straightened)
-        formatted_datetime = datetime.now().strftime("%Y-%m-%d %H.%M.%S.%f")[:-3]
-        cv2.imwrite(f'test/{formatted_datetime} Nav Panel.png', straightened)
+        # formatted_datetime = datetime.now().strftime("%Y-%m-%d %H.%M.%S.%f")[:-3]
+        # cv2.imwrite(f'test/{formatted_datetime} Nav Panel.png', straightened)
         return straightened
 
     def __nav_panel_perspective_warp(self, image):
@@ -106,6 +108,7 @@ class NavPanel:
 
         # Crop image
         location_panel = nav_panel[y0:y1, x0:x1]
+        cv2.imwrite(f'test/nav panel location_panel.png', location_panel)
         return location_panel
 
     def capture_tab_bar(self):
@@ -246,6 +249,15 @@ class NavPanel:
         """ Opens Nav Panel, Navigation Tab, scrolls locations and if the requested
         location is found, lock onto destination. Close Nav Panel.
         """
+
+        # Checks if the desired destination is already locked
+        status = self.status_parser.get_cleaned_data()
+        if status['Destination'] is not None:
+            cur_dest = status['Destination']['Name']
+            print(f"wanted dest: {dst_name}. Current dest: {cur_dest}")
+            if cur_dest.upper() == dst_name.upper():
+                return True
+
         res = self.show_navigation_tab()
         if not res:
             print("Nav Panel could not be opened")
@@ -277,7 +289,7 @@ class NavPanel:
             loc_panel = self.capture_location_panel()
 
             # Find the selected item/menu (solid orange)
-            img_selected, x, y = self.ocr.get_highlighted_item_in_image(loc_panel, 100, 10)
+            img_selected, x, y = self.ocr.get_highlighted_item_in_image(loc_panel, 500, 25)
             # Check if end of list.
             if img_selected is None and in_list:
                 #logger.debug(f"Off end of list. Did not find '{dst_name}' in list.")
@@ -317,7 +329,7 @@ class NavPanel:
             loc_panel = self.capture_location_panel()
 
             # Find the selected item/menu (solid orange)
-            img_selected, x, y = self.ocr.get_highlighted_item_in_image(loc_panel, 100, 10)
+            img_selected, x, y = self.ocr.get_highlighted_item_in_image(loc_panel, 500, 25)
             # Check if end of list.
             if img_selected is None and in_list:
                 logger.debug(f"Off end of list. Did not find '{dst_name}' in list.")

@@ -124,19 +124,19 @@ class OCR:
         """
         # Perform HSV mask
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        lower_range = np.array([0, 160, 180])
+        lower_range = np.array([0, 100, 180])
         upper_range = np.array([255, 255, 255])
         mask = cv2.inRange(hsv, lower_range, upper_range)
         masked_image = cv2.bitwise_and(image, image, mask=mask)
-        # cv2.imwrite('test/nav-panel/out/masked.png', masked_image)
+        cv2.imwrite('test/nav-panel/out/masked.png', masked_image)
 
         # Convert to gray scale and invert
         gray = cv2.cvtColor(masked_image, cv2.COLOR_BGR2GRAY)
-        # cv2.imwrite('test/nav-panel/out/gray.png', gray)
+        cv2.imwrite('test/nav-panel/out/gray.png', gray)
 
         # Convert to B&W to allow FindContours to find rectangles.
         ret, thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # | cv2.THRESH_BINARY_INV)
-        # cv2.imwrite('test/nav-panel/out/thresh1.png', thresh1)
+        cv2.imwrite('test/nav-panel/out/thresh1.png', thresh1)
 
         # Finding contours in B&W image. White are the areas detected
         contours, hierarchy = cv2.findContours(thresh1, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)

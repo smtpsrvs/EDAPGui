@@ -19,7 +19,8 @@ Author: Stumpii
 class StationServicesInShip:
     def __init__(self, screen, keys, voice):
         self.commodities_at_bottom = False
-        self.commodities_in_middle = False
+        self.commodities_in_center = False
+        self.commodities_in_right = False
         self.screen = screen
         self.ocr = OCR(screen)
         self.keys = keys
@@ -55,7 +56,8 @@ class StationServicesInShip:
     def determine_commodities_location(self):
         # Get the services layout as the layout may be different per station
         # There is probably a better way to do this!
-        self.commodities_in_middle = False
+        self.commodities_in_center = False
+        self.commodities_in_right = False
         self.commodities_at_bottom = False
 
         image = self.ocr.capture_region(self.region_stn_svc_layout, 'region_stn_svc_layout')
@@ -70,8 +72,10 @@ class StationServicesInShip:
                     bl = loc[3]
 
                     # Check if button is in the middle column (right of mission board)
-                    if tl_x > 300:
-                        self.commodities_in_middle = True
+                    if tl_x > 600:
+                        self.commodities_in_right = True
+                    elif tl_x > 300:
+                        self.commodities_in_center = True
 
                     # Check if button is in the bottom half (below mission board)
                     if tl_y > 200:
@@ -113,7 +117,11 @@ class StationServicesInShip:
         if self.commodities_at_bottom:
             self.keys.send("UI_Down")  # Commodities Market
 
-        if self.commodities_in_middle:
+        if self.commodities_in_center:
+            self.keys.send("UI_Right")  # Commodities Market
+
+        if self.commodities_in_right:
+            self.keys.send("UI_Right")  # Commodities Market
             self.keys.send("UI_Right")  # Commodities Market
 
         self.keys.send("UI_Select")  # Commodities Market

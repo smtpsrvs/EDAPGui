@@ -143,6 +143,29 @@ class StatusParser:
 
     def get_cleaned_data(self):
         """Loads data from the JSON file and returns cleaned data with only the necessary fields.
+        {
+        "timestamp":"2024-09-28T16:01:47Z",
+        "event":"Status",
+        "Flags":150994968,
+        "Flags2":0,
+        "Pips":[4,4,4],
+        "FireGroup":0,
+        "GuiFocus":0,
+        "Fuel":
+            {
+                "FuelMain":36.160004,
+                 "FuelReservoir":0.534688
+            },
+        "Cargo":728.000000,
+        "LegalState":"Clean",
+        "Balance":3119756215,
+        "Destination":
+            {
+                "System":7267487524297,
+                "Body":12,
+                "Name":"P.T.N. PERSEVERANCE TFK-N3G"
+            }
+        }
         """
         # Check if file changed
         if self.get_file_modified_time() == self.last_mod_time:
@@ -176,14 +199,18 @@ class StatusParser:
         }
 
         # Add optional status flags
-        if 'LegalState' in data:
-            cleaned_data['legalState'] = data['LegalState']
-        if 'Balance' in data:
-            cleaned_data['balance'] = data['Balance']
         if 'Pips' in data:
             cleaned_data['pips'] = self.transform_pips(data['Pips'])
         if 'Cargo' in data:
             cleaned_data['cargo'] = data['Cargo']
+        if 'LegalState' in data:
+            cleaned_data['legalState'] = data['LegalState']
+        if 'Balance' in data:
+            cleaned_data['balance'] = data['Balance']
+        if 'Destination' in data:
+            cleaned_data['Destination'] = data['Destination']
+        else:
+            cleaned_data['Destination'] = None
 
         # Store data
         self.current_data = cleaned_data

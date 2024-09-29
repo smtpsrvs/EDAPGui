@@ -77,7 +77,8 @@ class EDJournal:
             'fuel_percent': None,
             'is_scooping': False,
             'cur_star_system': None,
-            'curr_station': None,
+            'cur_station': None,
+            'cur_station_type': None,
             'cargo_capacity': None,
             'ship_size': None,
         }
@@ -184,13 +185,33 @@ class EDJournal:
                 self.ship['status'] = 'in_space'
 
             elif log_event == 'Docked':
+                # {"timestamp": "2024-09-29T00:47:08Z", "event": "Docked", "StationName": "Filipchenko City",
+                #  "StationType": "Coriolis", "Taxi": false, "Multicrew": false, "StarSystem": "G 139-50",
+                #  "SystemAddress": 13864557225401, "MarketID": 3229027584,
+                #  "StationFaction": {"Name": "Pixel Bandits Security Force"},
+                #  "StationGovernment": "$government_Democracy;", "StationGovernment_Localised": "Democracy",
+                #  "StationServices": ["dock", "autodock", "blackmarket", "commodities", "contacts", "exploration",
+                #                      "missions", "outfitting", "crewlounge", "rearm", "refuel", "repair", "shipyard",
+                #                      "tuning", "engineer", "missionsgenerated", "flightcontroller", "stationoperations",
+                #                      "powerplay", "searchrescue", "materialtrader", "stationMenu", "shop", "livery",
+                #                      "socialspace", "bartender", "vistagenomics", "pioneersupplies", "apexinterstellar",
+                #                      "frontlinesolutions"], "StationEconomy": "$economy_HighTech;",
+                #  "StationEconomy_Localised": "High Tech", "StationEconomies": [
+                #     {"Name": "$economy_HighTech;", "Name_Localised": "High Tech", "Proportion": 0.800000},
+                #     {"Name": "$economy_Refinery;", "Name_Localised": "Refinery", "Proportion": 0.200000}],
+                #  "DistFromStarLS": 6.950547, "LandingPads": {"Small": 6, "Medium": 12, "Large": 7}}
                 self.ship['status'] = 'in_station'
+                self.ship['location'] = log['StarSystem']
+                self.ship['cur_star_system'] = log['StarSystem']
+                self.ship['cur_station'] = log['StationName']
+                self.ship['cur_station_type'] = log['StationType']
 
                 # parse location
             elif log_event == 'Location':
                 self.ship['location'] = log['StarSystem']
                 self.ship['cur_star_system'] = log['StarSystem']
-                self.ship['curr_station'] = log['StationName']
+                self.ship['cur_station'] = log['StationName']
+                self.ship['cur_station_type'] = log['StationType']
                 if log['Docked'] == True:
                     self.ship['status'] = 'in_station'
 
