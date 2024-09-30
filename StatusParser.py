@@ -201,6 +201,8 @@ class StatusParser:
         # Add optional status flags
         if 'Pips' in data:
             cleaned_data['pips'] = self.transform_pips(data['Pips'])
+        if 'GuiFocus' in data:
+            cleaned_data['GuiFocus'] = data['GuiFocus']
         if 'Cargo' in data:
             cleaned_data['cargo'] = data['Cargo']
         if 'LegalState' in data:

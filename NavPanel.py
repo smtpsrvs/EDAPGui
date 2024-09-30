@@ -4,6 +4,7 @@ from time import sleep
 import numpy as np
 import cv2
 
+from EDAP_data import *
 from EDKeys import EDKeys
 from EDlogger import logger
 from OCR import OCR, crop_image_by_pct
@@ -148,8 +149,9 @@ class NavPanel:
             return active, active_tab_name
         else:
             print("Open Nav Panel")
-            self.keys.send("UI_Back", repeat=10)
+            self.goto_ship_view()
             self.keys.send("HeadLookReset")
+
             self.keys.send('UIFocus', state=1)
             self.keys.send('UI_Left')
             self.keys.send('UIFocus', state=0)
@@ -161,6 +163,37 @@ class NavPanel:
                 return active, active_tab_name
             else:
                 return False, ""
+
+    def goto_ship_view(self):
+        # TODO - does this work in all cases?
+        # TODO - move this to a better place
+        status = self.status_parser.get_cleaned_data()
+        if status['GuiFocus'] == GuiFocusNoFocus:
+            return True  # Do nothing
+        elif status['GuiFocus'] == GuiFocusInternalPanel:
+            self.keys.send("UI_Back")
+        elif status['GuiFocus'] == GuiFocusExternalPanel:
+            self.keys.send("UI_Back")
+        elif status['GuiFocus'] == GuiFocusCommsPanel:
+            self.keys.send("UI_Back")
+        elif status['GuiFocus'] == GuiFocusRolePanel:
+            self.keys.send("UI_Back")
+        elif status['GuiFocus'] == GuiFocusStationServices:
+            self.keys.send("UI_Back")
+        elif status['GuiFocus'] == GuiFocusGalaxyMap:
+            self.keys.send("UI_Back")
+        elif status['GuiFocus'] == GuiFocusSystemMap:
+            self.keys.send("UI_Back")
+            self.keys.send("UI_Back")  # In case in system map from galaxy map
+        elif status['GuiFocus'] == GuiFocusOrrery:
+            self.keys.send("UI_Back")
+            self.keys.send("UI_Back")  # In case in system map from galaxy map
+        elif status['GuiFocus'] == GuiFocusFSS:
+            self.keys.send("UI_Back")
+        elif status['GuiFocus'] == GuiFocusSAA:
+            self.keys.send("UI_Back")
+        elif status['GuiFocus'] == GuiFocusCodex:
+            self.keys.send("UI_Back")
 
     def show_navigation_tab(self) -> bool:
         """ Shows the NAVIGATION tab of the Nav Panel. Opens the Nav Panel if not already open.
@@ -221,16 +254,25 @@ class NavPanel:
     def hide_nav_panel(self):
         """ Hides the Nav Panel if open.
         """
+        # active, active_tab_name = self.is_nav_panel_active()
+        # if active is not None:
+
         # Is nav panel active?
-        active, active_tab_name = self.is_nav_panel_active()
-        if active is not None:
-            self.keys.send("UI_Back", repeat=10)
+        status = self.status_parser.get_cleaned_data()
+        if status['GuiFocus'] == GuiFocusExternalPanel:
+            self.keys.send("UI_Back")
             self.keys.send("HeadLookReset")
 
     def is_nav_panel_active(self) -> (bool, str):
         """ Determine if the Nav Panel is open and if so, which tab is active.
             Returns True if active, False if not and also the string of the tab name.
         """
+        # Check if nav panel is open
+        status = self.status_parser.get_cleaned_data()
+        if status['GuiFocus'] != GuiFocusExternalPanel:
+            return False, ""
+
+        # Is open, so proceed
         tab_bar = self.capture_tab_bar()
         img_selected, ocr_data, ocr_textlist = self.ocr.get_highlighted_item_data(tab_bar, 50, 10)
         if img_selected is not None:
@@ -243,18 +285,16 @@ class NavPanel:
             if self.target_tab_text in str(ocr_textlist):
                 return True, self.target_tab_text
 
-        return False, ""
-
     def lock_destination(self, dst_name) -> bool:
-        """ Opens Nav Panel, Navigation Tab, scrolls locations and if the requested
-        location is found, lock onto destination. Close Nav Panel.
+        """ Checks if destination is already locked and if not, Opens Nav Panel, Navigation Tab,
+        scrolls locations and if the requested location is found, lock onto destination. Close Nav Panel.
+        Returns True if the destination is already locked, or if it is successfully locked.
         """
-
         # Checks if the desired destination is already locked
         status = self.status_parser.get_cleaned_data()
         if status['Destination'] is not None:
             cur_dest = status['Destination']['Name']
-            print(f"wanted dest: {dst_name}. Current dest: {cur_dest}")
+            # print(f"wanted dest: {dst_name}. Current dest: {cur_dest}")
             if cur_dest.upper() == dst_name.upper():
                 return True
 
@@ -262,9 +302,6 @@ class NavPanel:
         if not res:
             print("Nav Panel could not be opened")
             return False
-
-        #self.keys.send("UI_Down")  # go down
-        #self.keys.send("UI_Up", hold=3)  # got to top row
 
         found = self.find_destination_in_list(dst_name)
         if found:
@@ -336,7 +373,7 @@ class NavPanel:
                 return False
 
             # Check if this item is above the last item (we cycled to top).
-            if y < y_last:
+            if y < y_last - 100:
                 logger.debug(f"Cycled back to top. Did not find '{dst_name}' in list.")
                 return False
             else:

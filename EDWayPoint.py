@@ -6,6 +6,7 @@ from pyautogui import typewrite, keyUp, keyDown
 from MousePt import MousePoint
 from pathlib import Path
 
+from NavRouteParser import NavRouteParser
 from OCR import OCR
 
 """
@@ -100,16 +101,18 @@ class EDWayPoint:
                 if i < self.step:
                     continue
 
+                # if this entry is REPEAT, mark them all as Completed = False
+                if self.waypoints[key]['System'] == "REPEAT":
+                    self.mark_all_waypoints_not_complete()
+                    break
+
                 # if this step is marked to skip.. i.e. completed, go to next step
                 if self.waypoints[key]['Completed']:
                     continue
 
-                # if this entry is REPEAT, mark them all as Completed = False
-                if self.waypoints[key]['System'] == "REPEAT":
-                    self.mark_all_waypoints_not_complete()
-                else:
-                    self.step = i
-                    dest_key = key
+                # This is the next uncompleted step
+                self.step = i
+                dest_key = key
                 break
             else:
                 return None, None
@@ -117,7 +120,18 @@ class EDWayPoint:
         return dest_key, self.waypoints[dest_key]
 
     def set_next_system(self, ap, target_system) -> bool:
-        # TODO Don't set system in galaxy map if we are in system
+        """ Sets the next system to jump to, or the final system to jump to.
+        If the system is already selected or is selected correctly, returns True,
+        otherwise False.
+        """
+        # Get the current route (system name or None)
+        nav_route_parser = NavRouteParser()
+        targeted_system = nav_route_parser.get_last_system()
+        if targeted_system is not None:
+            # Check if the correct system is already targeted
+            if targeted_system == target_system:
+                return True
+
         # Call sequence to select route
         if self.set_waypoint_target(ap, target_system, None):
             return True
@@ -168,43 +182,9 @@ class EDWayPoint:
             self.step = 0
         self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name)
 
-    def set_station_target(self, ap, key):
-        station = self.waypoints[key]['DockWithStation']
-
+    def set_station_target(self, ap, station):
         ap.nav_panel.lock_destination(station)
 
-        # (x, y) = self.waypoints[dest]['StationCoord']
-        #
-        # # check if StationBookmark exists to get the transition compatibility with old waypoint lists
-        # if "StationBookmark" in self.waypoints[dest]:
-        #     bookmark = self.waypoints[dest]['StationBookmark']
-        # else:
-        #     bookmark = -1
-        #
-        # ap.keys.send('SystemMapOpen')
-        # sleep(3.5)
-        # if self.is_odyssey and bookmark != -1:
-        #     ap.keys.send('UI_Left')
-        #     sleep(1)
-        #     ap.keys.send('UI_Select')
-        #     sleep(.5)
-        #     ap.keys.send('UI_Down', repeat=2)
-        #     sleep(.5)
-        #     ap.keys.send('UI_Right')
-        #     sleep(.5)
-        #     ap.keys.send('UI_Down', repeat=bookmark)
-        #     sleep(.5)
-        #     ap.keys.send('UI_Select', hold=4.0)
-        # else:
-        #     self.mouse.do_click(x, y)
-        #     self.mouse.do_click(x, y, 1.25)
-        #
-        #     # for horizons we need to select it
-        #     if self.is_odyssey == False:
-        #         ap.keys.send('UI_Select')
-        #
-        # ap.keys.send('SystemMapOpen')
-        # sleep(0.5)
 
     # Call either the Odyssey or Horizons version of the Galatic Map sequence
     def set_waypoint_target(self, ap, target_name: str, target_select_cb=None) -> bool:
@@ -315,6 +295,7 @@ class EDWayPoint:
 
 
     def system_in_system_info_panel(self, scr, system_name: str) -> bool:
+        # TODO - move to galaxy map class
         reg = {}
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         reg['gal_map_system_info'] = {'rect': [0.65, 0.15, 0.95, 0.35]}  # top left x, y, and bottom right x, y

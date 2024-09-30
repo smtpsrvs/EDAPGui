@@ -58,8 +58,8 @@ def main():
     # =======================================
     wanted_regions = ["compass", "target", "nav_panel", "disengage", "interdicted", "fss", "mission_dest", "missions",
                       "sun"]
-    #wanted_regions = ["compass", "target", "nav_panel", "disengage"]  # The more common regions for navigation
-    #show_regions(wanted_regions)
+    wanted_regions = ["compass", "target", "nav_panel", "disengage"]  # The more common regions for navigation
+    # show_regions(wanted_regions)
 
     # HSV Tester...
     #

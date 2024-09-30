@@ -16,9 +16,12 @@ from EDWayPoint import *
 from EDJournal import *
 from EDKeys import *
 from EDafk_combat import AFK_Combat
+from ModulesInfoParser import ModulesInfoParser
 from NavPanel import NavPanel
+from NavRouteParser import NavRouteParser
 from Overlay import *
 from StationServicesInShip import StationServicesInShip
+from StatusParser import StatusParser
 from Voice import *
 from Robigo import *
 
@@ -123,6 +126,7 @@ class EDAutopilot:
         self.afk_combat = AFK_Combat(self.keys, self.jn, self.vce)
         self.waypoint = EDWayPoint(self.jn.ship_state()['odyssey'])
         self.robigo = Robigo(self)
+        self.modules_info = ModulesInfoParser()
 
         # rate as ship dependent.   Can be found on the outfitting page for the ship.  However, it looks like supercruise
         # has worse performance for these rates
@@ -1100,7 +1104,7 @@ class EDAutopilot:
                     sleep(1)
                 logger.debug('jump= speed 0')
                 self.jump_cnt = self.jump_cnt+1
-                self.keys.send('SetSpeedZero')
+                self.keys.send('SetSpeedZero', repeat=3)  # Let's be triply sure that we set speed to 0% :)
                 sleep(1)  # wait 1 sec after jump to allow graphics to stablize and accept inputs
                 logger.debug('jump=complete')
                 return True
@@ -1131,6 +1135,8 @@ class EDAutopilot:
 
     #
     def refuel(self, scr_reg):
+        # Check if we have a fuel scoop
+        has_fuel_scoop = self.modules_info.has_fuel_scoop()
 
         logger.debug('refuel')
         scoopable_stars = ['F', 'O', 'G', 'K', 'B', 'A', 'M']
@@ -1146,19 +1152,21 @@ class EDAutopilot:
         # sun types.  Since we won't scoop it doesn't matter how much we pitch up
         # if scoopable we know white/yellow stars are bright, so set higher threshold, this will allow us to 
         #  mast out the galaxy edge (which is bright) and not pitch up too much and avoid scooping
-        if is_star_scoopable == False:
+        if is_star_scoopable == False or not has_fuel_scoop:
             scr_reg.set_sun_threshold(25)
         else:
             scr_reg.set_sun_threshold(self.config['SunBrightThreshold'])
                     
         # Lets avoid the sun, shall we
         self.vce.say("Sun avoidance")
+        self.update_ap_status("Circumnavigating star")
+        self.ap_ckb('log', 'Circumnavigating star')
         self.sun_avoid(scr_reg)
-                
 
-        if self.jn.ship_state()['fuel_percent'] < self.config['RefuelThreshold'] and is_star_scoopable:
+        if self.jn.ship_state()['fuel_percent'] < self.config['RefuelThreshold'] and is_star_scoopable and has_fuel_scoop:
             logger.debug('refuel= start refuel')
             self.vce.say("Refueling")
+            self.ap_ckb('log', 'Refueling')
             self.update_ap_status("Refueling")
             
             # mnvr into position
@@ -1190,16 +1198,24 @@ class EDAutopilot:
                 
             logger.debug('refuel=complete')
             return True
-        
+
         elif is_star_scoopable == False:
+            self.ap_ckb('log', 'Skip refuel - not a fuel star')
             logger.debug('refuel= needed, unsuitable star')
             self.pitchUp(20)
             return False
-        
+
         elif self.jn.ship_state()['fuel_percent'] >= self.config['RefuelThreshold']:
+            self.ap_ckb('log', 'Skip refuel - fuel level okay')
             logger.debug('refuel= not needed')
             return False
-        
+
+        elif not has_fuel_scoop:
+            self.ap_ckb('log', 'Skip refuel - no fuel scoop fitted')
+            logger.debug('No fuel scoop fitted.')
+            self.pitchUp(20)
+            return False
+
         else:
             self.pitchUp(15)  # if not refueling pitch up somemore so we won't heat up
             return False
@@ -1240,14 +1256,12 @@ class EDAutopilot:
     #
     def waypoint_assist(self, scr_reg):
         self.waypoint.step = 0  # start at first waypoint
-        docked_at_station = False
-
         self.ap_ckb('log', "Waypoint file: "+str(Path(self.waypoint.filename).name))
-
-        self.jn.ship_state()['target'] = None  # clear last target
+        #self.jn.ship_state()['target'] = None  # clear last target
 
         # Loop until complete, or error
         while 1:
+            # Current location
             cur_star_system = self.jn.ship_state()['cur_star_system'].upper()
             cur_station = self.jn.ship_state()['cur_station']
             if cur_station is not None:
@@ -1256,11 +1270,10 @@ class EDAutopilot:
             if cur_station_type is not None:
                 cur_station_type = cur_station_type.upper()
 
-            self.ap_ckb('log', f"Currently: {cur_star_system} | {cur_station}")
-
             # Get the waypoint details
             dest_key, next_waypoint = self.waypoint.get_waypoint()
             if dest_key is None:
+                self.ap_ckb('log', "Waypoint list complete.")
                 break
 
             next_system = next_waypoint['System'].upper()
@@ -1273,9 +1286,6 @@ class EDAutopilot:
                 self.update_ap_status(f"Targeting System: {next_system}")
                 ret = self.waypoint.set_next_system(self, next_system)
 
-                # Set the Route for the waypoint
-                #dest_key = self.waypoint.waypoint_next(self, self.jn.ship_state)
-
                 # if we are starting the waypoint docked at a station, we need to undock first
                 if self.jn.ship_state()['status'] == 'in_station':
                     self.waypoint_undock_seq()
@@ -1287,11 +1297,14 @@ class EDAutopilot:
                 # Route sent...  FSD Assist to that destination
                 reached_dest = self.fsd_assist(scr_reg)
                 continue
+            else:
+                self.update_ap_status(f"Already in target System: {next_system}")
+                self.ap_ckb('log', f"Already in target System: {next_system}")
 
             # Check if we are at the correct station. Note that for FCs, the station name
             # reported by the Journal is only the ship identifier (ABC-123) and not the carrier name.
-            # So we need to check if the ID (ABC-123) is in the station target ('Fleety McFleet ABC-123').
-            if cur_station_type == 'FleetCarrier':
+            # So we need to check if the ID (ABC-123) is at the end of the target ('Fleety McFleet ABC-123').
+            if cur_station_type == 'FleetCarrier'.upper():  # Using .upper incase we need to search for 'FleetCarrier'.
                 at_station = next_station.endswith(cur_station)
             else:
                 at_station = cur_station == next_station
@@ -1300,7 +1313,7 @@ class EDAutopilot:
             if next_station != "" and not at_station:
                 # If waypoint file has a Station Name associated then attempt targeting it
                 self.update_ap_status(f"Targeting Station: {next_station}")
-                self.waypoint.set_station_target(self, dest_key)
+                self.waypoint.set_station_target(self, next_station)
 
                 # if we are starting the waypoint docked at a station, we need to undock first
                 if self.jn.ship_state()['status'] == 'in_station':
@@ -1320,25 +1333,21 @@ class EDAutopilot:
                     self.ap_ckb('log', " - Could not target station: " + next_station)
 
                 continue
+            else:
+                self.update_ap_status(f"Already at target Station: {next_station}")
+                self.ap_ckb('log', f"Already at target Station: {next_station}")
 
             # Are we at the correct station to trade?
             if next_station != "" and at_station:
                 # Successful dock, let do trade, if a seq exists
                 if self.jn.ship_state()['status'] == 'in_station':
+                    self.ap_ckb('log', f"Execute trade at Station: {next_station}")
                     self.waypoint.execute_trade(self, dest_key)
 
             # Mark this waypoint as completed
             self.waypoint.mark_waypoint_complete(dest_key)
-
             self.update_ap_status("Setting route to next waypoint")
-            self.jn.ship_state()['target'] = None  # clear last target
-
-            # # set target to next waypoint and loop)
-            # dest_key = self.waypoint.waypoint_next(self, self.jn.ship_state)
-            #
-            # # if we have another waypoint and we're docked, then undock first before moving on
-            # if dest_key != "" and docked_at_station:
-            #     self.waypoint_undock_seq()
+            #self.jn.ship_state()['target'] = None  # clear last target
 
         # Done with waypoints
         self.ap_ckb('log', "Waypoint Route Complete, total distance jumped: "+str(self.total_dist_jumped)+"LY")
@@ -1346,19 +1355,20 @@ class EDAutopilot:
 
     def fsd_assist(self, scr_reg):
         """ FSD Route Assist. """
-
-        logger.debug('self.jn.ship_state='+str(self.jn.ship_state()))
+        nav_route_parser = NavRouteParser()
+        #logger.debug('self.jn.ship_state='+str(self.jn.ship_state()))
 
         starttime = time.time()
         starttime -= 20  # to account for first instance not doing positioning
 
-        if self.jn.ship_state()['target']:
+        if nav_route_parser.get_last_system() is not None:
             # if we are starting the waypoint docked at a station, we need to undock first
             if self.jn.ship_state()['status'] == 'in_station':
                 self.update_overlay()
                 self.waypoint_undock_seq()
 
-        while self.jn.ship_state()['target']:
+        # Keep jumping as long as there is a system to jump to.
+        while nav_route_parser.get_last_system() is not None:
             self.update_overlay()
 
             if self.jn.ship_state()['status'] == 'in_space' or self.jn.ship_state()['status'] == 'in_supercruise':
@@ -1447,7 +1457,7 @@ class EDAutopilot:
                 if self.sc_target_align(scr_reg) == False:
                     # Continue ahead before aligning to prevent us circling the target
                     #self.keys.send('SetSpeed100')
-                    sleep(5)
+                    sleep(10)
                     self.keys.send('SetSpeed50')
                     self.nav_align(scr_reg) # Align to target
             else:
@@ -1473,8 +1483,8 @@ class EDAutopilot:
 
             # check for SC Disengage
             if (self.sc_disengage(scr_reg) == True):
-                sleep(1)  # wait another sec
-                self.keys.send('HyperSuperCombination', hold=0.001)
+                #sleep(1)  # wait another sec
+                self.keys.send('HyperSuperCombination')#, hold=0.001)
                 break
 
         # if no error, we must have gotten disengage
