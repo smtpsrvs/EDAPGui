@@ -1,5 +1,7 @@
 import logging
+from __future__ import annotations
 
+import typing
 import cv2
 import win32gui
 from numpy import array
@@ -111,7 +113,7 @@ class Screen:
         logger.debug('Scale X, Y: '+str(self.scaleX)+", "+str(self.scaleY))
 
     @staticmethod
-    def get_elite_window_rect() -> tuple[int, int, int, int] | None:
+    def get_elite_window_rect() -> typing.Tuple[int, int, int, int] | None:
         """ Gets the ED window rectangle.
         Returns (left, top, right, bottom) or None.
         """
