@@ -56,8 +56,7 @@ def main():
     # Shows regions on the Elite window...
     # Requires Elite Dangerous to be running.
     # =======================================
-    wanted_regions = ["compass", "target", "nav_panel", "disengage", "interdicted", "fss", "mission_dest", "missions",
-                      "sun"]
+    wanted_regions = ["compass", "target", "nav_panel", "disengage", "interdicted", "fss", "sun"]
     wanted_regions = ["compass", "target", "nav_panel", "disengage"]  # The more common regions for navigation
     # show_regions(wanted_regions)
 
@@ -76,12 +75,10 @@ def main():
     #
     # Does NOT require Elite Dangerous to be running.
     # =====================================================================================
-    # image_ocr_test('test/dest-sirius-atmos/','mission_dest')
-    # image_ocr_alltext_test('test/dest-sirius-atmos/','mission_dest')
+    # image_ocr_test('test/dest-sirius-atmos/','mission_dest_col')
+    # image_ocr_alltext_test('test/dest-sirius-atmos/','mission_dest_col')
     # image_ocr_test('test/dest-sirius-atmos/', 'nav_panel')
-    # image_ocr_alltext_test('test/robigo-no-completed-missions/','missions')
-    get_highlighted_item_in_image("test/nav panel location_panel - Copy.png")
-    return
+    # get_highlighted_item_in_image("test/nav panel location_panel - Copy.png")
 
     # Testing of Nav Panel OCR...
     #
@@ -93,7 +90,7 @@ def main():
     # nav_panel_lock_station("SMITH'S OBLIGATION")
     # nav_panel_request_docking()
 
-    int = 0
+    int = 6
     if int == 0:
         find_commodity("gold")
     elif int == 1:
@@ -107,8 +104,9 @@ def main():
     elif int == 5:
         goto_personal_transport_missions()
     elif int == 6:
-        select_system("LHS 54")
         select_system("GULLION")
+        select_system("LHS 54")
+        select_system("Cubeo")
 
 
 def select_system(target_name):

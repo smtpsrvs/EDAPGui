@@ -1,5 +1,6 @@
 from time import sleep
 
+from EDAP_data import *
 from EDlogger import logger
 import json
 from pyautogui import typewrite, keyUp, keyDown
@@ -8,6 +9,7 @@ from pathlib import Path
 
 from NavRouteParser import NavRouteParser
 from OCR import OCR
+from StatusParser import StatusParser
 
 """
 File: EDWayPoint.py    
@@ -54,6 +56,7 @@ class EDWayPoint:
         self.step = 0
 
         self.mouse = MousePoint()
+        self.status = StatusParser()
 
     def load_waypoint_file(self, filename=None):
         if filename == None:
@@ -124,14 +127,6 @@ class EDWayPoint:
         If the system is already selected or is selected correctly, returns True,
         otherwise False.
         """
-        # Get the current route (system name or None)
-        nav_route_parser = NavRouteParser()
-        targeted_system = nav_route_parser.get_last_system()
-        if targeted_system is not None:
-            # Check if the correct system is already targeted
-            if targeted_system == target_system:
-                return True
-
         # Call sequence to select route
         if self.set_waypoint_target(ap, target_system, None):
             return True
@@ -187,16 +182,16 @@ class EDWayPoint:
 
 
     # Call either the Odyssey or Horizons version of the Galatic Map sequence
-    def set_waypoint_target(self, ap, target_name: str, target_select_cb=None) -> bool:
+    def set_waypoint_target(self, ap, target_system: str, target_select_cb=None) -> bool:
         """ Set System target using galaxy map """
         # No waypoints defined, then return False
         if self.waypoints == None:
             return False
 
         if self.is_odyssey != True:
-            return self.set_waypoint_target_horizons(ap, target_name, target_select_cb)
+            return self.set_waypoint_target_horizons(ap, target_system, target_select_cb)
         else:
-            return self.set_waypoint_target_odyssey(ap.scr, ap.keys, target_name, target_select_cb)
+            return self.set_waypoint_target_odyssey(ap.scr, ap.keys, target_system, target_select_cb)
 
     #
     # This sequence for the Horizons
@@ -236,11 +231,21 @@ class EDWayPoint:
     #
     # This sequence for the Odyssey
 
-    def set_waypoint_target_odyssey(self, scr, keys, target_name, target_select_cb=None) -> bool:
+    def set_waypoint_target_odyssey(self, scr, keys, target_system, target_select_cb=None) -> bool:
         # TODO - separate the functions for the gal map to a separate class
 
-        # TODO - check that the system is not already targeted!!!
-        keys.send('GalaxyMapOpen')
+        # Get the current route (system name or None)
+        nav_route_parser = NavRouteParser()
+        targeted_system = nav_route_parser.get_last_system()
+        if targeted_system is not None:
+            # Check if the correct system is already targeted
+            if targeted_system.upper() == target_system.upper():
+                return True
+
+        # Open Galaxy Map if we are not there.
+        status_data = self.status.get_cleaned_data()
+        if status_data['GuiFocus'] != GuiFocusGalaxyMap:
+            keys.send('GalaxyMapOpen')
 
         sleep(2)
         keys.send('UI_Up')
@@ -250,7 +255,7 @@ class EDWayPoint:
 
         # print("Target:"+target_name)
         # type in the System name
-        typewrite(target_name, interval=0.25)
+        typewrite(target_system, interval=0.25)
         sleep(1)
 
         # send enter key
@@ -258,27 +263,36 @@ class EDWayPoint:
         sleep(0.15)
         keys.send_key('Up', 28)
 
-        sleep(1)
+        sleep(0.1)
 
+        # This seems to be the way to get this to work when there is only one match for the
+        # system and when there are multiple. Just hitting enter does not work consistently.
+        #keys.send('UI_Down') # Select the first item in the drop down
+        #keys.send('UI_Up') # Back to entry box
         keys.send('UI_Right')  # Select the right arrow on search bar
 
         # Check if the selected system is the actual system or one starting with the same char's
         # i.e. We want LHS 54 and the system list gives us LHS 547, LHS 546 and LHS 54
-        res = self.system_in_system_info_panel(scr, target_name)
+        res = self.system_in_system_info_panel(scr, target_system)
         while not res:
             keys.send('UI_Select')  # CLick to go to next system in the list
-            sleep(1)
-            res = self.system_in_system_info_panel(scr, target_name)
+            sleep(0.5)
+            res = self.system_in_system_info_panel(scr, target_system)
+
+        # Wait some seconds for the map to go to the destination. From bubble to Colonia takes ~4 secs,
+        # Beagle Point takes ~5 secs. In the bubble ~2-3 secs.
+        sleep(3)
 
         # Clicking the system is required by ED when only one system is found matching the name
         # because nothing on the screen is selected.
         x = scr.screen_width / 2
         y = scr.screen_height / 2
         self.mouse.do_click(x, y)
+        keys.send('UI_Select', hold=1)
 
-        keys.send('UI_Right', repeat=3)
-        keys.send('UI_Down', repeat=7)  # go down 6x's to plot to target
-        keys.send('UI_Select')  # select Plot course
+        #keys.send('UI_Right', repeat=3)
+        #keys.send('UI_Down', repeat=7)  # go down 6x's to plot to target
+        #keys.send('UI_Select')  # select Plot course
 
         # if got passed through the ship() object, lets call it to see if a target has been
         # selected yet.. otherwise we wait.  If long route, it may take a few seconds

@@ -106,7 +106,7 @@ class CargoParser:
         """
         for good in self.current_data['Inventory']:
             if good['Name'].upper() == item_name.upper():
-                print(json.dumps(good, indent=4))
+                # print(json.dumps(good, indent=4))
                 return good
 
         return None
