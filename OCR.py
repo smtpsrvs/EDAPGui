@@ -56,7 +56,7 @@ class OCR:
         """
         ocr_data = self.paddleocr.ocr(image)
 
-        print(ocr_data)
+        # print(ocr_data)
 
         if ocr_data is None:
             return None, None
@@ -81,7 +81,7 @@ class OCR:
         # print(ocr_data)
 
         if ocr_data is None:
-            print(ocr_data)
+            # print(ocr_data)
             return None
         else:
             ocr_textlist = []
@@ -92,7 +92,7 @@ class OCR:
                 for line in res:
                     ocr_textlist.append(line[1][0])
 
-            print(ocr_textlist)
+            # print(ocr_textlist)
             return ocr_textlist
 
     def get_highlighted_item_data(self, image, min_w, min_h):
@@ -177,8 +177,8 @@ class OCR:
             image = crop_image_by_pct(self.screen_image, rect)
 
         # Convert to string with milliseconds
-        #formatted_datetime = datetime.now().strftime("%Y-%m-%d %H.%M.%S.%f")[:-3]
-        #cv2.imwrite(f'test/{formatted_datetime} {region_name}.png', image)
+        # formatted_datetime = datetime.now().strftime("%Y-%m-%d %H.%M.%S.%f")[:-3]
+        # cv2.imwrite(f'test/{formatted_datetime} {region_name}.png', image)
         return image
 
     def is_text_in_selected_item_in_region(self, text, region, region_name):
@@ -196,7 +196,7 @@ class OCR:
             return None
 
         ocr_textlist = self.image_simple_ocr(img_selected)
-        print(str(ocr_textlist))
+        # print(str(ocr_textlist))
 
         if text.upper() in str(ocr_textlist):
             logger.debug(f"Found '{text}' text in item text '{str(ocr_textlist)}'.")
@@ -205,7 +205,7 @@ class OCR:
             logger.debug(f"Did not find '{text}' text in item text '{str(ocr_textlist)}'.")
             return False
 
-    def is_text_in_region(self, text, region,region_name):
+    def is_text_in_region(self, text, region, region_name):
         """ Does the region include the text being checked for. The region does not need
         to include highlighted areas.
         Checks if text exists in a region using OCR.
@@ -215,7 +215,7 @@ class OCR:
         @param region_name: The region name for debug.
         """
 
-        img = self.capture_region(region,region_name)
+        img = self.capture_region(region, region_name)
 
         ocr_textlist = self.image_simple_ocr(img)
         # print(str(ocr_textlist))
@@ -230,6 +230,8 @@ class OCR:
     def select_item_in_list(self, text, region, keys, region_name) -> bool:
         """ Attempt to find the item by text in a list defined by the region.
         If found, leaves it selected for further actions.
+        @param keys:
+        @param text: Text to find.
         @param region: The region to check in % (0.0 - 1.0).
         @param region_name: The region name for debug.
         """
@@ -251,7 +253,7 @@ class OCR:
                 in_list = True
                 keys.send("UI_Down")
 
-    def wait_for_text(self, text, region, region_name,timeout=30) -> bool:
+    def wait_for_text(self, text, region, region_name, timeout=30) -> bool:
         """ Wait for a screen to appear by checking for text to appear in the region.
         @param text: The text to check for.
         @param region: The region to check in % (0.0 - 1.0).
@@ -265,7 +267,7 @@ class OCR:
                 return False
 
             # Check if screen has appeared.
-            res = self.is_text_in_region(text, region,region_name)
+            res = self.is_text_in_region(text, region, region_name)
             if res:
                 return True
             else:

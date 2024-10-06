@@ -1,4 +1,3 @@
-import logging
 from __future__ import annotations
 
 import typing
@@ -6,7 +5,6 @@ import cv2
 import win32gui
 from numpy import array
 import mss
-from pyautogui import size
 import json
 
 from EDlogger import logger
@@ -28,6 +26,7 @@ Author: sumzer0@yahoo.com
 #     img = ImageGrab.grab(bbox)
 
 elite_dangerous_window = "Elite - Dangerous (CLIENT)"
+
 
 class Screen:
     def __init__(self):
@@ -66,8 +65,8 @@ class Screen:
             mon_num = mon_num + 1
 
         # Add new screen resolutions here with tested scale factors
-        # this table will be default, overwriten when loading resolution.json file
-        self.scales = {  #scaleX, scaleY
+        # this table will be default, overwritten when loading resolution.json file
+        self.scales = {  # scaleX, scaleY
             '1024x768':   [0.39, 0.39],  # tested, but not has high match % 
             '1080x1080':  [0.5, 0.5],    # fix, not tested
             '1280x800':   [0.48, 0.48],  # tested
@@ -100,7 +99,7 @@ class Screen:
             self.scaleY = self.scales[scale_key][1]
         except:            
             # if we don't have a definition for the resolution then use calculation
-            self.scaleX = self.screen_width  / 3440.0
+            self.scaleX = self.screen_width / 3440.0
             self.scaleY = self.screen_height / 1440.0
             
         # if the calibration scale values are not -1, then use those regardless of above
@@ -124,22 +123,22 @@ class Screen:
         else:
             return None
 
-    def write_config(self, data, fileName='./configs/resolution.json'):
+    def write_config(self, data, filename='./configs/resolution.json'):
         if data is None:
             data = self.scales
         try:
-            with open(fileName,"w") as fp:
-                json.dump(data,fp, indent=4)
+            with open(filename, "w") as fp:
+                json.dump(data, fp, indent=4)
         except Exception as e:
             logger.warning("Screen.py write_config error:"+str(e))
-            
 
-    def read_config(self, fileName='./configs/resolution.json'):
+    @staticmethod
+    def read_config(filename='./configs/resolution.json'):
         s = None
         try:
-            with open(fileName,"r") as fp:
+            with open(filename, "r") as fp:
                 s = json.load(fp)
-        except  Exception as e:
+        except Exception as e:
             logger.warning("Screen.py read_config error :"+str(e))
 
         return s
@@ -152,7 +151,7 @@ class Screen:
         # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         # return image
     
-    def get_screen(self, x_left, y_top, x_right, y_bot):    #  if absolute need to scale??
+    def get_screen(self, x_left, y_top, x_right, y_bot):    # if absolute need to scale??
         monitor = {
             "top": self.mon["top"] + y_top,
             "left": self.mon["left"] + x_left,

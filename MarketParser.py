@@ -205,14 +205,14 @@ class MarketParser:
         return good['Producer'] and good['Stock'] > 0
 
     def can_sell_item(self, item_name: str) -> bool:
-        """ Can the item be sold to the market (is it bought and is there demand).
+        """ Can the item be sold to the market (is it bought, regardless of demand).
         Will not trigger a read of the json file.
         """
         good = self.get_item(item_name)
         if good is None:
             return False
 
-        return good['Consumer'] and good['Demand'] > 0
+        return good['Consumer'] or good['Demand'] > 0
 
 
 # Usage Example

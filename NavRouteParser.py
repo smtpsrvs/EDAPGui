@@ -3,13 +3,9 @@ from __future__ import annotations
 import json
 import os
 import time
-from datetime import datetime, timedelta
-import queue
 from sys import platform
-import threading
 from time import sleep
 from EDlogger import logger
-from WindowsKnownPaths import *
 
 
 class NavRouteParser:
@@ -72,7 +68,6 @@ class NavRouteParser:
         ]}
         or... when route is clear:
         {"timestamp": "2024-09-29T21:06:53Z", "event": "NavRouteClear", "Route": [
-
         ]}
         """
         # Check if file changed
@@ -124,5 +119,5 @@ if __name__ == "__main__":
     parser = NavRouteParser()
     while True:
         item = parser.get_last_system()
-        print(item)
+        print(f"last_system: {item}")
         time.sleep(1)

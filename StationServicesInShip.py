@@ -213,7 +213,7 @@ class PassengerLounge:
     def missions_ready_to_complete(self) -> bool:
         """ Check if the COMPLETE MISSIONS button is enabled (we have missions to turn in.
         True if there are missions, else False. """
-        return self.ocr.is_text_in_region("COMPLETE MISSIONS", self.reg['missions'])
+        return self.ocr.is_text_in_region("COMPLETE MISSIONS", self.reg['missions'], 'missions')
 
     def select_mission_with_dest(self, dest) -> bool:
         """ Select a mission with the required destination.
@@ -282,7 +282,9 @@ class CommoditiesMarket:
         """ Buy qty of commodity. If qty >= 9999 then buy as much as possible.
         Assumed to be in the commodities screen. """
         # Determine if station sells the commodity!
+        self.market_parser.get_market_data()
         if not self.market_parser.can_buy_item(name):
+            self.parent.vce.say(f"Item '{name}' is not sold or has no stock at {self.market_parser.get_market_name()}.")
             logger.debug(f"Item '{name}' is not sold or has no stock at {self.market_parser.get_market_name()}.")
             return False
 
@@ -295,7 +297,10 @@ class CommoditiesMarket:
         if not found:
             return False
 
-        self.parent.vce.say(f"Buying {qty} units of {name}, commander.")
+        if qty != 9999:
+            self.parent.vce.say(f"Buying {qty} units of {name}, commander.")
+        else:
+            self.parent.vce.say(f"Buying all we can of {name}, commander.")
 
         self.keys.send("UI_Select")
         sleep(0.2) # Wait for popup
@@ -318,8 +323,10 @@ class CommoditiesMarket:
         """ Sell qty of commodity. If qty >= 9999 then sell as much as possible.
         Assumed to be in the commodities screen. """
         # Determine if station buys the commodity!
+        self.market_parser.get_market_data()
         if not self.market_parser.can_sell_item(name):
-            logger.debug(f"Item '{name}' is not bought or has no demand at {self.market_parser.get_market_name()}.")
+            self.parent.vce.say(f"Item '{name}' is not bought at {self.market_parser.get_market_name()}.")
+            logger.debug(f"Item '{name}' is not bought at {self.market_parser.get_market_name()}.")
             return False
 
         self.select_sell()
@@ -331,7 +338,10 @@ class CommoditiesMarket:
         if not found:
             return False
 
-        self.parent.vce.say(f"Selling {qty} units of {name}, commander.")
+        if qty != 9999:
+            self.parent.vce.say(f"Selling {qty} units of {name}, commander.")
+        else:
+            self.parent.vce.say(f"Selling all our {name}, commander.")
 
         self.keys.send("UI_Select")
         sleep(0.5) # Wait for popup
