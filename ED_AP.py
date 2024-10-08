@@ -672,7 +672,7 @@ class EDAutopilot:
     #  
     def undock(self):
         # Assume we are in Star Port Services                              
-        # Go to interior panel which will update ModuleInfo.json if any modules have changed.
+        # Go to interior panel which will update ModulesInfo.json if any modules have changed.
         self.keys.send('UIFocus', state=1)
         self.keys.send('UI_Right')
         self.keys.send('UIFocus', state=0)
@@ -783,6 +783,13 @@ class EDAutopilot:
         # if sun in front of us, then keep pitching up until it is below us
         while self.is_sun_dead_ahead(scr_reg):
             self.keys.send('PitchUpButton', state=1)
+
+            # check if we are being interdicted
+            interdicted = self.interdiction_check()
+            if interdicted:
+                # Continue journey after interdiction
+                self.keys.send('SetSpeedZero')
+
             # if we are pitching more than N seconds break, may be in high density area star area (close to core)
             if ((time.time()-starttime) > fail_safe_timeout):
                 logger.debug('sun avoid failsafe timeout')
@@ -1187,9 +1194,9 @@ class EDAutopilot:
             scr_reg.set_sun_threshold(self.config['SunBrightThreshold'])
                     
         # Lets avoid the sun, shall we
-        self.vce.say("Sun avoidance")
-        self.update_ap_status("Circumnavigating star")
-        self.ap_ckb('log', 'Circumnavigating star')
+        self.vce.say("Avoiding star")
+        self.update_ap_status("Avoiding star")
+        self.ap_ckb('log', 'Avoiding star')
         self.sun_avoid(scr_reg)
 
         if self.jn.ship_state()['fuel_percent'] < self.config['RefuelThreshold'] and is_star_scoopable and has_fuel_scoop:
@@ -1211,6 +1218,12 @@ class EDAutopilot:
             #if we don't scoop first 5 tons with 40 sec break, since not scooping or not fast enough or not at all, then abort
             startime = time.time()
             while not self.jn.ship_state()['is_scooping'] and not self.jn.ship_state()['fuel_percent'] == 100:
+                # check if we are being interdicted
+                interdicted = self.interdiction_check()
+                if interdicted:
+                    # Continue journey after interdiction
+                    self.keys.send('SetSpeedZero')
+
                 if ((time.time()-startime) > int(self.config['FuelScoopTimeOut'])):
                     self.vce.say("Refueling abort, insufficient scooping")
                     return False
@@ -1220,6 +1233,12 @@ class EDAutopilot:
             # We started fueling, so lets give it another timeout period to fuel up
             startime = time.time()
             while not self.jn.ship_state()['fuel_percent'] == 100:
+                # check if we are being interdicted
+                interdicted = self.interdiction_check()
+                if interdicted:
+                    # Continue journey after interdiction
+                    self.keys.send('SetSpeedZero')
+
                 if ((time.time()-startime) > int(self.config['FuelScoopTimeOut'])):
                     self.vce.say("Refueling abort, insufficient scooping")
                     return True
@@ -1493,7 +1512,7 @@ class EDAutopilot:
                 align_failed = True
                 break
 
-            # check if we are being interdicted or hyperdicted
+            # check if we are being interdicted
             interdicted = self.interdiction_check()
             if interdicted:
                 # Continue journey after interdiction

@@ -231,7 +231,8 @@ class StatusParser:
         # print(f'Status.json mod timestamp {self.last_mod_time} updated.')
         # print(json.dumps(data, indent=4))
 
-        self.log_flag_diffs()
+        # Enable the following to print all the changes to the status flags.
+        # self.log_flag_diffs()
 
         return cleaned_data
 
@@ -241,17 +242,17 @@ class StatusParser:
         if self.current_data is None:
             return
 
-        oldflags = self.last_data['Flags']
-        newflags = self.current_data['Flags']
+        old_flags = self.last_data['Flags']
+        new_flags = self.current_data['Flags']
 
-        flagson = newflags & ~ oldflags
-        flagarray = self.translate_flags(flagson)
-        for item in flagarray:
+        flags_on = new_flags & ~ old_flags
+        flag_array = self.translate_flags(flags_on)
+        for item in flag_array:
             print(f"Status Flags: '{item}' is ON")
 
-        flagsoff = ~ newflags & oldflags
-        flagarray = self.translate_flags(flagsoff)
-        for item in flagarray:
+        flags_off = ~ new_flags & old_flags
+        flag_array = self.translate_flags(flags_off)
+        for item in flag_array:
             print(f"Status Flags: '{item}' is OFF")
 
         if self.last_data['Flags2'] is None:
@@ -259,17 +260,17 @@ class StatusParser:
         if self.current_data['Flags2'] is None:
             return
 
-        oldflags2 = self.last_data['Flags2']
-        newflags2 = self.current_data['Flags2']
+        old_flags2 = self.last_data['Flags2']
+        new_flags2 = self.current_data['Flags2']
 
-        flagson2 = newflags2 & ~ oldflags2
-        flagarray2 = self.translate_flags2(flagson2)
-        for item in flagarray2:
+        flags_on2 = new_flags2 & ~ old_flags2
+        flag_array2 = self.translate_flags2(flags_on2)
+        for item in flag_array2:
             print(f"Status Flags2: '{item}' is ON")
 
-        flagsoff2 = ~ newflags2 & oldflags2
-        flagarray2 = self.translate_flags2(flagsoff2)
-        for item in flagarray2:
+        flags_off2 = ~ new_flags2 & old_flags2
+        flag_array2 = self.translate_flags2(flags_off2)
+        for item in flag_array2:
             print(f"Status Flags2: '{item}' is OFF")
 
     # Loads data from the JSON file and returns only GuiFocus field.
@@ -368,7 +369,7 @@ class StatusParser:
         """
         self.get_cleaned_data()
 
-        if 'Flags2' in data:
+        if 'Flags2' in self.current_data:
             return bool(self.current_data['Flags2'] & flag)
         else:
             return False

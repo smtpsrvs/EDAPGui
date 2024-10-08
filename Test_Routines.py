@@ -56,7 +56,7 @@ def main():
     # Shows regions on the Elite window...
     # Requires Elite Dangerous to be running.
     # =======================================
-    wanted_regions = ["compass", "target", "nav_panel", "disengage", "interdicted", "fss", "sun"]
+    wanted_regions = ["compass", "target", "nav_panel", "disengage", "fss", "sun"]
     wanted_regions = ["compass", "target", "nav_panel", "disengage"]  # The more common regions for navigation
     # show_regions(wanted_regions)
 

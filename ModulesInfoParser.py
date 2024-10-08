@@ -141,5 +141,5 @@ if __name__ == "__main__":
     parser = ModulesInfoParser()
     while True:
         item = parser.has_fuel_scoop()
-        print(f"fuel scoop: {item}")
+        print(item)
         time.sleep(1)

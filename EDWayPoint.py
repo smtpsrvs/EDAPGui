@@ -4,7 +4,7 @@ from EDAP_data import *
 from EDlogger import logger
 import json
 from pyautogui import typewrite, keyUp, keyDown
-from MousePt import MousePoint
+from  MousePt import MousePoint
 from pathlib import Path
 
 from NavRouteParser import NavRouteParser
@@ -29,12 +29,12 @@ Example file:
 Author: sumzer0@yahoo.com
 """
 
-
 class EDWayPoint:
     def __init__(self, is_odyssey=True):
-
+        
         self.is_odyssey = is_odyssey
         self.filename = './waypoints.json'
+
         self.waypoints = {}
         #  { "Ninabin": {"DockWithTarget": false, "TradeSeq": None, "Completed": false} }
         # for i, key in enumerate(self.waypoints):
@@ -42,55 +42,57 @@ class EDWayPoint:
         # self.waypoints[target]['Completed'] == True
         # if docked and self.waypoints[target]['Completed'] == False
         #    execute_seq(self.waypoints[target]['TradeSeq'])
-
+ 
         ss = self.read_waypoints()
 
         # if we read it then point to it, otherwise use the default table above
         if ss is not None:
             self.waypoints = ss
-            logger.debug("EDWayPoint: read json:" + str(ss))
-
+            logger.debug("EDWayPoint: read json:"+str(ss))    
+            
         self.num_waypoints = len(self.waypoints)
-
-        # print("waypoints: "+str(self.waypoints))
+     
+        #print("waypoints: "+str(self.waypoints))
         self.step = 0
-
+        
         self.mouse = MousePoint()
         self.status = StatusParser()
-
+     
     def load_waypoint_file(self, filename=None):
         if filename == None:
             return
-
+        
         ss = self.read_waypoints(filename)
-
+        
         if ss is not None:
             self.waypoints = ss
             self.filename = filename
-            logger.debug("EDWayPoint: read json:" + str(ss))
-
+            logger.debug("EDWayPoint: read json:"+str(ss))            
+        
+         
     def read_waypoints(self, fileName='./waypoints/waypoints.json'):
         s = None
         try:
-            with open(fileName, "r") as fp:
+            with open(fileName,"r") as fp:
                 s = json.load(fp)
         except  Exception as e:
             logger.warning("EDWayPoint.py read_waypoints error :" + str(e))
 
-        return s
+        return s    
+       
 
     def write_waypoints(self, data, fileName='./waypoints/waypoints.json'):
         if data is None:
             data = self.waypoints
         try:
-            with open(fileName, "w") as fp:
-                json.dump(data, fp, indent=4)
+            with open(fileName,"w") as fp:
+                json.dump(data,fp, indent=4)
         except Exception as e:
             logger.warning("EDWayPoint.py write_waypoints error:" + str(e))
 
     def mark_waypoint_complete(self, key):
         self.waypoints[key]['Completed'] = True
-        self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name)
+        self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name)  
 
     def get_waypoint(self):
         """ Returns the next waypoint list or None if we are at the end of the waypoints.
@@ -154,8 +156,8 @@ class EDWayPoint:
 
                 # if this entry is REPEAT, loop through all and mark them all as Completed = False
                 if self.waypoints[key]['System'] == "REPEAT":
-                    self.mark_all_waypoints_not_complete()
-                else:
+                    self.mark_all_waypoints_not_complete()             
+                else: 
                     # Don't set system in galaxy map if we are in system
                     if self.waypoints[key]['System'].upper() != ap.jn.ship_state()['cur_star_system'].upper():
                         # Call sequence to select route
@@ -167,15 +169,15 @@ class EDWayPoint:
 
                 break
             else:
-                dest_key = ""  # End of list, return empty string
-        print("test: " + dest_key)
+                dest_key = ""   # End of list, return empty string
+        print("test: " + dest_key)     
         return dest_key
 
     def mark_all_waypoints_not_complete(self):
-        for j, tkey in enumerate(self.waypoints):
-            self.waypoints[tkey]['Completed'] = False
-            self.step = 0
-        self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name)
+        for j, tkey in enumerate(self.waypoints):  
+            self.waypoints[tkey]['Completed'] = False   
+            self.step = 0 
+        self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name) 
 
     def set_station_target(self, ap, station):
         ap.nav_panel.lock_destination(station)
@@ -197,40 +199,41 @@ class EDWayPoint:
     # This sequence for the Horizons
     #
     def set_waypoint_target_horizons(self, ap, target_name: str, target_select_cb=None) -> bool:
-
+    
         ap.keys.send('GalaxyMapOpen')
         sleep(2)
         ap.keys.send('CycleNextPanel')
         sleep(1)
         ap.keys.send('UI_Select')
         sleep(2)
-
+              
         typewrite(target_name, interval=0.25)
-        sleep(1)
-
+        sleep(1)         
+  
         # send enter key
         ap.keys.send_key('Down', 28)
         sleep(0.05)
         ap.keys.send_key('Up', 28)
-
+        
         sleep(7)
         ap.keys.send('UI_Right')
         sleep(1)
-        ap.keys.send('UI_Select')
-
+        ap.keys.send('UI_Select')   
+        
         # if got passed through the ship() object, lets call it to see if a target has been
-        # selected yet.. otherwise we wait.  If long route, it may take a few seconds
+        # selected yet.. otherwise we wait.  If long route, it may take a few seconds      
         if target_select_cb != None:
             while not target_select_cb()['target']:
                 sleep(1)
-
+                
         ap.keys.send('GalaxyMapOpen')
         sleep(2)
         return True
 
+  
     #
     # This sequence for the Odyssey
-
+ 
     def set_waypoint_target_odyssey(self, scr, keys, target_system, target_select_cb=None) -> bool:
         # TODO - separate the functions for the gal map to a separate class
 
@@ -358,23 +361,23 @@ class temp:
 """
 
 def main():
-
-    # keys   = temp()
+    
+    #keys   = temp()
     wp  = EDWayPoint(True)  # False = Horizons
-    wp.step = 0  # start at first waypoint
-
+    wp.step = 0   #start at first waypoint
+        
     sleep(3)
-
+    
 
     
-    # dest = 'Enayex'
-    # print(dest)
-
-    # print("In waypoint_assist, at:"+str(dest))
+    #dest = 'Enayex'
+    #print(dest)
+    
+    #print("In waypoint_assist, at:"+str(dest))
 
     
     # already in doc config, test the trade
-    # wp.execute_trade(keys, dest)
+    #wp.execute_trade(keys, dest)    
 
     # Set the Route for the waypoint^#
     while 1:
@@ -383,16 +386,18 @@ def main():
         if dest is None:
             break
 
-        #  print(wp.waypoints[dest])
-        # print("Dock w/station: "+  str(wp.is_station_targeted(dest)))
-
-        # wp.set_station_target(None, dest)
-
+      #  print(wp.waypoints[dest])
+       # print("Dock w/station: "+  str(wp.is_station_targeted(dest)))
+        
+        #wp.set_station_target(None, dest)
+        
         # Mark this waypoint as complated
-        # wp.mark_waypoint_complete(dest)
-
+        #wp.mark_waypoint_complete(dest)
+        
         # set target to next waypoint and loop)::@
         #dest = wp.get_next_waypoint()
+
+
 
 
 if __name__ == "__main__":
