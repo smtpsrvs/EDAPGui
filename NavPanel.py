@@ -117,6 +117,7 @@ class NavPanel:
         Returns an image.
         """
         nav_pnl = self.capture_region_straightened('nav_panel')
+        cv2.imwrite('test/nav-panel/nav_pnl.png', nav_pnl)
 
         # Existing size
         h, w, ch = nav_pnl.shape
@@ -132,10 +133,7 @@ class NavPanel:
 
         # Crop image
         tab_bar = nav_pnl[y0:y1, x0:x1]
-
-        #cv2.imwrite('test/nav-panel/tab_bar.png', tab_bar)
-
-        #cv2.imshow("tab_bar", tab_bar)
+        cv2.imwrite('test/nav-panel/tab_bar.png', tab_bar)
 
         return tab_bar
 
@@ -274,6 +272,7 @@ class NavPanel:
 
         # Is open, so proceed
         tab_bar = self.capture_tab_bar()
+
         img_selected, ocr_data, ocr_textlist = self.ocr.get_highlighted_item_data(tab_bar, 50, 10)
         if img_selected is not None:
             if self.navigation_tab_text in str(ocr_textlist):
