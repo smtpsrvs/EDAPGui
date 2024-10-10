@@ -84,20 +84,14 @@ def main():
     #
     # Does NOT require Elite Dangerous to be running.
     # =====================================================================================
-    #nav_panel_display_all_text_test('test/nav-panel/')
-    #nav_panel_selected_item_text('test/nav-panel/')
+    nav_panel_display_all_text_test('test/nav-panel/')
+    nav_panel_selected_item_text('test/nav-panel/')
     # nav_panel_lock_station("QUAID'S VISION")
     # nav_panel_lock_station("SMITH'S OBLIGATION")
     # nav_panel_request_docking()
 
     int = 6
-    if int == 0:
-        find_commodity("gold")
-    elif int == 1:
-        buy_commodity("gold", 4)
-    elif int == 2:
-        sell_all_commodities()
-    elif int == 3:
+    if int == 3:
         nav_panel_lock_station("P.T.N. Perseverance")
     elif int == 4:
         nav_panel_request_docking()
@@ -128,43 +122,6 @@ def select_system(target_name):
     #     print("Target found:" + target_name)
     # else:
     #     print("Target NOT found:" + target_name)
-
-def find_commodity(name):
-    scr = Screen()
-    keys = EDKeys()
-    vce = Voice()
-    vce.v_enabled=True
-    keys.activate_window = True  # Helps with single steps testing
-    stn_svc = StationServicesInShip(scr, keys, vce)
-
-    stn_svc.goto_commodities_market()
-    stn_svc.commodities_market.select_buy()
-    stn_svc.commodities_market.find_commodity(name)
-
-def buy_commodity(name, count):
-    scr = Screen()
-    keys = EDKeys()
-    vce = Voice()
-    vce.v_enabled=True
-    keys.activate_window = True  # Helps with single steps testing
-    stn_svc = StationServicesInShip(scr, keys, vce)
-
-    stn_svc.goto_commodities_market()
-    stn_svc.commodities_market.buy_commodity(name, count)
-
-def sell_all_commodities():
-    scr = Screen()
-    keys = EDKeys()
-    vce = Voice()
-    vce.v_enabled=True
-    keys.activate_window = True  # Helps with single steps testing
-    stn_svc = StationServicesInShip(scr, keys, vce)
-    #stn_svc.goto_passenger_lounge()
-    #stn_svc.passenger_lounge.goto_personal_transport_missions()
-    #show_all_regions(stn_svc.passenger_lounge.reg)
-    #return
-    stn_svc.goto_commodities_market()
-    stn_svc.commodities_market.sell_all_commodities()
 
 def goto_personal_transport_missions():
     scr = Screen()
@@ -219,7 +176,6 @@ def draw_match_rect(img, pt1, pt2, color, thick):
         # right tic
         cv2.line(img, (int(pt2[0]), int(pt1[1] + half_hgt)), (int(pt2[0] + tic_len), int(pt1[1] + half_hgt)), color,
                  thick)
-
 
 def compass_test():
     """ Performs a compass test. """
@@ -501,7 +457,6 @@ def hsv_tester(image_path):
 
     cv2.destroyAllWindows()
 
-
 def ocr_tester(image_path):
     """ Brings up a HSV test window with sliders to check the 'inRange' function on the provided image.
         Change the default values below where indicated to the values associated with the appropriate
@@ -624,7 +579,6 @@ def rescale_screenshots(directory, scalex, scaley):
             image = cv2.resize(image, (0, 0), fx=newScaleX, fy=newScaleY)
             cv2.imwrite(image_out_path, image)
 
-
 def draw_bounding_boxes(image, detections, threshold=0.25):
     for res in detections:
         for line in res:
@@ -637,6 +591,47 @@ def draw_bounding_boxes(image, detections, threshold=0.25):
                 text_position = (int(points[0][0]), int(points[0][1]) - 0)
                 cv2.putText(image, f"{line[1][0]} ({line[1][1]:.2f})", text_position,
                             cv2.FONT_HERSHEY_PLAIN, 0.9, (0, 255, 0), 1, cv2.LINE_AA)
+
+def draw_regions(self, directory: str, regions):
+    """ Takes each image in a folder, draws all the defined regions
+    and then outputs the result to the 'out' folder.
+    """
+    directory_out = os.path.join(directory, 'out')
+    if not os.path.exists(directory_out):
+        os.makedirs(directory_out)
+
+    for filename in os.listdir(directory_out):
+        os.remove(os.path.join(directory_out, filename))
+
+    for filename in os.listdir(directory):
+        if filename.endswith(".png"):
+            image_path = os.path.join(directory, filename)
+            image_out_path = os.path.join(directory_out, filename)
+
+            # Load image
+            orig_image = cv2.imread(image_path)
+
+            ocr = OCR(screen=None)
+            ocr.using_screen = False
+            ocr.screen_image = orig_image
+            img = orig_image
+
+            # Existing size
+            h, w, ch = orig_image.shape
+
+            for r in regions:
+                # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
+                reg_rect = regions[r]['rect']
+
+                # Crop to leave only the selected rectangle
+                x0 = int(w * reg_rect[0])
+                y0 = int(h * reg_rect[1])
+                x1 = int(w * reg_rect[2])
+                y1 = int(h * reg_rect[3])
+
+                draw_match_rect(img, (x0, y0),(x1, y1), color=(255, 0, 0), thick=3)
+
+            cv2.imwrite(image_out_path, img)
 
 def callback(value):
     print(value)

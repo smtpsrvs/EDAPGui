@@ -179,17 +179,16 @@ class OCR:
         # Convert to string with milliseconds
         # formatted_datetime = datetime.now().strftime("%Y-%m-%d %H.%M.%S.%f")[:-3]
         # cv2.imwrite(f'test/{formatted_datetime} {region_name}.png', image)
+        cv2.imwrite(f'test/{region_name}.png', image)
         return image
 
-    def is_text_in_selected_item_in_region(self, text, region, region_name):
+    def is_text_in_selected_item_in_image(self, img, text):
         """ Does the selected item in the region include the text being checked for.
         Checks if text exists in a region using OCR.
         Return True if found, False if not and None if no item was selected.
-        @param region: The region to check in % (0.0 - 1.0).
-        @param region_name: The region name for debug.
+        @param img: The image to check.
+        @param text: The text to find.
         """
-
-        img = self.capture_region(region, region_name)
         img_selected, x, y = self.get_highlighted_item_in_image(img, 25, 10)
         if img_selected is None:
             logger.debug(f"Did not find a selected item in the region.")
@@ -238,7 +237,11 @@ class OCR:
 
         in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
         while 1:
-            found = self.is_text_in_selected_item_in_region(text, region, region_name)
+            img = self.capture_region(region, region_name)
+            if img is None:
+                return False
+
+            found = self.is_text_in_selected_item_in_image(img, text)
 
             # Check if end of list.
             if found is None and in_list:

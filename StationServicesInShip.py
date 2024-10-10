@@ -1,6 +1,8 @@
 import time
 from time import sleep
 
+import cv2
+
 from CargoParser import CargoParser
 from EDlogger import logger
 from MarketParser import MarketParser
@@ -228,12 +230,14 @@ class CommoditiesMarket:
         self.keys = keys
 
         self.market_parser = MarketParser()
-        self.reg = {}
+        # self.reg = {'cargo_col': {'rect': [0.13, 0.25, 0.19, 0.86]},
+        #             'commodity_name_col': {'rect': [0.19, 0.25, 0.41, 0.86]},
+        #             'supply_demand_col': {'rect': [0.42, 0.25, 0.49, 0.86]}}
+        self.reg = {'cargo_col': {'rect': [0.13, 0.22, 0.19, 0.90]},
+                    'commodity_name_col': {'rect': [0.19, 0.22, 0.41, 0.90]},
+                    'supply_demand_col': {'rect': [0.42, 0.22, 0.49, 0.90]}}
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         # Nav Panel region covers the entire navigation panel.
-        self.reg['cargo_col'] = {'rect': [0.13, 0.25, 0.19, 0.86]}  # Fraction with ref to the screen/image
-        self.reg['commodity_name_col'] = {'rect': [0.19, 0.25, 0.41, 0.86]}  # Fraction with ref to the screen/image
-        self.reg['supply_demand_col'] = {'rect': [0.42, 0.25, 0.49, 0.86]}  # Fraction with ref to the screen/image
 
     def get_market_data(self) -> bool:
         """ Check to see if market data is updated (recent modified time) before loading it.
