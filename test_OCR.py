@@ -1,12 +1,11 @@
 import unittest
-import cv2
 from OCR import OCR
+from Screen import *
 
 
 class OCRTestCase(unittest.TestCase):
     def test_simple_OCR(self):
-        """ Simple check of OCR to bring back text of a know image.
-        """
+        """ Simple check of OCR to bring back text of a know image. """
         ocr = OCR(screen=None)
 
         # Load image

@@ -123,16 +123,18 @@ def select_system(target_name):
     # else:
     #     print("Target NOT found:" + target_name)
 
+
 def goto_personal_transport_missions():
     scr = Screen()
     keys = EDKeys()
     vce = Voice()
-    vce.v_enabled=True
+    vce.v_enabled = True
     keys.activate_window = True  # Helps with single steps testing
     stn_svc = StationServicesInShip(scr, keys, vce)
 
     stn_svc.goto_passenger_lounge()
     stn_svc.passenger_lounge.goto_personal_transport_missions()
+
 
 def draw_match_rect(img, pt1, pt2, color, thick):
     """ Utility function to add a rectangle to an image. """
@@ -177,6 +179,7 @@ def draw_match_rect(img, pt1, pt2, color, thick):
         cv2.line(img, (int(pt2[0]), int(pt1[1] + half_hgt)), (int(pt2[0] + tic_len), int(pt1[1] + half_hgt)), color,
                  thick)
 
+
 def compass_test():
     """ Performs a compass test. """
     scr = Screen()
@@ -220,6 +223,7 @@ def template_matching_test(region_name, template):
         key = cv2.waitKey(10)
         if key == 27:  # ESC
             break
+
 
 def nav_panel_display_all_text_test(directory):
     """ OCR all the image files in the given folder.
@@ -318,6 +322,7 @@ def nav_panel_lock_station(name):
 
     #nav_pnl.request_docking()
 
+
 def nav_panel_request_docking():
     scr = Screen()
     keys = EDKeys()
@@ -360,15 +365,16 @@ def show_regions(region_names):
         if key in region_names:
             ov.overlay_rect(key, (scrReg.reg[key]['rect'][0], scrReg.reg[key]['rect'][1]),
                             (scrReg.reg[key]['rect'][2], scrReg.reg[key]['rect'][3]),
-                            overlay_colors[i+1], 2)
+                            overlay_colors[i + 1], 2)
             ov.overlay_floating_text(key, key, scrReg.reg[key]['rect'][0], scrReg.reg[key]['rect'][1],
-                                     overlay_colors[i+1])
+                                     overlay_colors[i + 1])
 
     ov.overlay_paint()
 
     sleep(10)
     ov.overlay_quit()
     sleep(2)
+
 
 def show_all_regions(regions):
     """ Draw a rectangle indicating the given region on the Elite Dangerous window.
@@ -407,12 +413,13 @@ def show_all_regions(regions):
     ov.overlay_quit()
     sleep(2)
 
+
 def hsv_tester(image_path):
     """ Brings up a HSV test window with sliders to check the 'inRange' function on the provided image.
         Change the default values below where indicated to the values associated with the appropriate
         template in image_template.py.
         :param image_path: The file path of the image to test. """
-    cv2.namedWindow("Trackbars", cv2.WINDOW_NORMAL) # cv2.WINDOW_AUTOSIZE)
+    cv2.namedWindow("Trackbars", cv2.WINDOW_NORMAL)  # cv2.WINDOW_AUTOSIZE)
 
     cv2.createTrackbar("L - H", "Trackbars", 0, 179, callback)
     cv2.createTrackbar("L - S", "Trackbars", 0, 255, callback)
@@ -456,6 +463,7 @@ def hsv_tester(image_path):
             break
 
     cv2.destroyAllWindows()
+
 
 def ocr_tester(image_path):
     """ Brings up a HSV test window with sliders to check the 'inRange' function on the provided image.
@@ -545,14 +553,16 @@ def ocr_tester(image_path):
 
     cv2.destroyAllWindows()
 
+
 def get_highlighted_item_in_image(image_path):
     scr = Screen()
     ocr = OCR(scr)
 
     orig_image = cv2.imread(image_path)
-    img_selected, x , y = ocr.get_highlighted_item_in_image(orig_image, 500, 25)
+    img_selected, x, y = ocr.get_highlighted_item_in_image(orig_image, 500, 25)
     if img_selected is not None:
         cv2.imwrite('test/hl.png', img_selected)
+
 
 def rescale_screenshots(directory, scalex, scaley):
     """ Rescale all images in a folder. Also convert BMP to PNG
@@ -579,6 +589,7 @@ def rescale_screenshots(directory, scalex, scaley):
             image = cv2.resize(image, (0, 0), fx=newScaleX, fy=newScaleY)
             cv2.imwrite(image_out_path, image)
 
+
 def draw_bounding_boxes(image, detections, threshold=0.25):
     for res in detections:
         for line in res:
@@ -592,7 +603,8 @@ def draw_bounding_boxes(image, detections, threshold=0.25):
                 cv2.putText(image, f"{line[1][0]} ({line[1][1]:.2f})", text_position,
                             cv2.FONT_HERSHEY_PLAIN, 0.9, (0, 255, 0), 1, cv2.LINE_AA)
 
-def draw_regions(self, directory: str, regions):
+
+def draw_regions(directory: str, regions):
     """ Takes each image in a folder, draws all the defined regions
     and then outputs the result to the 'out' folder.
     """
@@ -629,9 +641,10 @@ def draw_regions(self, directory: str, regions):
                 x1 = int(w * reg_rect[2])
                 y1 = int(h * reg_rect[3])
 
-                draw_match_rect(img, (x0, y0),(x1, y1), color=(255, 0, 0), thick=3)
+                draw_match_rect(img, (x0, y0), (x1, y1), color=(255, 0, 0), thick=3)
 
             cv2.imwrite(image_out_path, img)
+
 
 def callback(value):
     print(value)

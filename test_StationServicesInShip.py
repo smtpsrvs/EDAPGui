@@ -6,8 +6,15 @@ from Test_Routines import draw_regions
 from Voice import Voice
 
 
+def does_elite_window_exist() -> bool:
+    scr = Screen()
+    return scr.elite_window_exists()
+
+
 class CommoditiesMarketTestCase(unittest.TestCase):
-    def draw_regions_on_images(self):
+    elite_win_exists = does_elite_window_exist()
+
+    def test_draw_regions_on_images(self):
         """
         Does NOT require Elite Dangerous to be running.
         ======================================================================
@@ -17,27 +24,8 @@ class CommoditiesMarketTestCase(unittest.TestCase):
 
         self.assertEqual(True, True)  # add assertion here
 
-    def find_commodity(self):
-        """
-        DOES require Elite Dangerous to be running.
-        ======================================================================
-        """
-        name = "gold"
-
-        scr = Screen()
-        keys = EDKeys()
-        vce = Voice()
-        vce.v_enabled=True
-        keys.activate_window = True  # Helps with single steps testing
-        stn_svc = StationServicesInShip(scr, keys, vce)
-
-        stn_svc.goto_commodities_market()
-        stn_svc.commodities_market.select_buy()
-        stn_svc.commodities_market.find_commodity(name)
-
-        self.assertEqual(True, True)  # add assertion here
-
-    def buy_commodity(self):
+    @unittest.skipUnless(elite_win_exists, "Elite Dangerous is not running")
+    def test_buy_commodity(self):
         """
         DOES require Elite Dangerous to be running.
         ======================================================================
@@ -48,7 +36,7 @@ class CommoditiesMarketTestCase(unittest.TestCase):
         scr = Screen()
         keys = EDKeys()
         vce = Voice()
-        vce.v_enabled=True
+        vce.v_enabled = True
         keys.activate_window = True  # Helps with single steps testing
         stn_svc = StationServicesInShip(scr, keys, vce)
 
@@ -57,7 +45,8 @@ class CommoditiesMarketTestCase(unittest.TestCase):
 
         self.assertEqual(True, True)  # add assertion here
 
-    def sell_commodity(self):
+    @unittest.skipUnless(elite_win_exists, "Elite Dangerous is not running")
+    def test_sell_commodity(self):
         """
         DOES require Elite Dangerous to be running.
         ======================================================================
@@ -68,7 +57,7 @@ class CommoditiesMarketTestCase(unittest.TestCase):
         scr = Screen()
         keys = EDKeys()
         vce = Voice()
-        vce.v_enabled=True
+        vce.v_enabled = True
         keys.activate_window = True  # Helps with single steps testing
         stn_svc = StationServicesInShip(scr, keys, vce)
 
@@ -77,8 +66,8 @@ class CommoditiesMarketTestCase(unittest.TestCase):
 
         self.assertEqual(True, True)  # add assertion here
 
-
-    def sell_all_commodities(self):
+    @unittest.skipUnless(elite_win_exists, "Elite Dangerous is not running")
+    def test_sell_all_commodities(self):
         """
         DOES require Elite Dangerous to be running.
         ======================================================================
@@ -86,7 +75,7 @@ class CommoditiesMarketTestCase(unittest.TestCase):
         scr = Screen()
         keys = EDKeys()
         vce = Voice()
-        vce.v_enabled=True
+        vce.v_enabled = True
         keys.activate_window = True  # Helps with single steps testing
         stn_svc = StationServicesInShip(scr, keys, vce)
 

@@ -122,6 +122,16 @@ class Screen:
         else:
             return None
 
+    @staticmethod
+    def elite_window_exists() -> bool:
+        """ Does the ED Client Window exist (i.e. is ED running)
+        """
+        hwnd = win32gui.FindWindow(None, elite_dangerous_window)
+        if hwnd:
+            return True
+        else:
+            return False
+
     def write_config(self, data, filename='./configs/resolution.json'):
         if data is None:
             data = self.scales
