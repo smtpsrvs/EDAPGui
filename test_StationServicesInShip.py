@@ -85,7 +85,7 @@ class CommoditiesMarketTestCase(unittest.TestCase):
             name = items[0]['Name_Localised']
         else:
             name = ""
-            
+
         res = stn_svc.commodities_market.sell_commodity(name, qty=0)
         self.assertTrue(res, "Failed to sell commodity.")  # add assertion here
 
