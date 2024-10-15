@@ -1,12 +1,12 @@
 import time
 from time import sleep
-
-import cv2
-
 from CargoParser import CargoParser
+from EDAP_data import GuiFocusNoFocus
 from EDlogger import logger
 from MarketParser import MarketParser
 from OCR import OCR
+from StatusParser import StatusParser
+from Test_Routines import reg_scale_for_station, size_scale_for_station
 
 """
 File:StationServicesInShip.py    
@@ -27,31 +27,38 @@ class StationServicesInShip:
         self.ocr = OCR(screen)
         self.keys = keys
         self.vce = voice
-        self.passenger_lounge = PassengerLounge(self, self.ocr, self.keys)
-        self.commodities_market = CommoditiesMarket(self, self.ocr, self.keys)
-        self.region_connected_to = {'rect': [0.0, 0.0, 0.25, 0.25]}  # top left x, y, and bottom right x, y
-        self.region_stn_svc_layout = {'rect': [0.05, 0.40, 0.60, 0.75]}  # top left x, y, and bottom right x, y
-        self.region_commodities_market = {'rect': [0.0, 0.0, 0.25, 0.25]}  # top left x, y, and bottom right x, y
+        self.passenger_lounge = PassengerLounge(self, self.ocr, self.keys, self.screen)
+        self.commodities_market = CommoditiesMarket(self, self.ocr, self.keys, self.screen)
+        self.status = StatusParser()
+        # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
+        self.reg = {'connected_to': {'rect': [0.0, 0.0, 0.25, 0.25]},
+                    'stn_svc_layout': {'rect': [0.05, 0.40, 0.60, 0.75]},
+                    'commodities_market': {'rect': [0.0, 0.0, 0.25, 0.25]}}
 
     def goto_station_services(self) -> bool:
         """ Goto Station Services. """
-        # Go down to station services and select
-        self.keys.send("UI_Back", repeat=5)  # make sure back in ship view
-        self.keys.send("UI_Up", repeat=3)  # go to very top (refuel)
-        # self.keys.send("UI_Left", hold=1)  # go to very left (refuel)
+        # Go to ship view
+        self.goto_ship_view()
+        # self.keys.send("UI_Left", hold=1)  # go to very left (refuel line)
 
         self.keys.send("UI_Down")  # station services
         self.keys.send("UI_Select")  # station services
 
+        # Scale the regions based on the target resolution.
+        scl_reg_rect = reg_scale_for_station(self.reg['connected_to'], self.screen.width, self.screen.height)
+
         # Wait for screen to appear
-        res = self.ocr.wait_for_text("CONNECTED TO", self.region_connected_to,'region_connected_to')
+        res = self.ocr.wait_for_text("CONNECTED TO", scl_reg_rect,'connected_to')
         return res
 
     def goto_ship_view(self) -> bool:
         """ Goto ship view. """
         # Go down to ship view
-        self.keys.send("UI_Back", repeat=5)  # make sure back in ship view
-        self.keys.send("UI_Up", repeat=3)  # go to very top (refuel)
+        while not self.status.get_gui_focus() == GuiFocusNoFocus:
+            self.keys.send("UI_Back")  # make sure back in ship view
+
+        # self.keys.send("UI_Back", repeat=5)  # make sure back in ship view
+        self.keys.send("UI_Up", repeat=3)  # go to very top (refuel line)
 
         return True
 
@@ -62,7 +69,10 @@ class StationServicesInShip:
         self.commodities_in_right = False
         self.commodities_at_bottom = False
 
-        image = self.ocr.capture_region(self.region_stn_svc_layout, 'region_stn_svc_layout')
+        # Scale the regions based on the target resolution.
+        scl_reg_rect = reg_scale_for_station(self.reg['stn_svc_layout'], self.screen.width, self.screen.height)
+
+        image = self.ocr.capture_region(scl_reg_rect, 'stn_svc_layout')
         ocr_data, ocr_textlist = self.ocr.image_ocr(image)
         for res in ocr_data:
             for line in res:
@@ -128,8 +138,11 @@ class StationServicesInShip:
 
         self.keys.send("UI_Select")  # Commodities Market
 
+        # Scale the regions based on the target resolution.
+        scl_reg_rect = reg_scale_for_station(self.reg['commodities_market'], self.screen.width, self.screen.height)
+
         # Wait for screen to appear
-        res = self.ocr.wait_for_text("CONNECTED TO", self.region_commodities_market, 'region_commodities_market')
+        res = self.ocr.wait_for_text("CONNECTED TO", scl_reg_rect, 'commodities_market')
         if not res:
             return False
 
@@ -168,17 +181,24 @@ class StationServicesInShip:
 
 
 class PassengerLounge:
-    def __init__(self, station_services_in_ship: StationServicesInShip, ocr, keys):
+    def __init__(self, station_services_in_ship: StationServicesInShip, ocr, keys, screen):
         self.parent = station_services_in_ship
         self.ocr = ocr
         self.keys = keys
+        self.screen = screen
 
-        self.reg = {}
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         # Nav Panel region covers the entire navigation panel.
-        self.reg['missions'] = {'rect': [0.50, 0.72, 0.65, 0.85]}  # Fraction with ref to the screen/image
-        self.reg['mission_dest_col'] = {'rect': [0.47, 0.42, 0.64, 0.82]}  # Fraction with ref to the screen/image
-        self.reg['complete_mission_col'] = {'rect': [0.47, 0.25, 0.67, 0.82]}  # Fraction with ref to the screen/image
+        self.reg = {'no_cmpl_missions': {'rect': [0.47, 0.77, 0.675, 0.85]},
+                    'mission_dest_col': {'rect': [0.47, 0.41, 0.64, 0.85]},
+                    'complete_mission_col': {'rect': [0.47, 0.22, 0.675, 0.85]}}
+
+        self.no_cmpl_missions_row_width = 384  # Buy/sell item width in pixels at 1920x1080
+        self.no_cmpl_missions_row_height = 70  # Buy/sell item height in pixels at 1920x1080
+        self.mission_dest_row_width = 326  # Buy/sell item width in pixels at 1920x1080
+        self.mission_dest_row_height = 70  # Buy/sell item height in pixels at 1920x1080
+        self.complete_mission_row_width = 384  # Buy/sell item width in pixels at 1920x1080
+        self.complete_mission_row_height = 70  # Buy/sell item height in pixels at 1920x1080
 
     def goto_personal_transport_missions(self) -> bool:
         """ Go to the passenger lounge menu. """
@@ -191,8 +211,11 @@ class PassengerLounge:
         self.keys.send("UI_Down", repeat=2)
         self.keys.send("UI_Select")  # select Personal Transport
 
+        # Scale the regions based on the target resolution.
+        scl_reg_rect = reg_scale_for_station(self.reg['mission_dest_col'], self.screen.width, self.screen.height)
+
         # Wait for screen to appear
-        res = self.ocr.wait_for_text("DESTINATION", self.reg['mission_dest_col'],'mission_dest_col')
+        res = self.ocr.wait_for_text("DESTINATION", scl_reg_rect, 'mission_dest_col')
         return res
 
     def goto_complete_missions(self) -> bool:
@@ -209,35 +232,46 @@ class PassengerLounge:
     def find_mission_to_complete(self) -> bool:
         """ Find the first mission in the completed missions list.
         True if a completed mission is selected, else False (no missions left to turn in). """
-        return self.ocr.select_item_in_list("COMPLETE MISSION", self.reg['complete_mission_col'],
-                                            self.keys, 'complete_mission_col')
+        # Scale the regions based on the target resolution.
+        scl_reg_rect = reg_scale_for_station(self.reg['complete_mission_col'], self.screen.width, self.screen.height)
+        scl_row_w, scl_row_h = size_scale_for_station(self.complete_mission_row_width, self.complete_mission_row_height, self.screen.width, self.screen.height)
+
+        return self.ocr.select_item_in_list("COMPLETE MISSION", scl_reg_rect, self.keys, 'complete_mission_col', scl_row_w, scl_row_h)
 
     def missions_ready_to_complete(self) -> bool:
-        """ Check if the COMPLETE MISSIONS button is enabled (we have missions to turn in.
+        """ Check if the COMPLETE MISSIONS button is enabled (we have missions to turn in).
         True if there are missions, else False. """
-        return self.ocr.is_text_in_region("COMPLETE MISSIONS", self.reg['missions'], 'missions')
+        # Scale the regions based on the target resolution.
+        scl_reg_rect = reg_scale_for_station(self.reg['no_cmpl_missions'], self.screen.width, self.screen.height)
+        scl_row_w, scl_row_h = size_scale_for_station(self.no_cmpl_missions_row_width, self.no_cmpl_missions_row_height,
+                                                      self.screen.width, self.screen.height)
+
+        return self.ocr.is_text_in_region("COMPLETE MISSIONS", scl_reg_rect, 'no_cmpl_missions', scl_row_w, scl_row_h)
 
     def select_mission_with_dest(self, dest) -> bool:
         """ Select a mission with the required destination.
         True if there are missions, else False. """
-        return self.ocr.select_item_in_list(dest, self.reg['mission_dest_col'], self.keys, 'mission_dest_col')
+        # Scale the regions based on the target resolution.
+        scl_reg_rect = reg_scale_for_station(self.reg['mission_dest_col'], self.screen.width, self.screen.height)
+        scl_row_w, scl_row_h = size_scale_for_station(self.mission_dest_row_width, self.mission_dest_row_height, self.screen.width, self.screen.height)
+
+        return self.ocr.select_item_in_list(dest, scl_reg_rect, self.keys, 'mission_dest_col', scl_row_w, scl_row_h)
 
 
 class CommoditiesMarket:
-    def __init__(self, station_services_in_ship: StationServicesInShip, ocr, keys):
+    def __init__(self, station_services_in_ship: StationServicesInShip, ocr, keys, screen):
         self.parent = station_services_in_ship
         self.ocr = ocr
         self.keys = keys
+        self.screen = screen
 
         self.market_parser = MarketParser()
-        # self.reg = {'cargo_col': {'rect': [0.13, 0.25, 0.19, 0.86]},
-        #             'commodity_name_col': {'rect': [0.19, 0.25, 0.41, 0.86]},
-        #             'supply_demand_col': {'rect': [0.42, 0.25, 0.49, 0.86]}}
-        self.reg = {'cargo_col': {'rect': [0.13, 0.22, 0.19, 0.90]},
-                    'commodity_name_col': {'rect': [0.19, 0.22, 0.41, 0.90]},
-                    'supply_demand_col': {'rect': [0.42, 0.22, 0.49, 0.90]}}
-        # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
-        # Nav Panel region covers the entire navigation panel.
+        # The reg rect is top left x, y, and bottom right x, y in fraction of screen resolution at 1920x1080
+        self.reg = {'cargo_col': {'rect': [0.13, 0.227, 0.19, 0.90]},
+                     'commodity_name_col': {'rect': [0.19, 0.227, 0.41, 0.90]},
+                     'supply_demand_col': {'rect': [0.42, 0.227, 0.49, 0.90]}}
+        self.commodity_row_width = 422  # Buy/sell item width in pixels at 1920x1080
+        self.commodity_row_height = 35  # Buy/sell item height in pixels at 1920x1080
 
     def get_market_data(self) -> bool:
         """ Check to see if market data is updated (recent modified time) before loading it.
@@ -297,7 +331,12 @@ class CommoditiesMarket:
         self.keys.send("UI_Up", hold=2)
 
         self.parent.vce.say(f"Locating {name} to buy.")
-        found = self.ocr.select_item_in_list(name, self.reg['commodity_name_col'], self.keys, 'commodity_name_col')
+
+        # Scale the regions based on the target resolution.
+        scl_reg_rect = reg_scale_for_station(self.reg['commodity_name_col'], self.screen.width, self.screen.height)
+        scl_row_w, scl_row_h = size_scale_for_station(self.commodity_row_width, self.commodity_row_height, self.screen.width, self.screen.height)
+
+        found = self.ocr.select_item_in_list(name, scl_reg_rect, self.keys, 'commodity_name_col', scl_row_w, scl_row_h)
         if not found:
             return False
 
@@ -338,7 +377,12 @@ class CommoditiesMarket:
         self.keys.send("UI_Up", hold=2)
 
         self.parent.vce.say(f"Locating {name} to sell.")
-        found = self.ocr.select_item_in_list(name, self.reg['commodity_name_col'], self.keys, 'commodity_name_col')
+
+        # Scale the regions based on the target resolution.
+        scl_reg_rect = reg_scale_for_station(self.reg['commodity_name_col'], self.screen.width, self.screen.height)
+        scl_row_w, scl_row_h = size_scale_for_station(self.commodity_row_width, self.commodity_row_height, self.screen.width, self.screen.height)
+
+        found = self.ocr.select_item_in_list(name, scl_reg_rect, self.keys, 'commodity_name_col', scl_row_w, scl_row_h)
         if not found:
             return False
 

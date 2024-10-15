@@ -146,8 +146,8 @@ class OCR:
         cropped = image
         for cnt in contours:
             x, y, w, h = cv2.boundingRect(cnt)
-            # The whole row will be wider than random matching elements.
-            if w > min_w and h > min_h:
+            # Check the item is greater than 90% of the minimum width or height. Which allows for some variation.
+            if w > (min_w * 0.9) and h > (min_h * 0.9):
                 # Drawing a rectangle on the copied image
                 # rect = cv2.rectangle(crop, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
@@ -182,14 +182,16 @@ class OCR:
         cv2.imwrite(f'test/{region_name}.png', image)
         return image
 
-    def is_text_in_selected_item_in_image(self, img, text):
+    def is_text_in_selected_item_in_image(self, img, text, min_w, min_h):
         """ Does the selected item in the region include the text being checked for.
         Checks if text exists in a region using OCR.
         Return True if found, False if not and None if no item was selected.
+        @param min_h: Minimum height in pixels.
+        @param min_w: Minimum width in pixels.
         @param img: The image to check.
         @param text: The text to find.
         """
-        img_selected, x, y = self.get_highlighted_item_in_image(img, 25, 10)
+        img_selected, x, y = self.get_highlighted_item_in_image(img, min_w, min_h)
         if img_selected is None:
             logger.debug(f"Did not find a selected item in the region.")
             return None
@@ -226,13 +228,15 @@ class OCR:
             logger.debug(f"Did not find '{text}' text in item text '{str(ocr_textlist)}'.")
             return False
 
-    def select_item_in_list(self, text, region, keys, region_name) -> bool:
+    def select_item_in_list(self, text, region, keys, region_name, min_w, min_h) -> bool:
         """ Attempt to find the item by text in a list defined by the region.
         If found, leaves it selected for further actions.
         @param keys:
         @param text: Text to find.
         @param region: The region to check in % (0.0 - 1.0).
         @param region_name: The region name for debug.
+        @param min_h: Minimum height in pixels.
+        @param min_w: Minimum width in pixels.
         """
 
         in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
@@ -241,7 +245,7 @@ class OCR:
             if img is None:
                 return False
 
-            found = self.is_text_in_selected_item_in_image(img, text)
+            found = self.is_text_in_selected_item_in_image(img, text, min_w, min_h)
 
             # Check if end of list.
             if found is None and in_list:

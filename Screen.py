@@ -50,6 +50,8 @@ class Screen:
                     logger.debug(f'Defaulting to monitor {mon_num}.')
                     self.screen_width = item['width']
                     self.screen_height = item['height']
+                    self.width = item['width']
+                    self.height = item['height']
                     break
                 else:
                     if item['left'] == ed_rect[0] and item['top'] == ed_rect[1]:
@@ -59,6 +61,8 @@ class Screen:
                         logger.debug(f'Elite Dangerous is on monitor {mon_num}.')
                         self.screen_width = item['width']
                         self.screen_height = item['height']
+                        self.width = item['width']
+                        self.height = item['height']
 
             # Next monitor
             mon_num = mon_num + 1

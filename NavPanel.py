@@ -35,12 +35,11 @@ class NavPanel:
         self.contacts_tab_text = "CONTACTS"
         self.target_tab_text = "TARGET"
 
-        self.reg = {}
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         # Nav Panel region covers the entire navigation panel.
-        self.reg['nav_panel'] = {'rect': [0.10, 0.23, 0.72, 0.83]}  # Fraction with ref to the screen/image
-        self.reg['tab_bar'] = {'rect': [0.0, 0.0, 1.0, 0.1152]}  # Fraction with ref to the Nav Panel
-        self.reg['location_panel'] = {'rect': [0.2218, 0.3069, 0.8, 1.0]}  # Fraction with ref to the Nav Panel
+        self.reg = {'nav_panel': {'rect': [0.10, 0.23, 0.72, 0.83]},
+                    'tab_bar': {'rect': [0.0, 0.0, 1.0, 0.1152]},
+                    'location_panel': {'rect': [0.2218, 0.3069, 0.8, 1.0]}}
 
     def capture_region_straightened(self, region):
         """ Grab the image based on the region name/rect.
@@ -165,6 +164,7 @@ class NavPanel:
     def goto_ship_view(self):
         # TODO - does this work in all cases?
         # TODO - move this to a better place
+        # TODO - Use GET_GUI_FOCUS instead
         status = self.status_parser.get_cleaned_data()
         if status['GuiFocus'] == GuiFocusNoFocus:
             return True  # Do nothing
@@ -273,6 +273,7 @@ class NavPanel:
         # Is open, so proceed
         tab_bar = self.capture_tab_bar()
 
+        # TODO - ocr min size
         img_selected, ocr_data, ocr_textlist = self.ocr.get_highlighted_item_data(tab_bar, 50, 10)
         if img_selected is not None:
             if self.navigation_tab_text in str(ocr_textlist):
@@ -325,6 +326,7 @@ class NavPanel:
             loc_panel = self.capture_location_panel()
 
             # Find the selected item/menu (solid orange)
+            # TODO - ocr min size
             img_selected, x, y = self.ocr.get_highlighted_item_in_image(loc_panel, 500, 25)
             # Check if end of list.
             if img_selected is None and in_list:
@@ -365,6 +367,7 @@ class NavPanel:
             loc_panel = self.capture_location_panel()
 
             # Find the selected item/menu (solid orange)
+            # TODO - ocr min size
             img_selected, x, y = self.ocr.get_highlighted_item_in_image(loc_panel, 500, 25)
             # Check if end of list.
             if img_selected is None and in_list:

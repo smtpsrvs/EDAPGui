@@ -12,7 +12,6 @@ from Image_Templates import *
 from time import sleep
 import numpy as np
 
-from StationServicesInShip import StationServicesInShip
 from Voice import Voice
 
 """
@@ -95,8 +94,6 @@ def main():
         nav_panel_lock_station("P.T.N. Perseverance")
     elif int == 4:
         nav_panel_request_docking()
-    elif int == 5:
-        goto_personal_transport_missions()
     elif int == 6:
         select_system("GULLION")
         select_system("LHS 54")
@@ -122,18 +119,6 @@ def select_system(target_name):
     #     print("Target found:" + target_name)
     # else:
     #     print("Target NOT found:" + target_name)
-
-
-def goto_personal_transport_missions():
-    scr = Screen()
-    keys = EDKeys()
-    vce = Voice()
-    vce.v_enabled = True
-    keys.activate_window = True  # Helps with single steps testing
-    stn_svc = StationServicesInShip(scr, keys, vce)
-
-    stn_svc.goto_passenger_lounge()
-    stn_svc.passenger_lounge.goto_personal_transport_missions()
 
 
 def draw_match_rect(img, pt1, pt2, color, thick):
@@ -300,6 +285,7 @@ def nav_panel_selected_item_text(directory):
             #crop_with_border = cv2.copyMakeBorder(img_item, 40, 20, 20, 20, cv2.BORDER_CONSTANT)
             #ocr_data, ocr_textlist = nav_pnl.get_selected_location_data(crop_with_border, 100, 10)
 
+            # TODO - ocr min size
             image, ocr_data, ocr_textlist = ocr.get_highlighted_item_data(loc_panel, 100, 10)
             if image is not None:
                 draw_bounding_boxes(image, ocr_data, 0.25)
@@ -604,6 +590,70 @@ def draw_bounding_boxes(image, detections, threshold=0.25):
                             cv2.FONT_HERSHEY_PLAIN, 0.9, (0, 255, 0), 1, cv2.LINE_AA)
 
 
+def reg_scale_for_station(region, w: int, h: int) -> [int, int, int, int]:
+    """ Scale a station services region based on the target resolution.
+    This is performed because the tables on the station services screen do
+    not increase proportionally with the screen size. The width changes with
+    the screen size, the height does not change based on the screen size
+    height, but on the screen width and the position stays consistent to the
+    center of the screen.
+    To calculate the new region height, we take the initial region defined at
+    1920x1080 and scale up the height based on the target width and apply the
+    new proportion against the center line.
+    @param h: The screen height in pixels
+    @param w: The screen width in pixels
+    @param region: The region at 1920x1080
+    """
+    ref_w = 1920
+    ref_h = 1080
+
+    # Calc the x and y scaling.
+    x_scale = w / ref_w
+    y_scale = h / ref_h
+
+    # Recalc the region as a % above and below the center line.
+    pct_abv = (0.5 - region['rect'][1]) * x_scale / y_scale
+    pct_blw = (region['rect'][3] - 0.5) * x_scale / y_scale
+
+    # Apply new % to the center line.
+    new_rect1 = 0.5 - pct_abv
+    new_rect3 = 0.5 + pct_blw
+
+    # Return the update top and bottom Y percentages with the original X percentages.
+    new_reg = {'rect': [region['rect'][0], new_rect1, region['rect'][2], new_rect3]}
+    return new_reg
+
+
+def size_scale_for_station(width: int, height: int, w: int, h: int) -> (int, int):
+    """ Scale an item in the  station services region based on the target resolution.
+    This is performed because the tables on the station services screen do
+    not increase proportionally with the screen size. The width changes with
+    the screen size, the height does not change based on the screen size
+    height, but on the screen width and the position stays consistent to the
+    center of the screen.
+    To calculate the new region height, we take the initial region defined at
+    1920x1080 and scale up the height based on the target width and apply the
+    new proportion against the center line.
+    @param width: The width of the item in pixels
+    @param height: The height of the item in pixels
+    @param h: The screen height in pixels
+    @param w: The screen width in pixels
+    """
+    ref_w = 1920
+    ref_h = 1080
+
+    # Calc the x and y scaling.
+    x_scale = w / ref_w
+    y_scale = h / ref_h
+
+    # Increase the height by the ratio of the width
+    new_width = width * x_scale
+    new_height = height * x_scale
+
+    # Return the new height in pixels.
+    return new_width, new_height
+
+
 def draw_regions(directory: str, regions):
     """ Takes each image in a folder, draws all the defined regions
     and then outputs the result to the 'out' folder.
@@ -640,6 +690,53 @@ def draw_regions(directory: str, regions):
                 y0 = int(h * reg_rect[1])
                 x1 = int(w * reg_rect[2])
                 y1 = int(h * reg_rect[3])
+
+                draw_match_rect(img, (x0, y0), (x1, y1), color=(255, 0, 0), thick=3)
+
+            cv2.imwrite(image_out_path, img)
+
+
+def draw_station_regions(directory: str, regions):
+    """ Takes each image in a folder, draws all the defined regions
+    and then outputs the result to the 'out' folder.
+    The station specific regions are determined because the table data
+    does not scale linearly with resolution, so additional region scaling is needed.
+    """
+    directory_out = os.path.join(directory, 'out')
+    if not os.path.exists(directory_out):
+        os.makedirs(directory_out)
+
+    for filename in os.listdir(directory_out):
+        os.remove(os.path.join(directory_out, filename))
+
+    for filename in os.listdir(directory):
+        if filename.endswith(".png"):
+            image_path = os.path.join(directory, filename)
+            image_out_path = os.path.join(directory_out, filename)
+
+            # Load image
+            orig_image = cv2.imread(image_path)
+
+            ocr = OCR(screen=None)
+            ocr.using_screen = False
+            ocr.screen_image = orig_image
+            img = orig_image
+
+            # Existing size
+            h, w, ch = orig_image.shape
+
+            for r in regions:
+                # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
+                reg = regions[r]
+
+                # Scale the regions based on the target resolution.
+                scl_reg = reg_scale_for_station(reg, w, h)
+
+                # Crop to leave only the selected rectangle
+                x0 = int(w * scl_reg['rect'][0])
+                y0 = int(h * scl_reg['rect'][1])
+                x1 = int(w * scl_reg['rect'][2])
+                y1 = int(h * scl_reg['rect'][3])
 
                 draw_match_rect(img, (x0, y0), (x1, y1), color=(255, 0, 0), thick=3)
 

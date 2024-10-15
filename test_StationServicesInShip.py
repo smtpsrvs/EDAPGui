@@ -1,18 +1,29 @@
+import logging
 import unittest
+
+from EDAP_data import FlagsDocked
 from EDKeys import EDKeys
+from EDlogger import logger
 from Screen import Screen
 from StationServicesInShip import StationServicesInShip
-from Test_Routines import draw_regions
+from StatusParser import StatusParser
+from Test_Routines import draw_station_regions
 from Voice import Voice
 
 
-def does_elite_window_exist() -> bool:
+def is_running() -> bool:
     scr = Screen()
     return scr.elite_window_exists()
 
 
+def is_docked() -> bool:
+    status = StatusParser()
+    return status.get_flag(FlagsDocked)
+
+
 class CommoditiesMarketTestCase(unittest.TestCase):
-    elite_win_exists = does_elite_window_exist()
+    running = is_running()
+    docked = is_docked()
 
     def test_draw_regions_on_images(self):
         """
@@ -20,19 +31,16 @@ class CommoditiesMarketTestCase(unittest.TestCase):
         ======================================================================
         """
         stn_svc = StationServicesInShip(None, None, None)
-        draw_regions('test/commodities-market/', stn_svc.commodities_market.reg)
+        draw_station_regions('test/commodities-market/', stn_svc.commodities_market.reg)
 
         self.assertEqual(True, True)  # add assertion here
 
-    @unittest.skipUnless(elite_win_exists, "Elite Dangerous is not running")
+    @unittest.skipUnless(running and docked, "Elite Dangerous is not running")
     def test_buy_commodity(self):
         """
         DOES require Elite Dangerous to be running.
         ======================================================================
         """
-        name = "gold"
-        count = 4
-
         scr = Screen()
         keys = EDKeys()
         vce = Voice()
@@ -40,20 +48,26 @@ class CommoditiesMarketTestCase(unittest.TestCase):
         keys.activate_window = True  # Helps with single steps testing
         stn_svc = StationServicesInShip(scr, keys, vce)
 
-        stn_svc.goto_commodities_market()
-        stn_svc.commodities_market.buy_commodity(name, count)
+        res = stn_svc.goto_commodities_market()
+        self.assertTrue(res, "Could not access commodities market.")  # add assertion here
 
-        self.assertEqual(True, True)  # add assertion here
+        # Find a commodity to buy that is sold by the station
+        items = stn_svc.commodities_market.market_parser.get_buyable_items()
+        if items is not None:
+            # Pick the first item (this will not be the first item in the commodities table)
+            name = items[0]['Name_Localised']
+        else:
+            name = ""
 
-    @unittest.skipUnless(elite_win_exists, "Elite Dangerous is not running")
+        res = stn_svc.commodities_market.buy_commodity(name, qty=0)
+        self.assertTrue(res, "Failed to buy commodity.")  # add assertion here
+
+    @unittest.skipUnless(running and docked, "Elite Dangerous is not running")
     def test_sell_commodity(self):
         """
         DOES require Elite Dangerous to be running.
         ======================================================================
         """
-        name = "gold"
-        count = 4
-
         scr = Screen()
         keys = EDKeys()
         vce = Voice()
@@ -61,12 +75,21 @@ class CommoditiesMarketTestCase(unittest.TestCase):
         keys.activate_window = True  # Helps with single steps testing
         stn_svc = StationServicesInShip(scr, keys, vce)
 
-        stn_svc.goto_commodities_market()
-        stn_svc.commodities_market.sell_commodity(name, count)
+        res = stn_svc.goto_commodities_market()
+        self.assertTrue(res, "Could not access commodities market.")  # add assertion here
 
-        self.assertEqual(True, True)  # add assertion here
+        # Find a commodity to sell that is bought by the station
+        items = stn_svc.commodities_market.market_parser.get_sellable_items()
+        if items is not None:
+            # Pick the first item (this will not be the first item in the commodities table)
+            name = items[0]['Name_Localised']
+        else:
+            name = ""
+            
+        res = stn_svc.commodities_market.sell_commodity(name, qty=0)
+        self.assertTrue(res, "Failed to sell commodity.")  # add assertion here
 
-    @unittest.skipUnless(elite_win_exists, "Elite Dangerous is not running")
+    @unittest.skipUnless(running and docked, "Elite Dangerous is not running")
     def test_sell_all_commodities(self):
         """
         DOES require Elite Dangerous to be running.
@@ -81,6 +104,39 @@ class CommoditiesMarketTestCase(unittest.TestCase):
 
         stn_svc.goto_commodities_market()
         stn_svc.commodities_market.sell_all_commodities()
+
+        self.assertEqual(True, True)  # add assertion here
+
+
+class PersonalTransportMissionsTestCase(unittest.TestCase):
+    running = is_running()
+    docked = is_docked()
+
+    def test_draw_regions_on_images(self):
+        """
+        Does NOT require Elite Dangerous to be running.
+        ======================================================================
+        """
+        stn_svc = StationServicesInShip(None, None, None)
+        draw_station_regions('test/passenger-lounge/', stn_svc.passenger_lounge.reg)
+
+        self.assertEqual(True, True)  # add assertion here
+
+    @unittest.skipUnless(running and docked, "Elite Dangerous is not running")
+    def test_goto_personal_transport_missions(self):
+        """
+        DOES require Elite Dangerous to be running.
+        ======================================================================
+        """
+        scr = Screen()
+        keys = EDKeys()
+        vce = Voice()
+        vce.v_enabled = True
+        keys.activate_window = True  # Helps with single steps testing
+        stn_svc = StationServicesInShip(scr, keys, vce)
+
+        # stn_svc.goto_passenger_lounge()
+        stn_svc.passenger_lounge.goto_personal_transport_missions()
 
         self.assertEqual(True, True)  # add assertion here
 

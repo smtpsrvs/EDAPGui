@@ -37,7 +37,7 @@ class MarketParser:
     #         try:
     #             self._watch_file()
     #         except Exception as e:
-    #             logger.error('An error occurred when reading status file')
+    #             logger.debug('An error occurred when reading status file')
     #             sleep(backoff)
     #             logger.debug('Attempting to restart status file reader after failure')
     #             backoff *= 2
@@ -96,7 +96,7 @@ class MarketParser:
                     data = json.load(file)
                     break
             except Exception as e:
-                logger.error('An error occurred when reading Market.json file')
+                logger.debug('An error occurred when reading Market.json file')
                 sleep(backoff)
                 logger.debug('Attempting to restart status file reader after failure')
                 backoff *= 2
@@ -130,9 +130,9 @@ class MarketParser:
         }
         """
         data = self.get_market_data()
-        self.sellable_items = [x for x in data['Items'] if x['Consumer']]
+        sellable_items = [x for x in data['Items'] if x['Consumer'] or x['Demand'] > 0]
         # print(json.dumps(newlist, indent=4))
-        return self.sellable_items
+        return sellable_items
 
     def get_buyable_items(self):
         """ Get a list of items that can be bought from the station.
@@ -156,9 +156,9 @@ class MarketParser:
         }
         """
         data = self.get_market_data()
-        self.buyable_items = [x for x in data['Items'] if x['Producer']]
+        buyable_items = [x for x in data['Items'] if x['Producer'] and x['Stock'] > 0]
         # print(json.dumps(newlist, indent=4))
-        return self.buyable_items
+        return buyable_items
 
     def get_market_name(self) -> str:
         """ Gets the current market (station) name.

@@ -33,7 +33,7 @@ class NavRouteParser:
     #         try:
     #             self._watch_file()
     #         except Exception as e:
-    #             logger.error('An error occurred when reading status file')
+    #             logger.debug('An error occurred when reading status file')
     #             sleep(backoff)
     #             logger.debug('Attempting to restart status file reader after failure')
     #             backoff *= 2
@@ -83,7 +83,7 @@ class NavRouteParser:
                     data = json.load(file)
                     break
             except Exception as e:
-                logger.error('An error occurred when reading NavRoute.json file')
+                logger.debug('An error occurred when reading NavRoute.json file')
                 sleep(backoff)
                 logger.debug('Attempting to restart status file reader after failure')
                 backoff *= 2
