@@ -1164,7 +1164,7 @@ class EDAutopilot:
     #
     def refuel(self, scr_reg):
         # Check if we have a fuel scoop
-        has_fuel_scoop = self.modules_info.has_fuel_scoop()
+        has_fuel_scoop = self.jn.ship_state()['has_fuel_scoop']
 
         logger.debug('refuel')
         scoopable_stars = ['F', 'O', 'G', 'K', 'B', 'A', 'M']
