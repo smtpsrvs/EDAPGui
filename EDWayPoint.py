@@ -331,9 +331,11 @@ class EDWayPoint:
         # Process OCR list. Sometimes systems come in as ['LHS 54'] and sometimes ['LHS','54']
         system = ""
         for s in ocr_textlist:
-            if s.startswith("SYSTEM") or s.startswith("DISTANCE"):
+            if s.startswith("SYSTEM") or s.startswith("INFO"):
                 # Do nothing
                 system = system
+            elif s.startswith("DISTANCE"):
+                break
             else:
                 if system == "":
                     # Set first part
