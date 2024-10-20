@@ -315,7 +315,7 @@ class EDWayPoint:
     def system_in_system_info_panel(self, scr, system_name: str) -> bool:
         # TODO - move to galaxy map class
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution at 1920x1080
-        reg = {'gal_map_system_info': {'rect': [0.69, 0.14, 0.94, 0.26]}}
+        reg = {'gal_map_system_info': {'rect': [0.695, 0.155, 0.935, 0.26]}}
 
         # Scale the regions based on the target resolution.
         scl_reg_rect = reg_scale_for_station(reg['gal_map_system_info'], scr.width, scr.height)
@@ -328,7 +328,21 @@ class EDWayPoint:
         if ocr_textlist is None:
             return False
 
-        if system_name.upper() in ocr_textlist:
+        # Process OCR list. Sometimes systems come in as ['LHS 54'] and sometimes ['LHS','54']
+        system = ""
+        for s in ocr_textlist:
+            if s.startswith("SYSTEM") or s.startswith("DISTANCE"):
+                # Do nothing
+                system = system
+            else:
+                if system == "":
+                    # Set first part
+                    system = s
+                else:
+                    # Append next part
+                    system = system + " " + s
+
+        if system.upper() == system_name.upper():
             logger.debug("Target found in system info panel: " + system_name)
             return True
         else:
