@@ -103,9 +103,9 @@ class CommoditiesMarketTestCase(unittest.TestCase):
         stn_svc = StationServicesInShip(scr, keys, vce)
 
         stn_svc.goto_commodities_market()
-        stn_svc.commodities_market.sell_all_commodities()
+        res = stn_svc.commodities_market.sell_all_commodities()
 
-        self.assertEqual(True, True)  # add assertion here
+        self.assertTrue(res, "Failed to sell all commodities.")  # add assertion here
 
 
 class PersonalTransportMissionsTestCase(unittest.TestCase):

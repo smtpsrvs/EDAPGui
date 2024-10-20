@@ -3,7 +3,7 @@ import os
 
 from EDKeys import EDKeys
 from EDWayPoint import EDWayPoint
-from NavPanel import NavPanel
+#from NavPanel import NavPanel
 from OCR import OCR
 from Screen_Regions import *
 from Overlay import *
@@ -83,43 +83,11 @@ def main():
     #
     # Does NOT require Elite Dangerous to be running.
     # =====================================================================================
-    nav_panel_display_all_text_test('test/nav-panel/')
-    nav_panel_selected_item_text('test/nav-panel/')
+    #nav_panel_display_all_text_test('test/nav-panel/')
+    #nav_panel_selected_item_text('test/nav-panel/')
     # nav_panel_lock_station("QUAID'S VISION")
     # nav_panel_lock_station("SMITH'S OBLIGATION")
     # nav_panel_request_docking()
-
-    int = 6
-    if int == 3:
-        nav_panel_lock_station("P.T.N. Perseverance")
-    elif int == 4:
-        nav_panel_request_docking()
-    elif int == 6:
-        select_system("GULLION")
-        select_system("LHS 54")
-        select_system("Cubeo")
-
-
-def select_system(target_name):
-    scr = Screen()
-    keys = EDKeys()
-    keys.activate_window = True  # Helps with single steps testing
-
-    waypoint = EDWayPoint(True)
-    waypoint.set_waypoint_target_odyssey(scr, keys, target_name, None)
-
-    # reg = {}
-    # # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
-    # reg['gal_map_system_info'] = {'rect': [0.65, 0.15, 0.95, 0.35]}  # top left x, y, and bottom right x, y
-    #
-    # ocr = OCR(scr)
-    # image = ocr.capture_region(reg['gal_map_system_info'], 'gal_map_system_info')
-    # ocr_textlist = ocr.image_simple_ocr(image)
-    # if target_name in ocr_textlist:
-    #     print("Target found:" + target_name)
-    # else:
-    #     print("Target NOT found:" + target_name)
-
 
 def draw_match_rect(img, pt1, pt2, color, thick):
     """ Utility function to add a rectangle to an image. """
@@ -210,113 +178,92 @@ def template_matching_test(region_name, template):
             break
 
 
-def nav_panel_display_all_text_test(directory):
-    """ OCR all the image files in the given folder.
-        :param directory: The directory to process.
-    """
-    scr = Screen()
-    ocr = OCR(scr)
-    keys = EDKeys()
-    keys.activate_window = True  # Helps with single steps testing
-    nav_pnl = NavPanel(scr, keys)
-    nav_pnl.using_screen = False
-
-    directory_out = os.path.join(directory, 'out')
-    if not os.path.exists(directory_out):
-        os.makedirs(directory_out)
-
-    for filename in os.listdir(directory_out):
-        os.remove(os.path.join(directory_out, filename))
-
-    for filename in os.listdir(directory):
-        if filename.endswith(".png"):
-            image_path = os.path.join(directory, filename)
-            image_out_path = os.path.join(directory_out, filename)
-            text_out_path = os.path.join(directory_out, filename.replace('png', 'txt'))
-
-            # Load image
-            orig_image = cv2.imread(image_path)
-            nav_pnl.screen_image = orig_image
-
-            # Extract region
-            image = nav_pnl.capture_region_straightened('nav_panel')
-
-            ocr_data, ocr_textlist = ocr.image_ocr(image)
-
-            draw_bounding_boxes(image, ocr_data, 0.25)
-            cv2.imwrite(image_out_path, image)
-
-
-def nav_panel_selected_item_text(directory):
-    """ OCR all the image files in the given folder. Images are filtered using the filter defined for the region.
-        :param directory: The directory to process.
-    """
-    scr = Screen()
-    keys = EDKeys()
-    keys.activate_window = True  # Helps with single steps testing
-
-    nav_pnl = NavPanel(scr, keys)
-    nav_pnl.using_screen = False
-    ocr = OCR(scr)
-
-    directory_out = os.path.join(directory, 'out_selected')
-    if not os.path.exists(directory_out):
-        os.makedirs(directory_out)
-
-    for filename in os.listdir(directory_out):
-        os.remove(os.path.join(directory_out, filename))
-
-    for filename in os.listdir(directory):
-        if filename.endswith(".png"):
-            image_path = os.path.join(directory, filename)
-            image_out_path = os.path.join(directory_out, filename)
-            text_out_path = os.path.join(directory_out, filename.replace('png', 'txt'))
-
-            # Load image
-            orig_image = cv2.imread(image_path)
-            nav_pnl.screen_image = orig_image
-
-            # Get the location panel image
-            loc_panel = nav_pnl.capture_location_panel()
-
-            # Find the selected item/menu (solid orange)
-            #img_item = nav_pnl.get_selected_location_image(image, 100, 10)
-            # if img_item is not None:
-            #crop_with_border = cv2.copyMakeBorder(img_item, 40, 20, 20, 20, cv2.BORDER_CONSTANT)
-            #ocr_data, ocr_textlist = nav_pnl.get_selected_location_data(crop_with_border, 100, 10)
-
-            # TODO - ocr min size
-            image, ocr_data, ocr_textlist = ocr.get_highlighted_item_data(loc_panel, 100, 10)
-            if image is not None:
-                draw_bounding_boxes(image, ocr_data, 0.25)
-                cv2.imwrite(image_out_path, image)
-                # cv2.imshow("ocr", crop_with_border)
-
-                # key = cv2.waitKey(10)
-                # if key == 27:  # ESC
-                #     break
-
-
-def nav_panel_lock_station(name):
-    scr = Screen()
-    keys = EDKeys()
-    keys.activate_window = True  # Helps with single steps testing
-    nav_pnl = NavPanel(scr, keys)
-    #show_all_regions(nav_pnl.reg)
-
-    nav_pnl.lock_destination(name)
-
-    #nav_pnl.request_docking()
-
-
-def nav_panel_request_docking():
-    scr = Screen()
-    keys = EDKeys()
-    keys.activate_window = True  # Helps with single steps testing
-    nav_pnl = NavPanel(scr, keys)
-
-    nav_pnl.request_docking()
-
+# def nav_panel_display_all_text_test(directory):
+#     """ OCR all the image files in the given folder.
+#         :param directory: The directory to process.
+#     """
+#     scr = Screen()
+#     ocr = OCR(scr)
+#     keys = EDKeys()
+#     keys.activate_window = True  # Helps with single steps testing
+#     nav_pnl = NavPanel(scr, keys)
+#     nav_pnl.using_screen = False
+#
+#     directory_out = os.path.join(directory, 'out')
+#     if not os.path.exists(directory_out):
+#         os.makedirs(directory_out)
+#
+#     for filename in os.listdir(directory_out):
+#         os.remove(os.path.join(directory_out, filename))
+#
+#     for filename in os.listdir(directory):
+#         if filename.endswith(".png"):
+#             image_path = os.path.join(directory, filename)
+#             image_out_path = os.path.join(directory_out, filename)
+#             text_out_path = os.path.join(directory_out, filename.replace('png', 'txt'))
+#
+#             # Load image
+#             orig_image = cv2.imread(image_path)
+#             nav_pnl.screen_image = orig_image
+#
+#             # Extract region
+#             image = nav_pnl.capture_region_straightened('nav_panel')
+#
+#             ocr_data, ocr_textlist = ocr.image_ocr(image)
+#
+#             draw_bounding_boxes(image, ocr_data, 0.25)
+#             cv2.imwrite(image_out_path, image)
+#
+#
+# def nav_panel_selected_item_text(directory):
+#     """ OCR all the image files in the given folder. Images are filtered using the filter defined for the region.
+#         :param directory: The directory to process.
+#     """
+#     scr = Screen()
+#     keys = EDKeys()
+#     keys.activate_window = True  # Helps with single steps testing
+#
+#     nav_pnl = NavPanel(scr, keys)
+#     nav_pnl.using_screen = False
+#     ocr = OCR(scr)
+#
+#     directory_out = os.path.join(directory, 'out_selected')
+#     if not os.path.exists(directory_out):
+#         os.makedirs(directory_out)
+#
+#     for filename in os.listdir(directory_out):
+#         os.remove(os.path.join(directory_out, filename))
+#
+#     for filename in os.listdir(directory):
+#         if filename.endswith(".png"):
+#             image_path = os.path.join(directory, filename)
+#             image_out_path = os.path.join(directory_out, filename)
+#             text_out_path = os.path.join(directory_out, filename.replace('png', 'txt'))
+#
+#             # Load image
+#             orig_image = cv2.imread(image_path)
+#             nav_pnl.screen_image = orig_image
+#
+#             # Get the location panel image
+#             loc_panel = nav_pnl.capture_location_panel()
+#
+#             # Find the selected item/menu (solid orange)
+#             #img_item = nav_pnl.get_selected_location_image(image, 100, 10)
+#             # if img_item is not None:
+#             #crop_with_border = cv2.copyMakeBorder(img_item, 40, 20, 20, 20, cv2.BORDER_CONSTANT)
+#             #ocr_data, ocr_textlist = nav_pnl.get_selected_location_data(crop_with_border, 100, 10)
+#
+#             # TODO - ocr min size
+#             image, ocr_data, ocr_textlist = ocr.get_highlighted_item_data(loc_panel, 100, 10)
+#             if image is not None:
+#                 draw_bounding_boxes(image, ocr_data, 0.25)
+#                 cv2.imwrite(image_out_path, image)
+#                 # cv2.imshow("ocr", crop_with_border)
+#
+#                 # key = cv2.waitKey(10)
+#                 # if key == 27:  # ESC
+#                 #     break
+#
 
 def show_regions(region_names):
     """ Draw a rectangle indicating the given region on the Elite Dangerous window.
@@ -611,13 +558,16 @@ def reg_scale_for_station(region, w: int, h: int) -> [int, int, int, int]:
     x_scale = w / ref_w
     y_scale = h / ref_h
 
+    # Determine centre of the region
+    reg_avg = (region['rect'][1] + region['rect'][3]) / 2
+
     # Recalc the region as a % above and below the center line.
-    pct_abv = (0.5 - region['rect'][1]) * x_scale / y_scale
-    pct_blw = (region['rect'][3] - 0.5) * x_scale / y_scale
+    pct_abv = (reg_avg - region['rect'][1]) * x_scale / y_scale
+    pct_blw = (region['rect'][3] - reg_avg) * x_scale / y_scale
 
     # Apply new % to the center line.
-    new_rect1 = 0.5 - pct_abv
-    new_rect3 = 0.5 + pct_blw
+    new_rect1 = reg_avg - pct_abv
+    new_rect3 = reg_avg + pct_blw
 
     # Return the update top and bottom Y percentages with the original X percentages.
     new_reg = {'rect': [region['rect'][0], new_rect1, region['rect'][2], new_rect3]}
@@ -625,7 +575,7 @@ def reg_scale_for_station(region, w: int, h: int) -> [int, int, int, int]:
 
 
 def size_scale_for_station(width: int, height: int, w: int, h: int) -> (int, int):
-    """ Scale an item in the  station services region based on the target resolution.
+    """ Scale an item in the station services region based on the target resolution.
     This is performed because the tables on the station services screen do
     not increase proportionally with the screen size. The width changes with
     the screen size, the height does not change based on the screen size
@@ -673,9 +623,9 @@ def draw_regions(directory: str, regions):
             # Load image
             orig_image = cv2.imread(image_path)
 
-            ocr = OCR(screen=None)
-            ocr.using_screen = False
-            ocr.screen_image = orig_image
+            scr = Screen()
+            scr.using_screen = False
+            scr.set_screen_image(orig_image)
             img = orig_image
 
             # Existing size
@@ -717,9 +667,9 @@ def draw_station_regions(directory: str, regions):
             # Load image
             orig_image = cv2.imread(image_path)
 
-            ocr = OCR(screen=None)
-            ocr.using_screen = False
-            ocr.screen_image = orig_image
+            scr = Screen()
+            scr.using_screen = False
+            scr.set_screen_image(orig_image)
             img = orig_image
 
             # Existing size

@@ -19,33 +19,11 @@ Author: Stumpii
 """
 
 
-
-
-def crop_image_by_pct(image, rect):
-    """ Crop an image using a percentage values (0.0 - 1.0).
-    Rect is an array of crop % [0.10, 0.20, 0.90, 0.95] = [Left, Top, Right, Bottom]
-    Returns the cropped image. """
-    # Existing size
-    h, w, ch = image.shape
-
-    # Crop to leave only the selected rectangle
-    x0 = int(w * rect[0])
-    y0 = int(h * rect[1])
-    x1 = int(w * rect[2])
-    y1 = int(h * rect[3])
-
-    # Crop image
-    cropped = image[y0:y1, x0:x1]
-    return cropped
-
-
 class OCR:
     def __init__(self, screen):
         self.screen = screen
         self.paddleocr = PaddleOCR(use_angle_cls=True, lang='en', use_gpu=False, show_log=False, use_dilation=True,
                                    use_space_char=True)
-        self.using_screen = True  # True to use screen, false to use an image. Set screen_image to the image
-        self.screen_image = None  # Screen image captured from screen, or loaded by user for testing.
 
     def image_ocr(self, image):
         """ Perform OCR with no filtering. Returns the full OCR data and a simplified list of strings.
@@ -168,13 +146,7 @@ class OCR:
         @param region_name: The region name for debug.
          """
         rect = region['rect']
-
-        if self.using_screen:
-            image = self.screen.get_screen_region_pct(rect)
-        else:
-            if self.screen_image is None:
-                return None
-            image = crop_image_by_pct(self.screen_image, rect)
+        image = self.screen.get_screen_region_pct(rect)
 
         # Convert to string with milliseconds
         # formatted_datetime = datetime.now().strftime("%Y-%m-%d %H.%M.%S.%f")[:-3]

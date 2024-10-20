@@ -1,15 +1,13 @@
-from datetime import datetime
 from time import sleep
-
 import numpy as np
 import cv2
-
 from EDAP_data import *
 from EDKeys import EDKeys
 from EDlogger import logger
-from OCR import OCR, crop_image_by_pct
+from OCR import OCR
 from Screen import Screen
 from StatusParser import StatusParser
+from Test_Routines import reg_scale_for_station, size_scale_for_station
 
 """
 File:navPanel.py    
@@ -27,9 +25,6 @@ class NavPanel:
         self.ocr = OCR(screen)
         self.keys = keys
         self.status_parser = StatusParser()
-
-        self.using_screen = True  # True to use screen, false to use an image. Set screen_image to the image
-        self.screen_image = None  # Screen image captured from screen, or loaded by user for testing.
         self.navigation_tab_text = "NAVIGATION"
         self.transactions_tab_text = "TRANSACTIONS"
         self.contacts_tab_text = "CONTACTS"
@@ -37,30 +32,30 @@ class NavPanel:
 
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         # Nav Panel region covers the entire navigation panel.
-        self.reg = {'nav_panel': {'rect': [0.10, 0.23, 0.72, 0.83]},
-                    'tab_bar': {'rect': [0.0, 0.0, 1.0, 0.1152]},
-                    'location_panel': {'rect': [0.2218, 0.3069, 0.8, 1.0]}}
+        self.reg = {'nav_panel': {'rect': [0.10, 0.20, 0.70, 0.86]}}
+        self.sub_reg = {'tab_bar': {'rect': [0.0, 0.0, 1.0, 0.1152]},
+                        'location_panel': {'rect': [0.2218, 0.3, 0.8, 1.0]}}
+        self.nav_pnl_tab_width = 260  # Nav panel tab width in pixels at 1920x1080
+        self.nav_pnl_tab_height = 35  # Nav panel tab height in pixels at 1920x1080
+        self.nav_pnl_location_width = 500  # Nav panel location width in pixels at 1920x1080
+        self.nav_pnl_location_height = 35  # Nav panel location height in pixels at 1920x1080
 
     def capture_region_straightened(self, region):
         """ Grab the image based on the region name/rect.
         Returns an unfiltered image, either from screenshot or provided image.
         @param region: The region to check in % (0.0 - 1.0).
         """
-        rect = self.reg[region]['rect']
+        rect = region['rect']
+        image = self.screen.get_screen_region_pct(rect)
+        if image is None:
+            return None
 
-        if self.using_screen:
-            image = self.screen.get_screen_region_pct(rect)
-        else:
-            if self.screen_image is None:
-                return None
-            image = crop_image_by_pct(self.screen_image, rect)
+        cv2.imwrite(f'test/nav-panel/out/nav_panel_original.png', image)
 
         # Straighten the image
         straightened = self.__nav_panel_perspective_warp(image)
 
-        # cv2.imwrite(f'test/nav panel straight.png', straightened)
-        # formatted_datetime = datetime.now().strftime("%Y-%m-%d %H.%M.%S.%f")[:-3]
-        # cv2.imwrite(f'test/{formatted_datetime} Nav Panel.png', straightened)
+        cv2.imwrite(f'test/nav-panel/out/nav_panel_straight.png', straightened)
         return straightened
 
     def __nav_panel_perspective_warp(self, image):
@@ -92,13 +87,16 @@ class NavPanel:
         """ Get the location panel from within the nav panel.
         Returns an image.
         """
-        nav_panel = self.capture_region_straightened('nav_panel')
+        # Scale the regions based on the target resolution.
+        scl_reg_rect = reg_scale_for_station(self.reg['nav_panel'], self.screen.width, self.screen.height)
+
+        nav_panel = self.capture_region_straightened(scl_reg_rect)
 
         # Existing size
         h, w, ch = nav_panel.shape
 
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
-        location_panel_rect = self.reg['location_panel']['rect']
+        location_panel_rect = self.sub_reg['location_panel']['rect']
 
         # Crop to leave only the selected rectangle
         x0 = int(w * location_panel_rect[0])
@@ -108,21 +106,23 @@ class NavPanel:
 
         # Crop image
         location_panel = nav_panel[y0:y1, x0:x1]
-        cv2.imwrite(f'test/nav panel location_panel.png', location_panel)
+        cv2.imwrite(f'test/nav-panel/out/nav_panel_location_panel.png', location_panel)
         return location_panel
 
     def capture_tab_bar(self):
         """ Get the tab bar (NAVIGATION/TRANSACTIONS/CONTACTS/TARGET).
         Returns an image.
         """
-        nav_pnl = self.capture_region_straightened('nav_panel')
-        cv2.imwrite('test/nav-panel/nav_pnl.png', nav_pnl)
+        # Scale the regions based on the target resolution.
+        scl_reg_rect = reg_scale_for_station(self.reg['nav_panel'], self.screen.width, self.screen.height)
+
+        nav_pnl_st = self.capture_region_straightened(scl_reg_rect)
 
         # Existing size
-        h, w, ch = nav_pnl.shape
+        h, w, ch = nav_pnl_st.shape
 
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
-        tab_bar_rect = self.reg['tab_bar']['rect']
+        tab_bar_rect = self.sub_reg['tab_bar']['rect']
 
         # Crop to leave only the selected rectangle
         x0 = int(w * tab_bar_rect[0])
@@ -131,8 +131,8 @@ class NavPanel:
         y1 = int(h * tab_bar_rect[3])
 
         # Crop image
-        tab_bar = nav_pnl[y0:y1, x0:x1]
-        cv2.imwrite('test/nav-panel/tab_bar.png', tab_bar)
+        tab_bar = nav_pnl_st[y0:y1, x0:x1]
+        cv2.imwrite('test/nav-panel/out/tab_bar.png', tab_bar)
 
         return tab_bar
 
@@ -273,8 +273,11 @@ class NavPanel:
         # Is open, so proceed
         tab_bar = self.capture_tab_bar()
 
-        # TODO - ocr min size
-        img_selected, ocr_data, ocr_textlist = self.ocr.get_highlighted_item_data(tab_bar, 50, 10)
+        # Determine the nav panel tab size at this resolution
+        scl_row_w, scl_row_h = size_scale_for_station(self.nav_pnl_tab_width, self.nav_pnl_tab_height,
+                                                      self.screen.width, self.screen.height)
+
+        img_selected, ocr_data, ocr_textlist = self.ocr.get_highlighted_item_data(tab_bar, scl_row_w, scl_row_h)
         if img_selected is not None:
             if self.navigation_tab_text in str(ocr_textlist):
                 return True, self.navigation_tab_text
@@ -325,9 +328,13 @@ class NavPanel:
             # Get the location panel image
             loc_panel = self.capture_location_panel()
 
+            # Determine the nav panel tab size at this resolution
+            scl_row_w, scl_row_h = size_scale_for_station(self.nav_pnl_location_width, self.nav_pnl_location_height,
+                                                          self.screen.width, self.screen.height)
+
             # Find the selected item/menu (solid orange)
-            # TODO - ocr min size
-            img_selected, x, y = self.ocr.get_highlighted_item_in_image(loc_panel, 500, 25)
+            img_selected, x, y = self.ocr.get_highlighted_item_in_image(loc_panel, scl_row_w, scl_row_h)
+
             # Check if end of list.
             if img_selected is None and in_list:
                 #logger.debug(f"Off end of list. Did not find '{dst_name}' in list.")
@@ -366,9 +373,12 @@ class NavPanel:
             # Get the location panel image
             loc_panel = self.capture_location_panel()
 
+            # Determine the nav panel tab size at this resolution
+            scl_row_w, scl_row_h = size_scale_for_station(self.nav_pnl_location_width, self.nav_pnl_location_height,
+                                                          self.screen.width, self.screen.height)
+
             # Find the selected item/menu (solid orange)
-            # TODO - ocr min size
-            img_selected, x, y = self.ocr.get_highlighted_item_in_image(loc_panel, 500, 25)
+            img_selected, x, y = self.ocr.get_highlighted_item_in_image(loc_panel, scl_row_w, scl_row_h)
             # Check if end of list.
             if img_selected is None and in_list:
                 logger.debug(f"Off end of list. Did not find '{dst_name}' in list.")
@@ -391,7 +401,6 @@ class NavPanel:
                     in_list = True
                     self.keys.send("UI_Down")  # up to next item
 
-
     def request_docking(self) -> bool:
         """ Try to request docking.
         """
@@ -410,6 +419,7 @@ class NavPanel:
 
         self.hide_nav_panel()
         return True
+
 
 # Usage Example
 if __name__ == "__main__":

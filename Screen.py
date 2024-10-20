@@ -30,6 +30,8 @@ elite_dangerous_window = "Elite - Dangerous (CLIENT)"
 class Screen:
     def __init__(self):
         self.mss = mss.mss()
+        self.using_screen = True  # True to use screen, false to use an image. Set screen_image to the image
+        self._screen_image = None  # Screen image captured from screen, or loaded by user for testing.
 
         # Find ED window position to determine which monitor it is on
         ed_rect = self.get_elite_window_rect()
@@ -177,11 +179,21 @@ class Screen:
         """ Grabs a screenshot and returns the selected region as an image.
         @param region: The region to check in % (0.0 - 1.0).
         """
-        abs_rect = self.screen_pct_to_abs(region)
-        image = self.get_screen(abs_rect[0], abs_rect[1], abs_rect[2], abs_rect[3])
-        # TODO delete this line when COLOR_RGB2BGR is removed from get_screen()
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        return image
+        if self.using_screen:
+            abs_rect = self.screen_pct_to_abs(region)
+            image = self.get_screen(abs_rect[0], abs_rect[1], abs_rect[2], abs_rect[3])
+            # TODO delete this line when COLOR_RGB2BGR is removed from get_screen()
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            return image
+        else:
+            if self._screen_image is None:
+                return None
+
+            image = self.crop_image_by_pct(self._screen_image, region)
+
+
+
+            return image
 
     def screen_pct_to_abs(self, reg):
         """ Converts and array of real percentage screen values to int absolutes. """
@@ -196,3 +208,37 @@ class Screen:
         # TODO delete this line when COLOR_RGB2BGR is removed from get_screen()
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image
+
+    def crop_image_by_pct(self, image, rect):
+        """ Crop an image using a percentage values (0.0 - 1.0).
+        Rect is an array of crop % [0.10, 0.20, 0.90, 0.95] = [Left, Top, Right, Bottom]
+        Returns the cropped image. """
+        # Existing size
+        h, w, ch = image.shape
+
+        # Crop to leave only the selected rectangle
+        x0 = int(w * rect[0])
+        y0 = int(h * rect[1])
+        x1 = int(w * rect[2])
+        y1 = int(h * rect[3])
+
+        # Crop image
+        cropped = image[y0:y1, x0:x1]
+        return cropped
+
+    def set_screen_image(self, image):
+        """ Use an image instead of a screen capture. Sets the image and also sets the
+        screen width and height to the image properties.
+        @param image: The image to use.
+        """
+        self.using_screen = False
+        self._screen_image = image
+
+        # Existing size
+        h, w, ch = image.shape
+
+        # Set the screen size to the original image size, not the region size
+        self.screen_width = w
+        self.screen_height = h
+        self.width = w
+        self.height = h
