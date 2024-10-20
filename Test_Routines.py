@@ -1,9 +1,5 @@
 import logging
 import os
-
-from EDKeys import EDKeys
-from EDWayPoint import EDWayPoint
-#from NavPanel import NavPanel
 from OCR import OCR
 from Screen_Regions import *
 from Overlay import *
@@ -559,7 +555,10 @@ def reg_scale_for_station(region, w: int, h: int) -> [int, int, int, int]:
     y_scale = h / ref_h
 
     # Determine centre of the region
-    reg_avg = (region['rect'][1] + region['rect'][3]) / 2
+    reg_avg = 0.5
+    # This alternate method below is based on the centre of the region instead of the centre of screen.
+    # This will generally NOT work for station screens that are obviously centred vertically.
+    # reg_avg = (region['rect'][1] + region['rect'][3]) / 2
 
     # Recalc the region as a % above and below the center line.
     pct_abv = (reg_avg - region['rect'][1]) * x_scale / y_scale

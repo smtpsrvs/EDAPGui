@@ -43,9 +43,9 @@ class NavPanelTestCase(unittest.TestCase):
         ======================================================================
         """
         image_path = "test/nav-panel/Screenshot 1920x1080 2024-10-14 20-45-25.png"
-        #image_path = "test/nav-panel/Screenshot 1920x1200 2024-09-07 09-08-36.png"
-        #image_path = "test/nav-panel/Screenshot_2024-09-09_195949.png"
-        #image_path = "test/nav-panel/CBB63634-4208-49F6-A5DD-640E589D79B3.png"
+        image_path = "test/nav-panel/Screenshot 1920x1200 2024-09-07 09-08-36.png"
+        image_path = "test/nav-panel/Screenshot_2024-09-09_195949.png"
+        image_path = "test/nav-panel/CBB63634-4208-49F6-A5DD-640E589D79B3.png"
         frame = cv2.imread(image_path)
 
         scr = Screen()

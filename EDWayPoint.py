@@ -1,5 +1,7 @@
 from time import sleep
 
+import cv2
+
 from EDAP_data import *
 from EDlogger import logger
 import json
@@ -10,6 +12,7 @@ from pathlib import Path
 from NavRouteParser import NavRouteParser
 from OCR import OCR
 from StatusParser import StatusParser
+from Test_Routines import reg_scale_for_station
 
 """
 File: EDWayPoint.py    
@@ -230,10 +233,6 @@ class EDWayPoint:
         sleep(2)
         return True
 
-  
-    #
-    # This sequence for the Odyssey
- 
     def set_waypoint_target_odyssey(self, scr, keys, target_system, target_select_cb=None) -> bool:
         # TODO - separate the functions for the gal map to a separate class
 
@@ -249,9 +248,12 @@ class EDWayPoint:
         status_data = self.status.get_cleaned_data()
         if status_data['GuiFocus'] != GuiFocusGalaxyMap:
             keys.send('GalaxyMapOpen')
+            sleep(2)
+            keys.send('UI_Up')
+        else:
+            keys.send('UI_Left', repeat=2)
+            keys.send('UI_Right')
 
-        sleep(2)
-        keys.send('UI_Up')
         sleep(.5)
         keys.send('UI_Select')
         sleep(.5)
@@ -310,15 +312,18 @@ class EDWayPoint:
 
         return True
 
-
     def system_in_system_info_panel(self, scr, system_name: str) -> bool:
         # TODO - move to galaxy map class
-        reg = {}
-        # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
-        reg['gal_map_system_info'] = {'rect': [0.65, 0.15, 0.95, 0.35]}  # top left x, y, and bottom right x, y
+        # The rect is top left x, y, and bottom right x, y in fraction of screen resolution at 1920x1080
+        reg = {'gal_map_system_info': {'rect': [0.69, 0.14, 0.94, 0.26]}}
+
+        # Scale the regions based on the target resolution.
+        scl_reg_rect = reg_scale_for_station(reg['gal_map_system_info'], scr.width, scr.height)
 
         ocr = OCR(scr)
-        image = ocr.capture_region(reg['gal_map_system_info'], 'gal_map_system_info')
+        image = ocr.capture_region(scl_reg_rect, 'gal_map_system_info')
+        cv2.imwrite(f'test/gal_map_system_info.png', image)
+
         ocr_textlist = ocr.image_simple_ocr(image)
         if ocr_textlist is None:
             return False
