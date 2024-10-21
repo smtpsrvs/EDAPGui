@@ -27,6 +27,7 @@ Author: sumzer0@yahoo.com
 elite_dangerous_window = "Elite - Dangerous (CLIENT)"
 
 
+
 class Screen:
     def __init__(self):
         self.mss = mss.mss()

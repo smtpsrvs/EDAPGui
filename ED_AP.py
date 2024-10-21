@@ -18,7 +18,6 @@ from EDJournal import *
 from EDKeys import *
 from EDafk_combat import AFK_Combat
 from NavPanel import NavPanel
-from NavRouteParser import NavRouteParser
 from Overlay import *
 from StationServicesInShip import StationServicesInShip
 from StatusParser import StatusParser
