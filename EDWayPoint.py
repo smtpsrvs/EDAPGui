@@ -321,7 +321,7 @@ class EDWayPoint:
         scl_reg_rect = reg_scale_for_station(reg['gal_map_system_info'], scr.width, scr.height)
 
         ocr = OCR(scr)
-        image = ocr.capture_region(scl_reg_rect, 'gal_map_system_info')
+        image = ocr.capture_region(scl_reg_rect)
         cv2.imwrite(f'test/gal_map_system_info.png', image)
 
         ocr_textlist = ocr.image_simple_ocr(image)

@@ -1,5 +1,8 @@
 import time
 from time import sleep
+
+import cv2
+
 from CargoParser import CargoParser
 from EDAP_data import GuiFocusNoFocus
 from EDlogger import logger
@@ -32,7 +35,7 @@ class StationServicesInShip:
         self.status = StatusParser()
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         self.reg = {'connected_to': {'rect': [0.0, 0.0, 0.25, 0.25]},
-                    'stn_svc_layout': {'rect': [0.05, 0.40, 0.60, 0.75]},
+                    'stn_svc_layout': {'rect': [0.05, 0.40, 0.60, 0.76]},
                     'commodities_market': {'rect': [0.0, 0.0, 0.25, 0.25]}}
 
     def goto_station_services(self) -> bool:
@@ -48,7 +51,12 @@ class StationServicesInShip:
         scl_reg_rect = reg_scale_for_station(self.reg['connected_to'], self.screen.width, self.screen.height)
 
         # Wait for screen to appear
-        res = self.ocr.wait_for_text("CONNECTED TO", scl_reg_rect,'connected_to')
+        res = self.ocr.wait_for_text(["CONNECTED TO"], scl_reg_rect)
+
+        # Store image
+        image = self.screen.get_screen_full()
+        cv2.imwrite(f'test/station-services/station-services.png', image)
+
         return res
 
     def goto_ship_view(self) -> bool:
@@ -62,7 +70,7 @@ class StationServicesInShip:
 
         return True
 
-    def determine_commodities_location(self):
+    def determine_commodities_location(self) -> bool:
         # Get the services layout as the layout may be different per station
         # There is probably a better way to do this!
         self.commodities_in_center = False
@@ -72,11 +80,13 @@ class StationServicesInShip:
         # Scale the regions based on the target resolution.
         scl_reg_rect = reg_scale_for_station(self.reg['stn_svc_layout'], self.screen.width, self.screen.height)
 
-        image = self.ocr.capture_region(scl_reg_rect, 'stn_svc_layout')
+        image = self.ocr.capture_region(scl_reg_rect)
+        cv2.imwrite(f'test/station-services/out/stn_svc_layout.png', image)
+
         ocr_data, ocr_textlist = self.ocr.image_ocr(image)
         for res in ocr_data:
             for line in res:
-                if "COMMODITIES MARKET" in line[1][0]:
+                if "COMMODITIES" in line[1][0]:
                     loc = line[0]
                     tl_x, tl_y = loc[0]  # top left
                     tr = loc[1]
@@ -93,7 +103,9 @@ class StationServicesInShip:
                     if tl_y > 200:
                         self.commodities_at_bottom = True
 
-                    break
+                    return True
+
+        return False
 
     def goto_select_mission_board(self) -> bool:
         """ Go to the Mission Board. Shows 3 buttons: COMMUNITY GOALS, MISSION BOARD and PASSENGER LOUNGE. """
@@ -107,6 +119,11 @@ class StationServicesInShip:
         self.keys.send("UI_Left", hold=2)
 
         self.keys.send("UI_Select")  # select Mission Board
+
+        # Store image
+        image = self.screen.get_screen_full()
+        cv2.imwrite(f'test/station-services/select-mission.png', image)
+
         return True
 
     def goto_commodities_market(self) -> bool:
@@ -118,7 +135,10 @@ class StationServicesInShip:
 
         # Try to determine commodities button on the services screen. Have seen it below Mission Board and too
         # right of the mission board.
-        self.determine_commodities_location()
+        res = self.determine_commodities_location()
+        if not res:
+            logger.warning("Unable to find COMMODITIES MARKET button on Station Services screen.")
+            return False
 
         self.vce.say("Connecting to commodities market, commander. ")
 
@@ -142,7 +162,12 @@ class StationServicesInShip:
         scl_reg_rect = reg_scale_for_station(self.reg['commodities_market'], self.screen.width, self.screen.height)
 
         # Wait for screen to appear
-        res = self.ocr.wait_for_text("CONNECTED TO", scl_reg_rect, 'commodities_market')
+        res = self.ocr.wait_for_text(["COMMODITIES"], scl_reg_rect)
+
+        # Store image
+        image = self.screen.get_screen_full()
+        cv2.imwrite(f'test/commodities-market/commodities_market.png', image)
+
         if not res:
             return False
 
@@ -177,6 +202,11 @@ class StationServicesInShip:
         self.keys.send("UI_Right")  # Passenger lounge
         self.keys.send("UI_Select")
         sleep(1)  # give time to bring up menu
+
+        # Store image
+        image = self.screen.get_screen_full()
+        cv2.imwrite(f'test/passenger-lounge/passenger_lounge.png', image)
+
         return True
 
 
@@ -215,7 +245,12 @@ class PassengerLounge:
         scl_reg_rect = reg_scale_for_station(self.reg['mission_dest_col'], self.screen.width, self.screen.height)
 
         # Wait for screen to appear
-        res = self.ocr.wait_for_text("DESTINATION", scl_reg_rect, 'mission_dest_col')
+        res = self.ocr.wait_for_text(["DESTINATION", "LOCKED"], scl_reg_rect)
+
+        # Store image
+        image = self.screen.get_screen_full()
+        cv2.imwrite(f'test/passenger-lounge/personal_transport_missions.png', image)
+
         return res
 
     def goto_complete_missions(self) -> bool:
@@ -236,7 +271,7 @@ class PassengerLounge:
         scl_reg_rect = reg_scale_for_station(self.reg['complete_mission_col'], self.screen.width, self.screen.height)
         scl_row_w, scl_row_h = size_scale_for_station(self.complete_mission_row_width, self.complete_mission_row_height, self.screen.width, self.screen.height)
 
-        return self.ocr.select_item_in_list("COMPLETE MISSION", scl_reg_rect, self.keys, 'complete_mission_col', scl_row_w, scl_row_h)
+        return self.ocr.select_item_in_list("COMPLETE MISSION", scl_reg_rect, self.keys, scl_row_w, scl_row_h)
 
     def missions_ready_to_complete(self) -> bool:
         """ Check if the COMPLETE MISSIONS button is enabled (we have missions to turn in).
@@ -255,7 +290,7 @@ class PassengerLounge:
         scl_reg_rect = reg_scale_for_station(self.reg['mission_dest_col'], self.screen.width, self.screen.height)
         scl_row_w, scl_row_h = size_scale_for_station(self.mission_dest_row_width, self.mission_dest_row_height, self.screen.width, self.screen.height)
 
-        return self.ocr.select_item_in_list(dest, scl_reg_rect, self.keys, 'mission_dest_col', scl_row_w, scl_row_h)
+        return self.ocr.select_item_in_list(dest, scl_reg_rect, self.keys, scl_row_w, scl_row_h)
 
 
 class CommoditiesMarket:
@@ -336,7 +371,7 @@ class CommoditiesMarket:
         scl_reg_rect = reg_scale_for_station(self.reg['commodity_name_col'], self.screen.width, self.screen.height)
         scl_row_w, scl_row_h = size_scale_for_station(self.commodity_row_width, self.commodity_row_height, self.screen.width, self.screen.height)
 
-        found = self.ocr.select_item_in_list(name, scl_reg_rect, self.keys, 'commodity_name_col', scl_row_w, scl_row_h)
+        found = self.ocr.select_item_in_list(name, scl_reg_rect, self.keys, scl_row_w, scl_row_h)
         if not found:
             return False
 
@@ -382,7 +417,7 @@ class CommoditiesMarket:
         scl_reg_rect = reg_scale_for_station(self.reg['commodity_name_col'], self.screen.width, self.screen.height)
         scl_row_w, scl_row_h = size_scale_for_station(self.commodity_row_width, self.commodity_row_height, self.screen.width, self.screen.height)
 
-        found = self.ocr.select_item_in_list(name, scl_reg_rect, self.keys, 'commodity_name_col', scl_row_w, scl_row_h)
+        found = self.ocr.select_item_in_list(name, scl_reg_rect, self.keys, scl_row_w, scl_row_h)
         if not found:
             return False
 

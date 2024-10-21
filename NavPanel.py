@@ -32,7 +32,7 @@ class NavPanel:
 
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         # Nav Panel region covers the entire navigation panel.
-        self.reg = {'nav_panel': {'rect': [0.10, 0.20, 0.70, 0.86]}}
+        self.reg = {'nav_panel': {'rect': [0.11, 0.21, 0.70, 0.86]}}
         self.sub_reg = {'tab_bar': {'rect': [0.0, 0.0, 1.0, 0.1152]},
                         'location_panel': {'rect': [0.2218, 0.3, 0.8, 1.0]}}
         self.nav_pnl_tab_width = 260  # Nav panel tab width in pixels at 1920x1080
@@ -143,6 +143,9 @@ class NavPanel:
         # Is nav panel active?
         active, active_tab_name = self.is_nav_panel_active()
         if active:
+            # Store image
+            image = self.screen.get_screen_full()
+            cv2.imwrite(f'test/nav-panel/nav_panel_full.png', image)
             return active, active_tab_name
         else:
             print("Open Nav Panel")
@@ -157,6 +160,9 @@ class NavPanel:
             # Check if it opened
             active, active_tab_name = self.is_nav_panel_active()
             if active:
+                # Store image
+                image = self.screen.get_screen_full()
+                cv2.imwrite(f'test/nav-panel/nav_panel_full.png', image)
                 return active, active_tab_name
             else:
                 return False, ""

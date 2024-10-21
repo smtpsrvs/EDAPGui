@@ -136,9 +136,9 @@ class PersonalTransportMissionsTestCase(unittest.TestCase):
         stn_svc = StationServicesInShip(scr, keys, vce)
 
         # stn_svc.goto_passenger_lounge()
-        stn_svc.passenger_lounge.goto_personal_transport_missions()
+        res = stn_svc.passenger_lounge.goto_personal_transport_missions()
 
-        self.assertEqual(True, True)  # add assertion here
+        self.assertTrue(res, "Failed to goto personal transport missions.")  # add assertion here
 
 
 if __name__ == '__main__':
