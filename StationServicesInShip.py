@@ -281,7 +281,7 @@ class PassengerLounge:
         scl_row_w, scl_row_h = size_scale_for_station(self.no_cmpl_missions_row_width, self.no_cmpl_missions_row_height,
                                                       self.screen.width, self.screen.height)
 
-        return self.ocr.is_text_in_region("COMPLETE MISSIONS", scl_reg_rect, 'no_cmpl_missions', scl_row_w, scl_row_h)
+        return self.ocr.is_text_in_region("COMPLETE MISSIONS", scl_reg_rect)
 
     def select_mission_with_dest(self, dest) -> bool:
         """ Select a mission with the required destination.
