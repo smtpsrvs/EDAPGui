@@ -709,6 +709,7 @@ class EDAutopilot:
         # if we get docking granted ED's docking computer will take over
         self.keys.send('SetSpeedZero', repeat=2)
 
+        sleep(4)  # Wait for ship to come to stop
         self.request_docking()
         sleep(1)
 
@@ -722,6 +723,7 @@ class EDAutopilot:
                     self.keys.send('SetSpeed50')
                     sleep(5)
                     self.keys.send('SetSpeedZero', repeat=2)
+                sleep(4)  # Wait for ship to come to stop
                 self.request_docking()
                 self.keys.send('SetSpeedZero', repeat=2)
                 sleep(1.5)

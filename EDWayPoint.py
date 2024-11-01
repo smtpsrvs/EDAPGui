@@ -286,14 +286,14 @@ class EDWayPoint:
 
         # Wait some seconds for the map to go to the destination. From bubble to Colonia takes ~4 secs,
         # Beagle Point takes ~5 secs. In the bubble ~2-3 secs.
-        sleep(3)
+        sleep(4)
 
         # Clicking the system is required by ED when only one system is found matching the name
         # because nothing on the screen is selected.
         x = scr.screen_width / 2
         y = scr.screen_height / 2
         self.mouse.do_click(x, y)
-        keys.send('UI_Select', hold=1)
+        keys.send('UI_Select', hold=2)
 
         #keys.send('UI_Right', repeat=3)
         #keys.send('UI_Down', repeat=7)  # go down 6x's to plot to target
