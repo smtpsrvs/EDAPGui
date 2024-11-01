@@ -175,7 +175,7 @@ class Screen:
         image = array(self.mss.grab(monitor))
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         return image
-
+        
     def get_screen_region_pct(self, region):
         """ Grabs a screenshot and returns the selected region as an image.
         @param region: The region to check in % (0.0 - 1.0).
@@ -189,7 +189,7 @@ class Screen:
         else:
             if self._screen_image is None:
                 return None
-
+       
             image = self.crop_image_by_pct(self._screen_image, region)
 
 
