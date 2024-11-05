@@ -1,3 +1,10 @@
+# 11/3/2024 Stumpii: Added test buttons for ship calibration.
+ - Added test buttons for ship calibration.
+ - Updated Mandalay.
+
+# 11/2/2024 Stumpii: Added Mandalay.
+ - Added Mandalay.
+
 # 10/28/2024 Stumpii: Minor debug additions.
  - Minor debug additions.
 
