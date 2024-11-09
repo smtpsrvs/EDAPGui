@@ -1,7 +1,7 @@
 # Nav Panel Calibration
 This document explains how to perform calibration for the Navigation Panel that appears on the left side of the ship cockpit. You will need to perform this calibration the first time running EDAP and after changing resolution, scaling, FOV or any other action that results in the Nav Panel changing location on the screen.
 
-The calibration involves clicking on each corner of the Nav Panel in the correct order. The corners are defined by the ends of the to pand bottom lines, as shown below.
+The calibration involves clicking on each corner of the Nav Panel in the correct order. The corners are defined by the ends of the top and bottom lines, as shown below.
 
 ![Alt text](../screen/nav_panel_calibration.png?raw=true "Calibrate Nav Panel") 
 
