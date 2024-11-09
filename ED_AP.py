@@ -3,6 +3,7 @@ import traceback
 from math import atan, degrees
 import json
 import random
+from tkinter import messagebox
 
 import cv2
 from PIL import Image
@@ -75,7 +76,8 @@ class EDAutopilot:
             "LogDEBUG": False,             # enable for debug messages
             "LogINFO": True,
             "Enable_CV_View": 0,  # Should CV View be enabled by default
-            "ShipConfigFile": None  # Ship config to load on start
+            "ShipConfigFile": None,  # Ship config to load on start
+            "NavPnlCoords": None  # Coordinates of the Navigation Panel
         }
 
         # used this to write the self.config table to the json file
@@ -120,12 +122,13 @@ class EDAutopilot:
         self.scrReg = Screen_Regions.Screen_Regions(self.scr, self.templ)
         self.jn = EDJournal()
         self.keys = EDKeys()
-        self.nav_panel = NavPanel(self.scr, self.keys)
+        self.nav_panel = NavPanel(self.scr, self.keys, cb)
         self.stn_svcs_in_ship = StationServicesInShip(self.scr, self.keys, self.vce)
         self.afk_combat = AFK_Combat(self.keys, self.jn, self.vce)
         self.waypoint = EDWayPoint(self.jn.ship_state()['odyssey'])
         self.robigo = Robigo(self)
         self.status = StatusParser()
+        self.mouse = MousePoint()
 
         # rate as ship dependent.   Can be found on the outfitting page for the ship.  However, it looks like supercruise
         # has worse performance for these rates
@@ -143,6 +146,7 @@ class EDAutopilot:
         self.total_dist_jumped = 0
         self.total_jumps = 0
         self.refuel_cnt = 0
+        self.current_ship = None
 
         self.ap_ckb = cb
 
@@ -1521,6 +1525,14 @@ class EDAutopilot:
         # if no error, we must have gotten disengage
         if align_failed == False and do_docking == True:
             sleep(4)  # wait for the journal to catch up
+
+            # Check if this is a target we cannot dock at
+            skip_docking = False
+            if not self.jn.ship_state()['SupercruiseDestinationDrop_type'] is None:
+                if self.jn.ship_state()['SupercruiseDestinationDrop_type'].startswith("$USS_Type"):
+                    skip_docking = True
+
+            if not skip_docking:
             self.update_ap_status("Initiating Docking Procedure")
             self.dock()  # go into docking sequence
             self.vce.say("Docking complete, Refueled")
@@ -1771,6 +1783,17 @@ class EDAutopilot:
                 self.ap_ckb('afk_stop')
                 self.update_overlay()
 
+            # Check if ship has changed
+            ship = self.jn.ship_state()['type']
+            if ship != self.current_ship:
+                if self.current_ship is not None:
+                    self.ap_ckb('log', f"Switched ship from {self.current_ship} to {ship}.")
+
+                    if not self.jn.ship_state()['has_fuel_scoop']:
+                        self.ap_ckb('log', f"Warning, this {ship} is not fitted with a Fuel Scoop.")
+
+                self.current_ship = ship
+
             self.update_overlay()
             cv2.waitKey(10)
             sleep(1)
@@ -1829,6 +1852,32 @@ class EDAutopilot:
         self.keys.send('SetSpeed50')
         self.yawLeft(360)
 
+    def calibrate_nav_pnl(self):
+        """ Allows the user to identify the Navigation Panel by clicking on the corners."""
+        ans = messagebox.askokcancel('Nav Panel Co-ords', 'You will be asked to click each of the four corners of '
+                                                          'the navigation panel.\nSet speed to zero and bring up the '
+                                                          'navigation panel.')
+
+        ans = messagebox.askokcancel('Nav Panel Co-ords',
+                                     'Select OK\nYour next Mouse click should be the top left corner of the nav panel.')
+        x0, y0 = self.mouse.get_location()
+
+        ans = messagebox.askokcancel('Nav Panel Co-ords',
+                                     'Select OK\nYour next Mouse click should be the top right corner of the nav panel.')
+        x1, y1 = self.mouse.get_location()
+
+        ans = messagebox.askokcancel('Nav Panel Co-ords',
+                                     'Select OK\nYour next Mouse click should be the bottom left corner of the nav panel.')
+        x2, y2 = self.mouse.get_location()
+
+        ans = messagebox.askokcancel('Nav Panel Co-ords',
+                                     'Select OK\nYour next Mouse click should be the bottom right corner of the nav panel.')
+        x3, y3 = self.mouse.get_location()
+
+        ans = messagebox.askokcancel('Nav Panel Co-ords', 'Finished! Remember to save your settings.')
+
+        self.nav_panel.nav_pnl_coords = [[x0, y0], [x1, y1], [x2, y2], [x3, y3]]  # [top left, top right, bottom left, bottom right]
+        self.config['NavPnlCoords'] = self.nav_panel.nav_pnl_coords
 
 #
 # This main is for testing purposes.

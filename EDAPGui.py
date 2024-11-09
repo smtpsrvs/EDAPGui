@@ -189,6 +189,11 @@ class APGui():
         keyboard.add_hotkey(self.ed_ap.config['HotKey_StartSC'],  self.callback, args=('sc_start',  None))
         keyboard.add_hotkey(self.ed_ap.config['HotKey_StartRobigo'],  self.callback, args=('robigo_start',  None))
 
+        if 'NavPnlCoords' in self.ed_ap.config:
+            self.ed_ap.nav_panel.nav_pnl_coords = self.ed_ap.config['NavPnlCoords']
+        else:
+            self.log_msg("WARNING: Perform Nav Panel Calibration (under File Menu) before continuing.")
+
         # load default ship config file if specified
         try:
             if self.ed_ap.config['ShipConfigFile']:
@@ -245,6 +250,9 @@ class APGui():
 
         self.log_msg('Calibration starting')
         self.ed_ap.calibrate()
+
+    def calibrate_nav_pnl_callback(self):
+        self.ed_ap.calibrate_nav_pnl()
 
     def mouse_coord_callback(self):
         ans = messagebox.askyesno('Mouse XY', 'Select OK\nYour next Mouse click should be on the Station')
@@ -669,6 +677,7 @@ class APGui():
         file.add_command(label="Save as", command=self.save_ship_file)
         file.add_separator()
         file.add_command(label="Calibrate", command=self.calibrate_callback)
+        file.add_command(label="Calibrate Navigation Panel", command=self.calibrate_nav_pnl_callback)
         self.checkboxvar['Enable CV View'] = IntVar()
         self.checkboxvar['Enable CV View'].set(int(self.ed_ap.config['Enable_CV_View']))  # set IntVar value to the one from config
         file.add_checkbutton(label='Enable CV View', onvalue=1, offvalue=0, variable=self.checkboxvar['Enable CV View'], command=(lambda field='Enable CV View': self.check_cb(field)))

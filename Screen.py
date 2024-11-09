@@ -191,9 +191,6 @@ class Screen:
                 return None
        
             image = self.crop_image_by_pct(self._screen_image, region)
-
-
-
             return image
 
     def screen_pct_to_abs(self, reg):
@@ -205,10 +202,16 @@ class Screen:
     def get_screen_full(self):
         """ Grabs a full screenshot and returns the image.
         """
-        image = self.get_screen(0, 0, self.screen_width, self.screen_height)
-        # TODO delete this line when COLOR_RGB2BGR is removed from get_screen()
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        return image
+        if self.using_screen:
+            image = self.get_screen(0, 0, self.screen_width, self.screen_height)
+            # TODO delete this line when COLOR_RGB2BGR is removed from get_screen()
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            return image
+        else:
+            if self._screen_image is None:
+                return None
+
+            return self._screen_image
 
     def crop_image_by_pct(self, image, rect):
         """ Crop an image using a percentage values (0.0 - 1.0).
@@ -225,6 +228,13 @@ class Screen:
 
         # Crop image
         cropped = image[y0:y1, x0:x1]
+        return cropped
+
+    def crop_image(self, image, rect):
+        """ Crop an image using a pixel values.
+        Rect is an array of pixel values [100, 200, 1800, 1600] = [X0, Y0, X1, Y1]
+        Returns the cropped image."""
+        cropped = image[rect[1]:rect[3], rect[0]:rect[2]]  # i.e. [y:y+h, x:x+w]
         return cropped
 
     def set_screen_image(self, image):

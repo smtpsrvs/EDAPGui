@@ -28,7 +28,8 @@ of Elite Dangerous, it is an external-ED construct (similar to us commanders)
 
   ```
   ./docs
-  * Calibration.md for details on how to calibrate EDAPGui for your system if required 
+  * Calibration.md for details on how to calibrate EDAPGui for your system if required
+  * NavPanelCalibration.md for details on how to calibrate the Navigation Panel for your setup  
   * Waypoint.md for details on how to generate a waypoint file 
   * RollPitchYaw.md for details on how to tune the Pitch, Roll, Yaw values
   * Robgio.md for details on the Robigo Mines loop
@@ -48,6 +49,7 @@ Also Note: This repository is provided for educational purposes as a in depth pr
   for your monitor the code will attempt to divide /3440  and /1440 to get the scale factor (not likely to be correct)
   ```
   * See docs/Calibration.md for details on how to calibrate EDAPGui for your system *
+  * See docs/NavPanelCalibration.md for details on how to calibrate EDAPGui for the Nav Panel of your setup *
   ```
   * Field of View (Graphics->Display) setting plays here.  I run about 10-15% on the slider scale.  If you have a large FOV then the 
     template images will likely be too large
@@ -78,16 +80,17 @@ Also Note: This repository is provided for educational purposes as a in depth pr
 
 Once ED_AP has started there are few steps to complete the first time ED AP is run. These will help avoid common issues.
 1. Perform screen calibration, detailed [here](docs/Calibration.md). This will configure ED_AP for your screen resolution. Many issues can be avoided with correct calibration.
-2. Check and if necessary, change keybinding options, detailed below. Pay special attention that the Ins, Home, End and Pg Up are not used by ED as these are used by EDAP.
-3. Note: the autopilot.log file will capture any required keybindings that are not set.
-4. Select the correct ship file matching the ship you are flying, this will configure the pitch, roll and yaw rates to match. Depending on the ship, you may need to tune the values for best response a detailed [here](docs/RollPitchYaw.md).
-5. Perform an in-system test:
+1. Perform Navigation Panel calibration, detailed [here](docs/NavPanelCalibration.md). This will configure ED_AP for your Navigation Panel. Navigation and docking will not be possible without correct calibration.
+1. Check and if necessary, change keybinding options, detailed below. Pay special attention that the Ins, Home, End and Pg Up are not used by ED as these are used by EDAP.
+1. Note: the autopilot.log file will capture any required keybindings that are not set.
+1. Select the correct ship file matching the ship you are flying, this will configure the pitch, roll and yaw rates to match. Depending on the ship, you may need to tune the values for best response a detailed [here](docs/RollPitchYaw.md).
+1. Perform an in-system test:
     * In ED, use Left Panel to select a local target.
     * In the autopilot enable SC Assist or hit the 'Ins' key.
     * When a assist starts it will set focus to the Elite Dangerous window.
     * Ship will undock if docked, jump to SC, maneuver to the target and upon arriving at the target, will attempt to dock if it is a station.
     * Any flight issues, check ship tuning.
- 6. Perform an out-of-system test:
+ 1. Perform an out-of-system test:
     * In ED, use Galaxy Map select a target system.
     * In the autopilot enable FSD Assist or hit the 'Home' key.
     * When a assist starts it will set focus to the Elite Dangerous window.

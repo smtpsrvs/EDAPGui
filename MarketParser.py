@@ -85,7 +85,7 @@ class MarketParser:
 
         # Check if file changed
         if self.get_file_modified_time() == self.last_mod_time:
-            logger.debug(f'Market.json mod timestamp {self.last_mod_time} unchanged.')
+            #logger.debug(f'Market.json mod timestamp {self.last_mod_time} unchanged.')
             return self.current_data
 
         # Read file
@@ -104,7 +104,7 @@ class MarketParser:
         # Store data
         self.current_data = data
         self.last_mod_time = self.get_file_modified_time()
-        logger.debug(f'Market.json mod timestamp {self.last_mod_time} updated.')
+        #logger.debug(f'Market.json mod timestamp {self.last_mod_time} updated.')
         # print(json.dumps(data, indent=4))
         return data
 

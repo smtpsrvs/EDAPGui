@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from time import sleep
 import numpy as np
 import cv2
@@ -20,20 +22,23 @@ Author: Stumpii
 
 
 class NavPanel:
-    def __init__(self, screen, keys):
+    def __init__(self, screen, keys, cb):
         self.screen = screen
         self.ocr = OCR(screen)
         self.keys = keys
         self.status_parser = StatusParser()
+        self.ap_ckb = cb
+
         self.navigation_tab_text = "NAVIGATION"
         self.transactions_tab_text = "TRANSACTIONS"
         self.contacts_tab_text = "CONTACTS"
         self.target_tab_text = "TARGET"
+        self.nav_pnl_coords = None  # [top left, top right, bottom left, bottom right]
 
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         # Nav Panel region covers the entire navigation panel.
         self.reg = {'nav_panel': {'rect': [0.11, 0.21, 0.70, 0.86]}}
-        self.sub_reg = {'tab_bar': {'rect': [0.0, 0.0, 1.0, 0.1152]},
+        self.sub_reg = {'tab_bar': {'rect': [0.0, 0.0, 1.0, 0.08]},
                         'location_panel': {'rect': [0.2218, 0.3, 0.8, 1.0]}}
         self.nav_pnl_tab_width = 260  # Nav panel tab width in pixels at 1920x1080
         self.nav_pnl_tab_height = 35  # Nav panel tab height in pixels at 1920x1080
@@ -57,6 +62,73 @@ class NavPanel:
 
         cv2.imwrite(f'test/nav-panel/out/nav_panel_straight.png', straightened)
         return straightened
+
+    def capture_nav_panel_straightened(self):
+        """ Grab the image based on the panel coordinates.
+        Returns an unfiltered image, either from screenshot or provided image, or None if an image cannot
+        be grabbed.
+        """
+        if self.nav_pnl_coords is None:
+            logger.warning(f"Nav Panel Calibration has not been performed. Cannot continue.")
+            self.ap_ckb('log', 'Nav Panel Calibration has not been performed. Cannot continue.')
+            return None
+
+        full_image = self.screen.get_screen_full()
+
+        # Get the nav panel co-ordinates
+        [x0, y0] = self.nav_pnl_coords[0]  # top left
+        [x1, y1] = self.nav_pnl_coords[1]  # top right
+        [x2, y2] = self.nav_pnl_coords[2]  # bottom left
+        [x3, y3] = self.nav_pnl_coords[3]  # bottom right
+
+        # Calculate the bounding rectangle
+        left = min(x0, x2)
+        top = min(y0, y1)
+        right = max(x1, x3)
+        bottom = max(y2, y3)
+
+        # Calculate the co-ordinates with reference to the bounding rectangle
+        [xn0, yn0] = [x0 - left, y0 - top]
+        [xn1, yn1] = [x1 - left, y1 - top]
+        [xn2, yn2] = [x2 - left, y2 - top]
+        [xn3, yn3] = [x3 - left, y3 - top]
+
+        new_coords = [[xn0, yn0], [xn1, yn1], [xn2, yn2], [xn3, yn3]]
+
+        # Crop the screen to the rectangle containing the nav panel
+        image = self.screen.crop_image(full_image, [left, top, right, bottom])
+        cv2.imwrite(f'test/nav-panel/out/nav_panel_original.png', image)
+
+        # Straighten the image
+        straightened = self.__nav_panel_perspective_warp_full(image, new_coords)
+        cv2.imwrite(f'test/nav-panel/out/nav_panel_straight.png', straightened)
+
+        return straightened
+
+    def __nav_panel_perspective_warp_full(self, image, coords):
+        """ Performs warping of the nav panel image and returns the result.
+        The warping removes the perspective slanting of all sides so the
+        returning image has vertical columns and horizontal rows for matching
+        or OCR. """
+        # Existing size
+        h, w, ch = image.shape
+
+        pts1 = np.float32(
+            [coords[2],  # bottom left
+             coords[3],  # bottom right
+             coords[0],  # top left
+             coords[1]]  # top right
+        )
+        pts2 = np.float32(
+            [[0, h],  # bottom left
+             [w, h],  # bottom right
+             [0, 0],  # top left
+             [w, 0]]  # top right
+        )
+        M = cv2.getPerspectiveTransform(pts1, pts2)
+        dst = cv2.warpPerspective(image, M, (w, h))
+
+        return dst
 
     def __nav_panel_perspective_warp(self, image):
         """ Performs warping of the nav panel image and returns the result.
@@ -85,12 +157,15 @@ class NavPanel:
 
     def capture_location_panel(self):
         """ Get the location panel from within the nav panel.
-        Returns an image.
+        Returns an image, or None.
         """
         # Scale the regions based on the target resolution.
-        scl_reg_rect = reg_scale_for_station(self.reg['nav_panel'], self.screen.width, self.screen.height)
+        # scl_reg_rect = reg_scale_for_station(self.reg['nav_panel'], self.screen.width, self.screen.height)
 
-        nav_panel = self.capture_region_straightened(scl_reg_rect)
+        #nav_panel = self.capture_region_straightened(scl_reg_rect)
+        nav_panel = self.capture_nav_panel_straightened()
+        if nav_panel is None:
+            return None
 
         # Existing size
         h, w, ch = nav_panel.shape
@@ -111,12 +186,15 @@ class NavPanel:
 
     def capture_tab_bar(self):
         """ Get the tab bar (NAVIGATION/TRANSACTIONS/CONTACTS/TARGET).
-        Returns an image.
+        Returns an image, or None.
         """
         # Scale the regions based on the target resolution.
-        scl_reg_rect = reg_scale_for_station(self.reg['nav_panel'], self.screen.width, self.screen.height)
+        #scl_reg_rect = reg_scale_for_station(self.reg['nav_panel'], self.screen.width, self.screen.height)
 
-        nav_pnl_st = self.capture_region_straightened(scl_reg_rect)
+        #nav_pnl_st = self.capture_region_straightened(scl_reg_rect)
+        nav_pnl_st = self.capture_nav_panel_straightened()
+        if nav_pnl_st is None:
+            return None
 
         # Existing size
         h, w, ch = nav_pnl_st.shape
@@ -142,6 +220,8 @@ class NavPanel:
         """
         # Is nav panel active?
         active, active_tab_name = self.is_nav_panel_active()
+        if active is None:
+            return None
         if active:
             # Store image
             image = self.screen.get_screen_full()
@@ -159,6 +239,8 @@ class NavPanel:
 
             # Check if it opened
             active, active_tab_name = self.is_nav_panel_active()
+            if active is None:
+                return None
             if active:
                 # Store image
                 image = self.screen.get_screen_full()
@@ -199,12 +281,14 @@ class NavPanel:
         elif status['GuiFocus'] == GuiFocusCodex:
             self.keys.send("UI_Back")
 
-    def show_navigation_tab(self) -> bool:
+    def show_navigation_tab(self) -> bool | None:
         """ Shows the NAVIGATION tab of the Nav Panel. Opens the Nav Panel if not already open.
         Returns True if successful, else False.
         """
         # Show nav panel
         active, active_tab_name = self.show_nav_panel()
+        if active is None:
+            return None
         if not active:
             print("Nav Panel could not be opened")
             return False
@@ -226,12 +310,14 @@ class NavPanel:
             self.keys.send('CycleNextPanel')
             return True
 
-    def show_contacts_tab(self) -> bool:
+    def show_contacts_tab(self) -> bool | None:
         """ Shows the CONTACTS tab of the Nav Panel. Opens the Nav Panel if not already open.
         Returns True if successful, else False.
         """
-        # Show nav panel
+   # Show nav panel
         active, active_tab_name = self.show_nav_panel()
+        if active is None:
+            return None
         if not active:
             print("Nav Panel could not be opened")
             return False
@@ -278,6 +364,8 @@ class NavPanel:
 
         # Is open, so proceed
         tab_bar = self.capture_tab_bar()
+        if tab_bar is None:
+            return None
 
         # Determine the nav panel tab size at this resolution
         scl_row_w, scl_row_h = size_scale_for_station(self.nav_pnl_tab_width, self.nav_pnl_tab_height,
@@ -294,7 +382,7 @@ class NavPanel:
             if self.target_tab_text in str(ocr_textlist):
                 return True, self.target_tab_text
 
-    def lock_destination(self, dst_name) -> bool:
+    def lock_destination(self, dst_name) -> bool | None:
         """ Checks if destination is already locked and if not, Opens Nav Panel, Navigation Tab,
         scrolls locations and if the requested location is found, lock onto destination. Close Nav Panel.
         Returns True if the destination is already locked, or if it is successfully locked.
@@ -308,22 +396,25 @@ class NavPanel:
                 return True
 
         res = self.show_navigation_tab()
+        if res is None:
+            return None
         if not res:
             print("Nav Panel could not be opened")
             return False
 
         found = self.find_destination_in_list(dst_name)
+        if found is None:
+            return None
         if found:
             self.keys.send("UI_Select", repeat=2)  # Select it and lock target
 
         self.hide_nav_panel()
         return found
 
-    def scroll_to_top_of_list(self) -> bool:
+    def scroll_to_top_of_list(self) -> bool | None:
         """ Attempts to scroll to the top of the list by holding 'up' and waiting until the resulting OCR
         stops changing. This should be at the top of the list.
         """
-
         self.keys.send("UI_Down")  # go down in case we are at the top and don't want to go to the bottom
         self.keys.send("UI_Up", state=1)  # got to top row
 
@@ -333,6 +424,8 @@ class NavPanel:
         while 1:
             # Get the location panel image
             loc_panel = self.capture_location_panel()
+            if loc_panel is None:
+                return None
 
             # Determine the nav panel tab size at this resolution
             scl_row_w, scl_row_h = size_scale_for_station(self.nav_pnl_location_width, self.nav_pnl_location_height,
@@ -363,12 +456,14 @@ class NavPanel:
                     self.keys.send("UI_Up", state=0)  # got to top row
                     return True
 
-    def find_destination_in_list(self, dst_name) -> bool:
+    def find_destination_in_list(self, dst_name) -> bool | None:
         # tries is the number of rows to go through to find the item looking for
         # the Nav Panel should be filtered to reduce the number of rows in the list
 
         # Scroll to top of list
         res = self.scroll_to_top_of_list()
+        if res is None:
+            return None
         if not res:
             logger.debug(f"Unable to scroll to top of list.")
             return False
@@ -378,6 +473,8 @@ class NavPanel:
         while 1:
             # Get the location panel image
             loc_panel = self.capture_location_panel()
+            if loc_panel is None:
+                return None
 
             # Determine the nav panel tab size at this resolution
             scl_row_w, scl_row_h = size_scale_for_station(self.nav_pnl_location_width, self.nav_pnl_location_height,
@@ -411,6 +508,8 @@ class NavPanel:
         """ Try to request docking.
         """
         res = self.show_contacts_tab()
+        if res is None:
+            return None
         if not res:
             print("Contacts Panel could not be opened")
             return False
@@ -432,6 +531,6 @@ if __name__ == "__main__":
     scr = Screen()
     keys = EDKeys()
     keys.activate_window = True  # Helps with single steps testing
-    nav_pnl = NavPanel(scr, keys)
+    nav_pnl = NavPanel(scr, keys, None)
     nav_pnl.scroll_to_top_of_list()
     #nav_pnl.find_destination_in_list("ssss")

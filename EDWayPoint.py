@@ -183,8 +183,9 @@ class EDWayPoint:
         self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name) 
 
     def set_station_target(self, ap, station):
-        ap.nav_panel.lock_destination(station)
-
+        res = ap.nav_panel.lock_destination(station)
+        if res is None:
+            return None
 
     # Call either the Odyssey or Horizons version of the Galatic Map sequence
     def set_waypoint_target(self, ap, target_system: str, target_select_cb=None) -> bool:

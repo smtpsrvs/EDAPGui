@@ -265,6 +265,8 @@ class Robigo:
                 # [In Sothis]
                 # select Siruis Atmos
                 found = ap.nav_panel.lock_destination("SIRIUS ATMOSPHERICS")
+                if found is None:
+                    return None
                 if not found:
                     ap.update_ap_status("No Sirius Atmos in Nav Panel")
                     return
@@ -303,6 +305,8 @@ class Robigo:
                 #   The Robigo Mines position in the list is dependent on distance from current location
                 #   The Speed50 above and waiting 2 seconds ensures Robigo Mines is 2 down from top
                 found = ap.nav_panel.lock_destination("ROBIGO MINES")
+                if found is None:
+                    return None
                 if not found:
                     ap.update_ap_status("No lock on Robigo Mines in Nav Panel")
                     return

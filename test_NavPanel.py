@@ -32,7 +32,7 @@ class NavPanelTestCase(unittest.TestCase):
         Does NOT require Elite Dangerous to be running.
         ======================================================================
         """
-        nav_pnl = NavPanel(None, None)
+        nav_pnl = NavPanel(None, None, None)
         draw_station_regions('test/nav-panel/', nav_pnl.reg)
 
         self.assertEqual(True, True)  # add assertion here
@@ -71,7 +71,7 @@ class NavPanelTestCase(unittest.TestCase):
         scr = Screen()
         keys = EDKeys()
         keys.activate_window = True  # Helps with single steps testing
-        nav_pnl = NavPanel(scr, keys)
+        nav_pnl = NavPanel(scr, keys, None)
 
         res = nav_pnl.lock_destination(name)
 
@@ -84,7 +84,7 @@ class NavPanelTestCase(unittest.TestCase):
         scr = Screen()
         keys = EDKeys()
         keys.activate_window = True  # Helps with single steps testing
-        nav_pnl = NavPanel(scr, keys)
+        nav_pnl = NavPanel(scr, keys, None)
 
         res = nav_pnl.request_docking()
         self.assertTrue(res, "Failed to request docking.")  # add assertion here
