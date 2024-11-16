@@ -34,8 +34,11 @@ class GalaxyMapTestCase(unittest.TestCase):
         scr.set_screen_image(frame)
         ed_wp = EDWayPoint(True)
 
-        res = ed_wp.system_in_system_info_panel(scr, system)
+        system_name = ed_wp.get_system_from_system_info_panel(scr, system)
+        if system_name is None:
+            self.assertTrue(False, f"Unable to find system info panel.")  # add assertion here
 
+        res = system.upper() == system_name.upper()
         self.assertTrue(res, f"Unable to find system {system}")  # add assertion here
 
     def test_System1(self):

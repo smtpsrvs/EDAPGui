@@ -160,7 +160,7 @@ class NavPanel:
         Returns an image, or None.
         """
         # Scale the regions based on the target resolution.
-        # scl_reg_rect = reg_scale_for_station(self.reg['nav_panel'], self.screen.width, self.screen.height)
+        # scl_reg_rect = reg_scale_for_station(self.reg['nav_panel'], self.screen.screen_width, self.screen.screen_height)
 
         #nav_panel = self.capture_region_straightened(scl_reg_rect)
         nav_panel = self.capture_nav_panel_straightened()
@@ -189,7 +189,7 @@ class NavPanel:
         Returns an image, or None.
         """
         # Scale the regions based on the target resolution.
-        #scl_reg_rect = reg_scale_for_station(self.reg['nav_panel'], self.screen.width, self.screen.height)
+        #scl_reg_rect = reg_scale_for_station(self.reg['nav_panel'], self.screen.screen_width, self.screen.screen_height)
 
         #nav_pnl_st = self.capture_region_straightened(scl_reg_rect)
         nav_pnl_st = self.capture_nav_panel_straightened()
@@ -220,8 +220,6 @@ class NavPanel:
         """
         # Is nav panel active?
         active, active_tab_name = self.is_nav_panel_active()
-        if active is None:
-            return None
         if active:
             # Store image
             image = self.screen.get_screen_full()
@@ -239,8 +237,6 @@ class NavPanel:
 
             # Check if it opened
             active, active_tab_name = self.is_nav_panel_active()
-            if active is None:
-                return None
             if active:
                 # Store image
                 image = self.screen.get_screen_full()
@@ -369,7 +365,7 @@ class NavPanel:
 
         # Determine the nav panel tab size at this resolution
         scl_row_w, scl_row_h = size_scale_for_station(self.nav_pnl_tab_width, self.nav_pnl_tab_height,
-                                                      self.screen.width, self.screen.height)
+                                                      self.screen.screen_width, self.screen.screen_height)
 
         img_selected, ocr_data, ocr_textlist = self.ocr.get_highlighted_item_data(tab_bar, scl_row_w, scl_row_h)
         if img_selected is not None:
@@ -382,7 +378,7 @@ class NavPanel:
             if self.target_tab_text in str(ocr_textlist):
                 return True, self.target_tab_text
 
-    def lock_destination(self, dst_name) -> bool | None:
+    def lock_destination(self, dst_name) -> bool:
         """ Checks if destination is already locked and if not, Opens Nav Panel, Navigation Tab,
         scrolls locations and if the requested location is found, lock onto destination. Close Nav Panel.
         Returns True if the destination is already locked, or if it is successfully locked.
@@ -396,17 +392,15 @@ class NavPanel:
                 return True
 
         res = self.show_navigation_tab()
-        if res is None:
-            return None
         if not res:
             print("Nav Panel could not be opened")
             return False
 
         found = self.find_destination_in_list(dst_name)
-        if found is None:
-            return None
         if found:
             self.keys.send("UI_Select", repeat=2)  # Select it and lock target
+        else:
+            return False
 
         self.hide_nav_panel()
         return found
@@ -429,7 +423,7 @@ class NavPanel:
 
             # Determine the nav panel tab size at this resolution
             scl_row_w, scl_row_h = size_scale_for_station(self.nav_pnl_location_width, self.nav_pnl_location_height,
-                                                          self.screen.width, self.screen.height)
+                                                          self.screen.screen_width, self.screen.screen_height)
 
             # Find the selected item/menu (solid orange)
             img_selected, x, y = self.ocr.get_highlighted_item_in_image(loc_panel, scl_row_w, scl_row_h)
@@ -456,14 +450,12 @@ class NavPanel:
                     self.keys.send("UI_Up", state=0)  # got to top row
                     return True
 
-    def find_destination_in_list(self, dst_name) -> bool | None:
+    def find_destination_in_list(self, dst_name) -> bool:
         # tries is the number of rows to go through to find the item looking for
         # the Nav Panel should be filtered to reduce the number of rows in the list
 
         # Scroll to top of list
         res = self.scroll_to_top_of_list()
-        if res is None:
-            return None
         if not res:
             logger.debug(f"Unable to scroll to top of list.")
             return False
@@ -474,11 +466,11 @@ class NavPanel:
             # Get the location panel image
             loc_panel = self.capture_location_panel()
             if loc_panel is None:
-                return None
+                return False
 
             # Determine the nav panel tab size at this resolution
             scl_row_w, scl_row_h = size_scale_for_station(self.nav_pnl_location_width, self.nav_pnl_location_height,
-                                                          self.screen.width, self.screen.height)
+                                                          self.screen.screen_width, self.screen.screen_height)
 
             # Find the selected item/menu (solid orange)
             img_selected, x, y = self.ocr.get_highlighted_item_in_image(loc_panel, scl_row_w, scl_row_h)
@@ -529,8 +521,8 @@ class NavPanel:
 # Usage Example
 if __name__ == "__main__":
     scr = Screen()
-    keys = EDKeys()
-    keys.activate_window = True  # Helps with single steps testing
-    nav_pnl = NavPanel(scr, keys, None)
+    mykeys = EDKeys()
+    mykeys.activate_window = True  # Helps with single steps testing
+    nav_pnl = NavPanel(scr, mykeys, None)
     nav_pnl.scroll_to_top_of_list()
     #nav_pnl.find_destination_in_list("ssss")

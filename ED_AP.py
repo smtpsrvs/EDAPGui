@@ -44,7 +44,9 @@ class EDAutopilot:
 
     def __init__(self, cb, doThread=True):
 
-        self.config = {  
+        self._single_waypoint_station = None
+        self._single_waypoint_system = None
+        self.config = {
             "DSSButton": "Primary",        # if anything other than "Primary", it will use the Secondary Fire button for DSS
             "JumpTries": 3,                # 
             "NavAlignTries": 3,            #
@@ -99,7 +101,7 @@ class EDAutopilot:
 
         # config the voice interface
         self.vce = Voice()
-        self.vce.set_on()
+        self.vce.v_enabled = self.config['VoiceEnable']
         self.vce.set_voice_id(self.config['VoiceID'])
         self.vce.say("Welcome to Autopilot")
 
@@ -115,6 +117,7 @@ class EDAutopilot:
         self.afk_combat_assist_enabled = False
         self.waypoint_assist_enabled = False
         self.robigo_assist_enabled = False
+        self.single_waypoint_enabled = False
 
         # Create instance of each of the needed Classes
         self.scr = Screen.Screen()
@@ -122,6 +125,7 @@ class EDAutopilot:
         self.scrReg = Screen_Regions.Screen_Regions(self.scr, self.templ)
         self.jn = EDJournal()
         self.keys = EDKeys()
+        self.keys.activate_window = self.config['ActivateEliteEachKey']
         self.nav_panel = NavPanel(self.scr, self.keys, cb)
         self.stn_svcs_in_ship = StationServicesInShip(self.scr, self.keys, self.vce)
         self.afk_combat = AFK_Combat(self.keys, self.jn, self.vce)
@@ -129,6 +133,7 @@ class EDAutopilot:
         self.robigo = Robigo(self)
         self.status = StatusParser()
         self.mouse = MousePoint()
+
 
         # rate as ship dependent.   Can be found on the outfitting page for the ship.  However, it looks like supercruise
         # has worse performance for these rates
@@ -999,6 +1004,13 @@ class EDAutopilot:
         if off == None:
             logger.debug("sc_target_align not finding target")
             self.ap_ckb('log', 'Target not found, terminating SC Assist')
+
+            # Store image
+            if self.config["LogDEBUG"]:
+                image = self.scr.get_screen_full()
+                self.ap_ckb('log', 'Debug image stored: test/sc_target_align lost target.png')
+                cv2.imwrite(f'test/sc_target_align lost target.png', image)
+
             return False
 
         logger.debug("sc_target_align x: "+str(off['x'])+" y:"+str(off['y']))
@@ -1041,6 +1053,12 @@ class EDAutopilot:
             if new == None:
                 logger.debug("sc_target_align lost target")
                 self.ap_ckb('log', 'Target lost, attempting re-alignment.')
+
+                # Store image
+                if self.config["LogDEBUG"]:
+                    image = self.scr.get_screen_full()
+                    self.ap_ckb('log', 'Debug image stored: test/sc_target_align lost target.png')
+                    cv2.imwrite(f'test/sc_target_align lost target.png', image)
                 return False
 
         return True
@@ -1117,33 +1135,46 @@ class EDAutopilot:
 
         self.vce.say("Frameshift Jump")
 
-        for i in range(self.config['JumpTries']):
+        jump_tries = self.config['JumpTries']
+        for i in range(jump_tries):
 
             logger.debug('jump= try:'+str(i))
             if not (self.jn.ship_state()['status'] == 'in_supercruise' or self.jn.ship_state()['status'] == 'in_space'):
-                logger.error('jump=err1')
+                logger.error('Not ready to FSD jump. jump=err1')
                 raise Exception('not ready to jump')
             sleep(0.5)
             logger.debug('jump= start fsd')
             
             self.keys.send('HyperSuperCombination', hold=1)
-            sleep(16)
 
-            if self.jn.ship_state()['status'] != 'starting_hyperspace':
+            res = self.status.wait_for_flag_on(FlagsFsdCharging, 5)
+            if not res:
+                logger.error('FSD failed to charge.')
+                continue
+
+            res = self.status.wait_for_flag_on(FlagsFsdJump, 30)
+            if not res:
+                logger.warning('FSD jump timeout.')
                 self.mnvr_to_target(scr_reg)  # attempt realign to target
-            else:
-                logger.debug('jump= in jump')
-                while self.jn.ship_state()['status'] != 'in_supercruise':
-                    sleep(1)
-                logger.debug('jump= speed 0')
-                self.jump_cnt = self.jump_cnt+1
-                self.keys.send('SetSpeedZero', repeat=3)  # Let's be triply sure that we set speed to 0% :)
-                sleep(1)  # wait 1 sec after jump to allow graphics to stablize and accept inputs
-                logger.debug('jump=complete')
-                return True
+                continue
 
-        logger.error('jump=err2')
-        raise Exception("jump failure")
+            # TODO change below as there are 2 scenarios: 1) finish jump. 2) Get hyperdicted.
+            logger.debug('jump= in jump')
+            # Wait for jump to complete. Should never err
+            res = self.status.wait_for_flag_off(FlagsFsdJump, 60)
+            if not res:
+                logger.error('Failed to finish FSD jump.')
+                continue
+
+            logger.debug('jump= speed 0')
+            self.jump_cnt = self.jump_cnt+1
+            self.keys.send('SetSpeedZero', repeat=3)  # Let's be triply sure that we set speed to 0% :)
+            sleep(1)  # wait 1 sec after jump to allow graphics to stablize and accept inputs
+            logger.debug('jump=complete')
+            return True
+
+        logger.error(f'FSD Jump failed {jump_tries} times. jump=err2')
+        raise Exception("FSD Jump failure")
 
         # a set of convience routes to pitch, rotate by specified degress
 
@@ -1328,19 +1359,8 @@ class EDAutopilot:
 
             # Check current system and go to it if different
             if next_system != "" and (cur_star_system != next_system):
-                self.update_ap_status(f"Targeting System: {next_system}")
-                ret = self.waypoint.set_next_system(self, next_system)
-
-                # if we are starting the waypoint docked at a station, we need to undock first
-                if self.jn.ship_state()['status'] == 'in_station':
-                    self.waypoint_undock_seq()
-
-                # if we are in space but not in supercruise, get into supercruise
-                if self.jn.ship_state()['status'] != 'in_supercruise':
-                    self.sc_engage()
-
-                # Route sent...  FSD Assist to that destination
-                reached_dest = self.fsd_assist(scr_reg)
+                # Jump to the system
+                res = self.jump_to_system(scr_reg, next_system)
                 continue
             else:
                 self.update_ap_status(f"Already in target System: {next_system}")
@@ -1356,27 +1376,8 @@ class EDAutopilot:
 
             # Check current station and go to it if different
             if next_station != "" and not at_station:
-                # If waypoint file has a Station Name associated then attempt targeting it
-                self.update_ap_status(f"Targeting Station: {next_station}")
-                self.waypoint.set_station_target(self, next_station)
-
-                # if we are starting the waypoint docked at a station, we need to undock first
-                if self.jn.ship_state()['status'] == 'in_station':
-                    self.waypoint_undock_seq()
-
-                # if we are in space but not in supercruise, get into supercruise
-                if self.jn.ship_state()['status'] != 'in_supercruise':
-                    self.sc_engage()
-
-                # Successful targeting of Station, lets go to it
-                sleep(3)  # Wait for compass to stop flashing blue!
-                if self.have_destination(scr_reg):
-                    self.ap_ckb('log', " - Station: " + next_station)
-                    self.update_ap_status("SC to Station")
-                    self.sc_assist(scr_reg)
-                else:
-                    self.ap_ckb('log', " - Could not target station: " + next_station)
-
+                # Jump to the station
+                res = self.supercruise_to_station(scr_reg, next_station)
                 continue
             else:
                 self.update_ap_status(f"Already at target Station: {next_station}")
@@ -1397,6 +1398,58 @@ class EDAutopilot:
         # Done with waypoints
         self.ap_ckb('log', "Waypoint Route Complete, total distance jumped: "+str(self.total_dist_jumped)+"LY")
         self.update_ap_status("Idle")
+
+    def jump_to_system(self, scr_reg, system_name: str) -> bool:
+        """ Jumps to the specified system. Returns True if in the system already,
+        or we successfully travel there, else False. """
+        self.update_ap_status(f"Targeting System: {system_name}")
+        ret = self.waypoint.set_next_system(self, system_name)
+        if not ret:
+            return False
+
+        # if we are starting the waypoint docked at a station, we need to undock first
+        if self.jn.ship_state()['status'] == 'in_station':
+            self.waypoint_undock_seq()
+
+        # if we are in space but not in supercruise, get into supercruise
+        if self.jn.ship_state()['status'] != 'in_supercruise':
+            self.sc_engage()
+
+        # Route sent...  FSD Assist to that destination
+        reached_dest = self.fsd_assist(scr_reg)
+        if not reached_dest:
+            return False
+
+        return True
+
+    def supercruise_to_station(self, scr_reg, station_name: str) -> bool:
+        """ Supercruise to the specified target, which may be a station, FC, body, signal source, etc.
+        Returns True if we travel successfully travel there, else False. """
+        # If waypoint file has a Station Name associated then attempt targeting it
+        self.update_ap_status(f"Targeting Station: {station_name}")
+        res = self.nav_panel.lock_destination(station_name)
+        if not res:
+            return False
+
+        # if we are starting the waypoint docked at a station, we need to undock first
+        if self.jn.ship_state()['status'] == 'in_station':
+            self.waypoint_undock_seq()
+
+        # if we are in space but not in supercruise, get into supercruise
+        if self.jn.ship_state()['status'] != 'in_supercruise':
+            self.sc_engage()
+
+        # Successful targeting of Station, lets go to it
+        sleep(3)  # Wait for compass to stop flashing blue!
+        if self.have_destination(scr_reg):
+            self.ap_ckb('log', " - Station: " + station_name)
+            self.update_ap_status("SC to Station")
+            self.sc_assist(scr_reg)
+        else:
+            self.ap_ckb('log', " - Could not target station: " + station_name)
+            return False
+
+        return True
 
     def fsd_assist(self, scr_reg):
         """ FSD Route Assist. """
@@ -1473,6 +1526,13 @@ class EDAutopilot:
         if self.have_destination(scr_reg) == False:
             self.ap_ckb('log', "Quiting SC Assist - Compass not found. Rotate ship and try again.")
             logger.debug("Quiting sc_assist - compass not found")
+
+            # Store image
+            if self.config["LogDEBUG"]:
+                image = self.scr.get_screen_full()
+                self.ap_ckb('log', 'Debug image stored: test/Quiting SC Assist - Compass not found.png')
+                cv2.imwrite(f'test/Quiting SC Assist - Compass not found.png', image)
+
             return
 
         # if we are starting the waypoint docked at a station, we need to undock first
@@ -1533,10 +1593,10 @@ class EDAutopilot:
                     skip_docking = True
 
             if not skip_docking:
-            self.update_ap_status("Initiating Docking Procedure")
-            self.dock()  # go into docking sequence
-            self.vce.say("Docking complete, Refueled")
-            self.update_ap_status("Docking Complete")
+                self.update_ap_status("Initiating Docking Procedure")
+                self.dock()  # go into docking sequence
+                self.vce.say("Docking complete, Refueled")
+                self.update_ap_status("Docking Complete")
         else:
             self.vce.say("Exiting Supercruise, setting throttle to zero")
             self.keys.send('SetSpeedZero')  # make sure we don't continue to land   
@@ -1565,6 +1625,21 @@ class EDAutopilot:
                 self.afk_combat.launch_fighter()  # assuming two fighter bays
 
         self.vce.say("Terminating AFK Combat Assist")
+
+    def single_waypoint_assist(self):
+        """ Travel to a system or station or both."""
+        if self._single_waypoint_system == "" and self._single_waypoint_station == "":
+            return False
+
+        if self._single_waypoint_system != "":
+            res = self.jump_to_system(self.scrReg, self._single_waypoint_system)
+            if res is False:
+                return False
+
+        if self._single_waypoint_station != "":
+            res = self.supercruise_to_station(self.scrReg, self._single_waypoint_station)
+            if res is False:
+                return False
 
     # raising an exception to the engine loop thread, so we can terminate its execution
     #  if thread was in a sleep, the exception seems to not be delivered
@@ -1619,6 +1694,13 @@ class EDAutopilot:
         if enable == False and self.afk_combat_assist_enabled == True:
             self.ctype_async_raise(self.ap_thread, EDAP_Interrupt)
         self.afk_combat_assist_enabled = enable
+
+    def set_single_waypoint_assist(self, system: str, station: str, enable=True):
+        if enable == False and self.single_waypoint_enabled == True:
+            self.ctype_async_raise(self.ap_thread, EDAP_Interrupt)
+        self._single_waypoint_system = system
+        self._single_waypoint_station = station
+        self.single_waypoint_enabled = enable
 
     def set_cv_view(self, enable=True, x=0, y=0):
         self.cv_view = enable
@@ -1783,6 +1865,16 @@ class EDAutopilot:
                 self.ap_ckb('afk_stop')
                 self.update_overlay()
 
+            elif self.single_waypoint_enabled:
+                self.update_overlay()
+                try:
+                    self.single_waypoint_assist()
+                except EDAP_Interrupt:
+                    logger.debug("Stopping Single Waypoint Assist")
+                self.single_waypoint_enabled = False
+                self.ap_ckb('single_waypoint_stop')
+                self.update_overlay()
+
             # Check if ship has changed
             ship = self.jn.ship_state()['type']
             if ship != self.current_ship:
@@ -1879,6 +1971,9 @@ class EDAutopilot:
         self.nav_panel.nav_pnl_coords = [[x0, y0], [x1, y1], [x2, y2], [x3, y3]]  # [top left, top right, bottom left, bottom right]
         self.config['NavPnlCoords'] = self.nav_panel.nav_pnl_coords
 
+
+
+
 #
 # This main is for testing purposes.
 #
@@ -1886,8 +1981,11 @@ def main():
     #handle = win32gui.FindWindow(0, "Elite - Dangerous (CLIENT)")
     #if handle != None:
     #    win32gui.SetForegroundWindow(handle)  # put the window in foreground
-
     ed_ap = EDAutopilot(False)
+    ed_ap.calibrate_nav_pnl()
+    ed_ap.update_config()
+    exit()
+
     ed_ap.cv_view = True
     ed_ap.cv_view_x = 4000
     ed_ap.cv_view_y = 100

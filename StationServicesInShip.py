@@ -48,7 +48,7 @@ class StationServicesInShip:
         self.keys.send("UI_Select")  # station services
 
         # Scale the regions based on the target resolution.
-        scl_reg_rect = reg_scale_for_station(self.reg['connected_to'], self.screen.width, self.screen.height)
+        scl_reg_rect = reg_scale_for_station(self.reg['connected_to'], self.screen.screen_width, self.screen.screen_height)
 
         # Wait for screen to appear
         res = self.ocr.wait_for_text(["CONNECTED TO"], scl_reg_rect)
@@ -78,7 +78,7 @@ class StationServicesInShip:
         self.commodities_at_bottom = False
 
         # Scale the regions based on the target resolution.
-        scl_reg_rect = reg_scale_for_station(self.reg['stn_svc_layout'], self.screen.width, self.screen.height)
+        scl_reg_rect = reg_scale_for_station(self.reg['stn_svc_layout'], self.screen.screen_width, self.screen.screen_height)
 
         image = self.ocr.capture_region(scl_reg_rect)
         cv2.imwrite(f'test/station-services/out/stn_svc_layout.png', image)
@@ -159,7 +159,7 @@ class StationServicesInShip:
         self.keys.send("UI_Select")  # Commodities Market
 
         # Scale the regions based on the target resolution.
-        scl_reg_rect = reg_scale_for_station(self.reg['commodities_market'], self.screen.width, self.screen.height)
+        scl_reg_rect = reg_scale_for_station(self.reg['commodities_market'], self.screen.screen_width, self.screen.screen_height)
 
         # Wait for screen to appear
         res = self.ocr.wait_for_text(["COMMODITIES"], scl_reg_rect)
@@ -242,7 +242,7 @@ class PassengerLounge:
         self.keys.send("UI_Select")  # select Personal Transport
 
         # Scale the regions based on the target resolution.
-        scl_reg_rect = reg_scale_for_station(self.reg['mission_dest_col'], self.screen.width, self.screen.height)
+        scl_reg_rect = reg_scale_for_station(self.reg['mission_dest_col'], self.screen.screen_width, self.screen.screen_height)
 
         # Wait for screen to appear
         res = self.ocr.wait_for_text(["DESTINATION", "LOCKED"], scl_reg_rect)
@@ -268,8 +268,8 @@ class PassengerLounge:
         """ Find the first mission in the completed missions list.
         True if a completed mission is selected, else False (no missions left to turn in). """
         # Scale the regions based on the target resolution.
-        scl_reg_rect = reg_scale_for_station(self.reg['complete_mission_col'], self.screen.width, self.screen.height)
-        scl_row_w, scl_row_h = size_scale_for_station(self.complete_mission_row_width, self.complete_mission_row_height, self.screen.width, self.screen.height)
+        scl_reg_rect = reg_scale_for_station(self.reg['complete_mission_col'], self.screen.screen_width, self.screen.screen_height)
+        scl_row_w, scl_row_h = size_scale_for_station(self.complete_mission_row_width, self.complete_mission_row_height, self.screen.screen_width, self.screen.screen_height)
 
         return self.ocr.select_item_in_list("COMPLETE MISSION", scl_reg_rect, self.keys, scl_row_w, scl_row_h)
 
@@ -277,9 +277,9 @@ class PassengerLounge:
         """ Check if the COMPLETE MISSIONS button is enabled (we have missions to turn in).
         True if there are missions, else False. """
         # Scale the regions based on the target resolution.
-        scl_reg_rect = reg_scale_for_station(self.reg['no_cmpl_missions'], self.screen.width, self.screen.height)
+        scl_reg_rect = reg_scale_for_station(self.reg['no_cmpl_missions'], self.screen.screen_width, self.screen.screen_height)
         scl_row_w, scl_row_h = size_scale_for_station(self.no_cmpl_missions_row_width, self.no_cmpl_missions_row_height,
-                                                      self.screen.width, self.screen.height)
+                                                      self.screen.screen_width, self.screen.screen_height)
 
         return self.ocr.is_text_in_region("COMPLETE MISSIONS", scl_reg_rect)
 
@@ -287,8 +287,8 @@ class PassengerLounge:
         """ Select a mission with the required destination.
         True if there are missions, else False. """
         # Scale the regions based on the target resolution.
-        scl_reg_rect = reg_scale_for_station(self.reg['mission_dest_col'], self.screen.width, self.screen.height)
-        scl_row_w, scl_row_h = size_scale_for_station(self.mission_dest_row_width, self.mission_dest_row_height, self.screen.width, self.screen.height)
+        scl_reg_rect = reg_scale_for_station(self.reg['mission_dest_col'], self.screen.screen_width, self.screen.screen_height)
+        scl_row_w, scl_row_h = size_scale_for_station(self.mission_dest_row_width, self.mission_dest_row_height, self.screen.screen_width, self.screen.screen_height)
 
         return self.ocr.select_item_in_list(dest, scl_reg_rect, self.keys, scl_row_w, scl_row_h)
 
@@ -368,8 +368,8 @@ class CommoditiesMarket:
         self.parent.vce.say(f"Locating {name} to buy.")
 
         # Scale the regions based on the target resolution.
-        scl_reg_rect = reg_scale_for_station(self.reg['commodity_name_col'], self.screen.width, self.screen.height)
-        scl_row_w, scl_row_h = size_scale_for_station(self.commodity_row_width, self.commodity_row_height, self.screen.width, self.screen.height)
+        scl_reg_rect = reg_scale_for_station(self.reg['commodity_name_col'], self.screen.screen_width, self.screen.screen_height)
+        scl_row_w, scl_row_h = size_scale_for_station(self.commodity_row_width, self.commodity_row_height, self.screen.screen_width, self.screen.screen_height)
 
         found = self.ocr.select_item_in_list(name, scl_reg_rect, self.keys, scl_row_w, scl_row_h)
         if not found:
@@ -414,8 +414,8 @@ class CommoditiesMarket:
         self.parent.vce.say(f"Locating {name} to sell.")
 
         # Scale the regions based on the target resolution.
-        scl_reg_rect = reg_scale_for_station(self.reg['commodity_name_col'], self.screen.width, self.screen.height)
-        scl_row_w, scl_row_h = size_scale_for_station(self.commodity_row_width, self.commodity_row_height, self.screen.width, self.screen.height)
+        scl_reg_rect = reg_scale_for_station(self.reg['commodity_name_col'], self.screen.screen_width, self.screen.screen_height)
+        scl_row_w, scl_row_h = size_scale_for_station(self.commodity_row_width, self.commodity_row_height, self.screen.screen_width, self.screen.screen_height)
 
         found = self.ocr.select_item_in_list(name, scl_reg_rect, self.keys, scl_row_w, scl_row_h)
         if not found:

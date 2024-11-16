@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from time import sleep
 
 import cv2
@@ -182,18 +184,9 @@ class EDWayPoint:
             self.step = 0 
         self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name) 
 
-    def set_station_target(self, ap, station):
-        res = ap.nav_panel.lock_destination(station)
-        if res is None:
-            return None
-
     # Call either the Odyssey or Horizons version of the Galatic Map sequence
     def set_waypoint_target(self, ap, target_system: str, target_select_cb=None) -> bool:
         """ Set System target using galaxy map """
-        # No waypoints defined, then return False
-        if self.waypoints == None:
-            return False
-
         if self.is_odyssey != True:
             return self.set_waypoint_target_horizons(ap, target_system, target_select_cb)
         else:
@@ -236,7 +229,6 @@ class EDWayPoint:
 
     def set_waypoint_target_odyssey(self, scr, keys, target_system, target_select_cb=None) -> bool:
         # TODO - separate the functions for the gal map to a separate class
-
         # Get the current route (system name or None)
         nav_route_parser = NavRouteParser()
         targeted_system = nav_route_parser.get_last_system()
@@ -279,11 +271,36 @@ class EDWayPoint:
 
         # Check if the selected system is the actual system or one starting with the same char's
         # i.e. We want LHS 54 and the system list gives us LHS 547, LHS 546 and LHS 54
-        res = self.system_in_system_info_panel(scr, target_system)
+        system_name = self.get_system_from_system_info_panel(scr, target_system)
+        if system_name.upper() == target_system.upper():
+            logger.debug("Target found in system info panel: " + system_name)
+            res = True
+        else:
+            res = False
+
+        tries = 0
+        last_system = ""
+        # Cycle through all systems matching the current filter
         while not res:
             keys.send('UI_Select')  # CLick to go to next system in the list
-            sleep(0.5)
-            res = self.system_in_system_info_panel(scr, target_system)
+            sleep(0.25)  # The info panel updates before the system comes to center
+            system_name = self.get_system_from_system_info_panel(scr, target_system)
+            logger.debug(f"Target system: {target_system.upper()}. Current system: {system_name}")
+
+            # Break loop and continue if this is a match
+            if system_name.upper() == target_system.upper():
+                break
+
+            # Check if we are stuck on the same system
+            if system_name == last_system:
+                tries = tries + 1
+                # Quit after some attempts
+                if tries > 3:
+                    return False
+            else:
+                tries = 0
+                last_system = system_name
+
 
         # Wait some seconds for the map to go to the destination. From bubble to Colonia takes ~4 secs,
         # Beagle Point takes ~5 secs. In the bubble ~2-3 secs.
@@ -313,13 +330,16 @@ class EDWayPoint:
 
         return True
 
-    def system_in_system_info_panel(self, scr, system_name: str) -> bool:
+    def get_system_from_system_info_panel(self, scr, system_name: str) -> str | None:
+        """ Get the system name from the System Info panel of the Galaxy Map.
+        Returns a string containing the system name, or None if the panel does not appear
+        or the system could not be determined. """
         # TODO - move to galaxy map class
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution at 1920x1080
         reg = {'gal_map_system_info': {'rect': [0.695, 0.155, 0.935, 0.26]}}
 
         # Scale the regions based on the target resolution.
-        scl_reg_rect = reg_scale_for_station(reg['gal_map_system_info'], scr.width, scr.height)
+        scl_reg_rect = reg_scale_for_station(reg['gal_map_system_info'], scr.screen_width, scr.screen_height)
 
         ocr = OCR(scr)
         image = ocr.capture_region(scl_reg_rect)
@@ -327,15 +347,22 @@ class EDWayPoint:
 
         ocr_textlist = ocr.image_simple_ocr(image)
         if ocr_textlist is None:
-            return False
+            return None
 
-        # Process OCR list. Sometimes systems come in as ['LHS 54'] and sometimes ['LHS','54']
+        # Process OCR list which should be in the following form:
+        #   SYSTEM INFORMATION
+        #   System Name
+        #   DISTANCE: x.xxLY
+        # Sometimes systems come in as ['LHS 54'] and sometimes ['LHS','54']
+        info_pnl_found = False
         system = ""
         for s in ocr_textlist:
-            if s.startswith("SYSTEM") or s.startswith("INFO"):
+            if s.startswith("SYSTEM") or s.startswith("INFORMATION"):
                 # Do nothing
+                info_pnl_found = True
                 system = system
             elif s.startswith("DISTANCE"):
+                info_pnl_found = True
                 break
             else:
                 if system == "":
@@ -345,12 +372,12 @@ class EDWayPoint:
                     # Append next part
                     system = system + " " + s
 
-        if system.upper() == system_name.upper():
-            logger.debug("Target found in system info panel: " + system_name)
-            return True
-        else:
-            logger.debug("Target NOT found in system info panel: " + system_name)
-            return False
+        # Return None if the info panel did not appear
+        if not info_pnl_found:
+            return None
+
+        # Return the system name
+        return system
 
     def execute_trade(self, ap, dest_key):
         buy_down = self.waypoints[dest_key]['BuyItem']

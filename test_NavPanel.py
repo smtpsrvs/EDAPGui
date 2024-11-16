@@ -1,12 +1,15 @@
 import logging
 import os
 import unittest
+from tkinter import messagebox
 
 import cv2
+import numpy as np
 
 from EDAP_data import FlagsDocked
 from EDKeys import EDKeys
 from EDlogger import logger
+from MousePt import MousePoint
 from NavPanel import NavPanel
 from Screen import Screen
 from StatusParser import StatusParser
@@ -44,21 +47,27 @@ class NavPanelTestCase(unittest.TestCase):
         """
         image_path = "test/nav-panel/Screenshot 1920x1080 2024-10-14 20-45-25.png"
         image_path = "test/nav-panel/Screenshot 1920x1200 2024-09-07 09-08-36.png"
-        image_path = "test/nav-panel/Screenshot_2024-09-09_195949.png"
-        image_path = "test/nav-panel/CBB63634-4208-49F6-A5DD-640E589D79B3.png"
+        #image_path = "test/nav-panel/Screenshot_2024-09-09_195949.png"
+        #image_path = "test/nav-panel/CBB63634-4208-49F6-A5DD-640E589D79B3.png"
         frame = cv2.imread(image_path)
 
         scr = Screen()
         scr.using_screen = False
         scr.set_screen_image(frame)
-        nav_pnl = NavPanel(scr, None)
+        nav_pnl = NavPanel(scr, None, None)
 
         # Scale the regions based on the target resolution.
-        scl_reg_rect = reg_scale_for_station(nav_pnl.reg['nav_panel'], scr.width, scr.height)
+        #scl_reg_rect = reg_scale_for_station(nav_pnl.reg['nav_panel'], scr.screen_width, scr.screen_height)
 
-        straightened = nav_pnl.capture_region_straightened(scl_reg_rect)
-        nav_pnl.capture_location_panel()
-        nav_pnl.capture_tab_bar()
+        #straightened = nav_pnl.capture_region_straightened(scl_reg_rect)
+        straightened = nav_pnl.capture_nav_panel_straightened()
+        self.assertIsNone(straightened, "Could not grab Nav Panel image.")  # add assertion here
+
+        res = nav_pnl.capture_location_panel()
+        self.assertIsNone(res, "Could not grab Nav Panel Location image.")  # add assertion here
+
+        res = nav_pnl.capture_tab_bar()
+        self.assertIsNone(res, "Could not grab Nav Panel Tab bar image.")  # add assertion here
 
         self.assertEqual(True, True)  # add assertion here
 

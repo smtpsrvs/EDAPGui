@@ -27,7 +27,6 @@ Author: sumzer0@yahoo.com
 elite_dangerous_window = "Elite - Dangerous (CLIENT)"
 
 
-
 class Screen:
     def __init__(self):
         self.mss = mss.mss()
@@ -53,8 +52,6 @@ class Screen:
                     logger.debug(f'Defaulting to monitor {mon_num}.')
                     self.screen_width = item['width']
                     self.screen_height = item['height']
-                    self.width = item['width']
-                    self.height = item['height']
                     break
                 else:
                     if item['left'] == ed_rect[0] and item['top'] == ed_rect[1]:
@@ -64,8 +61,6 @@ class Screen:
                         logger.debug(f'Elite Dangerous is on monitor {mon_num}.')
                         self.screen_width = item['width']
                         self.screen_height = item['height']
-                        self.width = item['width']
-                        self.height = item['height']
 
             # Next monitor
             mon_num = mon_num + 1
@@ -139,22 +134,21 @@ class Screen:
         else:
             return False
 
-    def write_config(self, data, filename='./configs/resolution.json'):
+    def write_config(self, data, fileName='./configs/resolution.json'):
         if data is None:
             data = self.scales
         try:
-            with open(filename, "w") as fp:
-                json.dump(data, fp, indent=4)
+            with open(fileName,"w") as fp:
+                json.dump(data,fp, indent=4)
         except Exception as e:
             logger.warning("Screen.py write_config error:"+str(e))
 
-    @staticmethod
-    def read_config(filename='./configs/resolution.json'):
+    def read_config(self, fileName='./configs/resolution.json'):
         s = None
         try:
-            with open(filename, "r") as fp:
+            with open(fileName,"r") as fp:
                 s = json.load(fp)
-        except Exception as e:
+        except  Exception as e:
             logger.warning("Screen.py read_config error :"+str(e))
 
         return s
@@ -251,5 +245,4 @@ class Screen:
         # Set the screen size to the original image size, not the region size
         self.screen_width = w
         self.screen_height = h
-        self.width = w
-        self.height = h
+
