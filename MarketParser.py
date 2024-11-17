@@ -202,7 +202,8 @@ class MarketParser:
         if good is None:
             return False
 
-        return good['Producer'] and good['Stock'] > 0
+        return ((good['Stock'] > 0 and good['Producer'] and not good['Rare'])
+                or (good['Stock'] > 0 and good['Rare']))  # Need producer in for non-Rares?
 
     def can_sell_item(self, item_name: str) -> bool:
         """ Can the item be sold to the market (is it bought, regardless of demand).
@@ -212,7 +213,7 @@ class MarketParser:
         if good is None:
             return False
 
-        return good['Consumer'] or good['Demand'] > 0
+        return good['Consumer'] or good['Demand'] > 0 or good['Rare']
 
 
 # Usage Example

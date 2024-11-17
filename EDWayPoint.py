@@ -8,7 +8,7 @@ from EDAP_data import *
 from EDlogger import logger
 import json
 from pyautogui import typewrite, keyUp, keyDown
-from  MousePt import MousePoint
+from MousePt import MousePoint
 from pathlib import Path
 
 from NavRouteParser import NavRouteParser
@@ -34,9 +34,10 @@ Example file:
 Author: sumzer0@yahoo.com
 """
 
+
 class EDWayPoint:
     def __init__(self, is_odyssey=True):
-        
+
         self.is_odyssey = is_odyssey
         self.filename = './waypoints.json'
 
@@ -47,57 +48,55 @@ class EDWayPoint:
         # self.waypoints[target]['Completed'] == True
         # if docked and self.waypoints[target]['Completed'] == False
         #    execute_seq(self.waypoints[target]['TradeSeq'])
- 
+
         ss = self.read_waypoints()
 
         # if we read it then point to it, otherwise use the default table above
         if ss is not None:
             self.waypoints = ss
-            logger.debug("EDWayPoint: read json:"+str(ss))    
-            
+            logger.debug("EDWayPoint: read json:" + str(ss))
+
         self.num_waypoints = len(self.waypoints)
-     
+
         #print("waypoints: "+str(self.waypoints))
         self.step = 0
-        
+
         self.mouse = MousePoint()
         self.status = StatusParser()
-     
+
     def load_waypoint_file(self, filename=None):
         if filename == None:
             return
-        
+
         ss = self.read_waypoints(filename)
-        
+
         if ss is not None:
             self.waypoints = ss
             self.filename = filename
-            logger.debug("EDWayPoint: read json:"+str(ss))            
-        
-         
+            logger.debug("EDWayPoint: read json:" + str(ss))
+
     def read_waypoints(self, fileName='./waypoints/waypoints.json'):
         s = None
         try:
-            with open(fileName,"r") as fp:
+            with open(fileName, "r") as fp:
                 s = json.load(fp)
         except  Exception as e:
             logger.warning("EDWayPoint.py read_waypoints error :" + str(e))
 
-        return s    
-       
+        return s
 
     def write_waypoints(self, data, fileName='./waypoints/waypoints.json'):
         if data is None:
             data = self.waypoints
         try:
-            with open(fileName,"w") as fp:
-                json.dump(data,fp, indent=4)
+            with open(fileName, "w") as fp:
+                json.dump(data, fp, indent=4)
         except Exception as e:
             logger.warning("EDWayPoint.py write_waypoints error:" + str(e))
 
     def mark_waypoint_complete(self, key):
         self.waypoints[key]['Completed'] = True
-        self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name)  
+        self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name)
 
     def get_waypoint(self):
         """ Returns the next waypoint list or None if we are at the end of the waypoints.
@@ -161,8 +160,8 @@ class EDWayPoint:
 
                 # if this entry is REPEAT, loop through all and mark them all as Completed = False
                 if self.waypoints[key]['System'] == "REPEAT":
-                    self.mark_all_waypoints_not_complete()             
-                else: 
+                    self.mark_all_waypoints_not_complete()
+                else:
                     # Don't set system in galaxy map if we are in system
                     if self.waypoints[key]['System'].upper() != ap.jn.ship_state()['cur_star_system'].upper():
                         # Call sequence to select route
@@ -174,17 +173,18 @@ class EDWayPoint:
 
                 break
             else:
-                dest_key = ""   # End of list, return empty string
-        print("test: " + dest_key)     
+                dest_key = ""  # End of list, return empty string
+        print("test: " + dest_key)
         return dest_key
 
     def mark_all_waypoints_not_complete(self):
-        for j, tkey in enumerate(self.waypoints):  
-            self.waypoints[tkey]['Completed'] = False   
-            self.step = 0 
-        self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name) 
+        for j, tkey in enumerate(self.waypoints):
+            self.waypoints[tkey]['Completed'] = False
+            self.step = 0
+        self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name)
 
-    # Call either the Odyssey or Horizons version of the Galatic Map sequence
+        # Call either the Odyssey or Horizons version of the Galatic Map sequence
+
     def set_waypoint_target(self, ap, target_system: str, target_select_cb=None) -> bool:
         """ Set System target using galaxy map """
         if self.is_odyssey != True:
@@ -196,33 +196,33 @@ class EDWayPoint:
     # This sequence for the Horizons
     #
     def set_waypoint_target_horizons(self, ap, target_name: str, target_select_cb=None) -> bool:
-    
+
         ap.keys.send('GalaxyMapOpen')
         sleep(2)
         ap.keys.send('CycleNextPanel')
         sleep(1)
         ap.keys.send('UI_Select')
         sleep(2)
-              
+
         typewrite(target_name, interval=0.25)
-        sleep(1)         
-  
+        sleep(1)
+
         # send enter key
         ap.keys.send_key('Down', 28)
         sleep(0.05)
         ap.keys.send_key('Up', 28)
-        
+
         sleep(7)
         ap.keys.send('UI_Right')
         sleep(1)
-        ap.keys.send('UI_Select')   
-        
+        ap.keys.send('UI_Select')
+
         # if got passed through the ship() object, lets call it to see if a target has been
         # selected yet.. otherwise we wait.  If long route, it may take a few seconds      
         if target_select_cb != None:
             while not target_select_cb()['target']:
                 sleep(1)
-                
+
         ap.keys.send('GalaxyMapOpen')
         sleep(2)
         return True
@@ -272,6 +272,10 @@ class EDWayPoint:
         # Check if the selected system is the actual system or one starting with the same char's
         # i.e. We want LHS 54 and the system list gives us LHS 547, LHS 546 and LHS 54
         system_name = self.get_system_from_system_info_panel(scr, target_system)
+        if system_name is None:
+            logger.debug("Could not find SYSTEM INFO panel. Check the INFO panel is shown.")
+            return False
+
         if system_name.upper() == target_system.upper():
             logger.debug("Target found in system info panel: " + system_name)
             res = True
@@ -300,7 +304,6 @@ class EDWayPoint:
             else:
                 tries = 0
                 last_system = system_name
-
 
         # Wait some seconds for the map to go to the destination. From bubble to Colonia takes ~4 secs,
         # Beagle Point takes ~5 secs. In the bubble ~2-3 secs.
@@ -336,32 +339,55 @@ class EDWayPoint:
         or the system could not be determined. """
         # TODO - move to galaxy map class
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution at 1920x1080
-        reg = {'gal_map_system_info': {'rect': [0.695, 0.155, 0.935, 0.26]}}
+        reg = {'gal_map_system_info': {'rect': [0.695, 0.155, 0.935, 0.26]},
+               'gal_map_powerplay_info': {'rect': [0.64, 0.155, 0.935, 0.26]}}
 
         # Scale the regions based on the target resolution.
-        scl_reg_rect = reg_scale_for_station(reg['gal_map_system_info'], scr.screen_width, scr.screen_height)
+        scl_sys_reg_rect = reg_scale_for_station(reg['gal_map_system_info'], scr.screen_width, scr.screen_height)
+        scl_pp_reg_rect = reg_scale_for_station(reg['gal_map_powerplay_info'], scr.screen_width, scr.screen_height)
 
         ocr = OCR(scr)
-        image = ocr.capture_region(scl_reg_rect)
-        cv2.imwrite(f'test/gal_map_system_info.png', image)
+        # Capture both images
+        image_pp = ocr.capture_region(scl_pp_reg_rect)
+        cv2.imwrite(f'test/gal_map_powerplay_info.png', image_pp)
 
-        ocr_textlist = ocr.image_simple_ocr(image)
+        image_sys = ocr.capture_region(scl_sys_reg_rect)
+        cv2.imwrite(f'test/gal_map_system_info.png', image_sys)
+
+        # Check if this is the POWERPLAY INFORMATION panel first as this is the wider of the two
+        ocr_textlist = ocr.image_simple_ocr(image_pp)
         if ocr_textlist is None:
             return None
 
+        is_powerplay = False
+        # Check if this is the POWERPLAY INFO panel
+        for s in ocr_textlist:
+            if s.startswith("POWERPLAY"):
+                is_powerplay = True
+                break
+
+        # If not the POWERPLAY INFO panel, OCR the smaller SYSTEM INFO panel image.
+        if not is_powerplay:
+            ocr_textlist = ocr.image_simple_ocr(image_sys)
+            if ocr_textlist is None:
+                return None
+
         # Process OCR list which should be in the following form:
-        #   SYSTEM INFORMATION
+        #   SYSTEM INFORMATION / MARKET / STORED SHIPS / FRIENDS / THARGOID
         #   System Name
         #   DISTANCE: x.xxLY
         # Sometimes systems come in as ['LHS 54'] and sometimes ['LHS','54']
         info_pnl_found = False
         system = ""
         for s in ocr_textlist:
-            if s.startswith("SYSTEM") or s.startswith("INFORMATION"):
+            # Check each of the INFO panel titles
+            if (s.startswith("POWERPLAY") or s.startswith("SYSTEM") or s.startswith("MARKET") or
+                    s.startswith("INFORMATION") or s.startswith("STORED") or s.startswith("SHIPS") or
+                    s.startswith("FRIENDS") or s.startswith("THARGOID")):
                 # Do nothing
                 info_pnl_found = True
                 system = system
-            elif s.startswith("DISTANCE"):
+            elif s.startswith("LAST UPDATED") or s.startswith("DISTANCE"):
                 info_pnl_found = True
                 break
             else:
@@ -409,44 +435,39 @@ class temp:
         self.keys = EDKeys()
 """
 
-def main():
-    
-    #keys   = temp()
-    wp  = EDWayPoint(True)  # False = Horizons
-    wp.step = 0   #start at first waypoint
-        
-    sleep(3)
-    
 
-    
+def main():
+    #keys   = temp()
+    wp = EDWayPoint(True)  # False = Horizons
+    wp.step = 0  #start at first waypoint
+
+    sleep(3)
+
     #dest = 'Enayex'
     #print(dest)
-    
+
     #print("In waypoint_assist, at:"+str(dest))
 
-    
     # already in doc config, test the trade
     #wp.execute_trade(keys, dest)    
 
     # Set the Route for the waypoint^#
     while 1:
         dest = wp.get_waypoint()
-        print("Doing: "+str(dest))
+        print("Doing: " + str(dest))
         if dest is None:
             break
 
-      #  print(wp.waypoints[dest])
-       # print("Dock w/station: "+  str(wp.is_station_targeted(dest)))
-        
-        #wp.set_station_target(None, dest)
-        
-        # Mark this waypoint as complated
-        #wp.mark_waypoint_complete(dest)
-        
-        # set target to next waypoint and loop)::@
-        #dest = wp.get_next_waypoint()
+    #  print(wp.waypoints[dest])
+    # print("Dock w/station: "+  str(wp.is_station_targeted(dest)))
 
+    #wp.set_station_target(None, dest)
 
+    # Mark this waypoint as complated
+    #wp.mark_waypoint_complete(dest)
+
+    # set target to next waypoint and loop)::@
+    #dest = wp.get_next_waypoint()
 
 
 if __name__ == "__main__":

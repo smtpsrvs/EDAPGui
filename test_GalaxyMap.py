@@ -25,6 +25,7 @@ class GalaxyMapTestCase(unittest.TestCase):
         """
         image_path = "test/test-images/Screenshot 2024-10-14 20-45-42.png"
         image_path = "test/test-images/Screenshot 2024-10-14 20-48-01.png"
+        image_path = "test/test-images/Screenshot_0006 2024-11-16 17-56-19.png"
         system = "Beimech"
 
         frame = cv2.imread(image_path)
