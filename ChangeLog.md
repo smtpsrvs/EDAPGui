@@ -1,3 +1,9 @@
+# 11/17/2024 Stumpii: Improved launch from planetary base.
+ - Updated Mandalay and Python MkII ship turn values.
+ - Set voice enable/disable based on loaded setting. Gets rid of the 'Welcome to' speach if voice disabled.
+ - Added improved launch from planetary base. Will now head out 90 deg from planet, SC and SCO until out of orbit.
+ - Updated status flags.
+
 # 11/10/2024 Stumpii: Various changes.
  - Added SupercruiseDestinationDrop to determine if we drop at signal source and cannot request docking.
  - Only log journal on change, not every request.

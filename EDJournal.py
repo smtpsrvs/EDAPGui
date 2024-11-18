@@ -49,7 +49,6 @@ def get_ship_size(ship: str) -> str:
     else:
         return ''
 
-
 def check_fuel_scoop(modules: list[dict[str, any]] | None) -> bool:
     """ Gets whether the ship has a fuel scoop.
     """

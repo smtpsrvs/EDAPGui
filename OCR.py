@@ -44,6 +44,7 @@ class OCR:
                 for line in res:
                     ocr_textlist.append(line[1][0])
 
+            #print(ocr_textlist)
             return ocr_data, ocr_textlist
 
     def image_simple_ocr(self, image) -> list[str] | None:
@@ -59,7 +60,6 @@ class OCR:
         # print(ocr_data)
 
         if ocr_data is None:
-            # print(ocr_data)
             return None
         else:
             ocr_textlist = []
@@ -70,7 +70,7 @@ class OCR:
                 for line in res:
                     ocr_textlist.append(line[1][0])
 
-            # print(ocr_textlist)
+            #print(ocr_textlist)
             return ocr_textlist
 
     def get_highlighted_item_data(self, image, min_w, min_h):

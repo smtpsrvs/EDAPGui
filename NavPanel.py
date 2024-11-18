@@ -10,6 +10,7 @@ from OCR import OCR
 from Screen import Screen
 from StatusParser import StatusParser
 from Test_Routines import reg_scale_for_station, size_scale_for_station
+from strsimpy.jaro_winkler import JaroWinkler
 
 """
 File:navPanel.py    
@@ -295,22 +296,22 @@ class NavPanel:
             # self.keys.send('CycleNextPanel', hold=0.2)
             # sleep(0.2)
             # self.keys.send('CycleNextPanel', hold=0.2)
-            self.keys.send('CycleNextPanel', repeat=2)
+            self.keys.send('CycleNextPanel', repeat=3)
             return True
         elif active_tab_name is self.contacts_tab_text:
             # self.keys.send('CycleNextPanel', hold=0.2)
-            self.keys.send('CycleNextPanel')
+            self.keys.send('CycleNextPanel', repeat=2)
             return True
         elif active_tab_name is self.target_tab_text:
             # self.keys.send('CycleNextPanel', hold=0.2)
-            self.keys.send('CycleNextPanel')
+            self.keys.send('CycleNextPanel', repeat=2)
             return True
 
     def show_contacts_tab(self) -> bool | None:
         """ Shows the CONTACTS tab of the Nav Panel. Opens the Nav Panel if not already open.
         Returns True if successful, else False.
         """
-   # Show nav panel
+        # Show nav panel
         active, active_tab_name = self.show_nav_panel()
         if active is None:
             return None
@@ -334,7 +335,7 @@ class NavPanel:
             # self.keys.send('CycleNextPanel', hold=0.2)
             # sleep(0.2)
             # self.keys.send('CycleNextPanel', hold=0.2)
-            self.keys.send('CycleNextPanel', repeat=2)
+            self.keys.send('CycleNextPanel', repeat=3)
             return True
 
     def hide_nav_panel(self):
@@ -358,25 +359,33 @@ class NavPanel:
         if status['GuiFocus'] != GuiFocusExternalPanel:
             return False, ""
 
-        # Is open, so proceed
-        tab_bar = self.capture_tab_bar()
-        if tab_bar is None:
-            return None
+        # Try this 'n' times before giving up
+        for i in range(10):
+            # Is open, so proceed
+            tab_bar = self.capture_tab_bar()
+            if tab_bar is None:
+                return None
 
-        # Determine the nav panel tab size at this resolution
-        scl_row_w, scl_row_h = size_scale_for_station(self.nav_pnl_tab_width, self.nav_pnl_tab_height,
-                                                      self.screen.screen_width, self.screen.screen_height)
+            # Determine the nav panel tab size at this resolution
+            scl_row_w, scl_row_h = size_scale_for_station(self.nav_pnl_tab_width, self.nav_pnl_tab_height,
+                                                          self.screen.screen_width, self.screen.screen_height)
 
-        img_selected, ocr_data, ocr_textlist = self.ocr.get_highlighted_item_data(tab_bar, scl_row_w, scl_row_h)
-        if img_selected is not None:
-            if self.navigation_tab_text in str(ocr_textlist):
-                return True, self.navigation_tab_text
-            if self.transactions_tab_text in str(ocr_textlist):
-                return True, self.transactions_tab_text
-            if self.contacts_tab_text in str(ocr_textlist):
-                return True, self.contacts_tab_text
-            if self.target_tab_text in str(ocr_textlist):
-                return True, self.target_tab_text
+            img_selected, ocr_data, ocr_textlist = self.ocr.get_highlighted_item_data(tab_bar, scl_row_w, scl_row_h)
+            if img_selected is not None:
+                if self.navigation_tab_text in str(ocr_textlist):
+                    return True, self.navigation_tab_text
+                if self.transactions_tab_text in str(ocr_textlist):
+                    return True, self.transactions_tab_text
+                if self.contacts_tab_text in str(ocr_textlist):
+                    return True, self.contacts_tab_text
+                if self.target_tab_text in str(ocr_textlist):
+                    return True, self.target_tab_text
+
+            # Wait and retry
+            sleep(1)
+
+        # Did not find anything
+        return False, ""
 
     def lock_destination(self, dst_name) -> bool:
         """ Checks if destination is already locked and if not, Opens Nav Panel, Navigation Tab,
@@ -460,6 +469,9 @@ class NavPanel:
             logger.debug(f"Unable to scroll to top of list.")
             return False
 
+        # Class for text similarity metrics
+        jarowinkler = JaroWinkler()
+
         y_last = -1
         in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
         while 1:
@@ -487,9 +499,12 @@ class NavPanel:
                 y_last = y
 
             # OCR the selected item
+            sim_match = 0.9  # Similarity match 0.0 - 1.0 for 0% - 100%)
             ocr_textlist = self.ocr.image_simple_ocr(img_selected)
             if ocr_textlist is not None:
-                if dst_name.upper() in str(ocr_textlist):
+                sim = jarowinkler.similarity(f"['{dst_name.upper()}']", str(ocr_textlist))
+                # print(f"Similarity of ['{dst_name.upper()}'] and {str(ocr_textlist)} is {sim}")
+                if sim > sim_match:
                     logger.debug(f"Found '{dst_name}' in list.")
                     return True
                 else:

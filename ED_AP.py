@@ -482,12 +482,12 @@ class EDAutopilot:
         get away. Use return result to determine the next action (continue, or do something else).
         """
         # Return if we are not being interdicted.
-        if not self.status.get_flag(FlagsBeingInterdicted):
+        if not self.status.get_flag(FlagsBeingInterdicted) and not self.status.get_flag(FlagsIsInDanger):
             return False
 
         # Interdiction detected.
-        self.vce.say("Danger. Interdiction detected.")
-        self.ap_ckb('log', 'Interdiction detected.')
+        self.vce.say("Danger. Interdiction detected or in danger.")
+        self.ap_ckb('log', 'Interdiction detected or in danger.')
 
         # Keep setting speed to zero to submit while in supercruise or system jump.
         while self.status.get_flag(FlagsSupercruise) or self.status.get_flag2(Flags2FsdHyperdriveCharging):
@@ -501,15 +501,16 @@ class EDAutopilot:
         self.status.wait_for_flag_on(FlagsFsdCooldown)
 
         # Boost while waiting for cooldown to complete.
-        while not self.status.wait_for_flag_off(FlagsFsdCooldown, timeout=2):
+        while not self.status.wait_for_flag_off(FlagsFsdCooldown, timeout=1):
             self.keys.send('UseBoostJuice')
 
         # Cooldown over, get us out of here.
-        self.keys.send('HyperSuperCombination', hold=0.001)
+        self.keys.send('Supercruise')
 
-        # Wait for supercruise, keep boosting.
-        while not self.status.wait_for_flag_on(FlagsSupercruise, timeout=2):
+        # Wait for jump to supercruise, keep boosting.
+        while not self.status.get_flag(FlagsFsdJump):
             self.keys.send('UseBoostJuice')
+            sleep(1)
 
         # Update journal flag.
         self.jn.ship_state()['interdicted'] = False  # reset flag
@@ -1242,6 +1243,9 @@ class EDAutopilot:
             
             self.refuel_cnt += 1
 
+            if self.status.get_flag(FlagsScoopingFuel):
+                self.ap_ckb('log', 'Flag: FlagsScoopingFuel ON')
+
             # The log will not reflect a FuelScoop until first 5 tons filled, then every 5 tons until complete
             #if we don't scoop first 5 tons with 40 sec break, since not scooping or not fast enough or not at all, then abort
             startime = time.time()
@@ -1270,8 +1274,13 @@ class EDAutopilot:
                 if ((time.time()-startime) > int(self.config['FuelScoopTimeOut'])):
                     self.vce.say("Refueling abort, insufficient scooping")
                     return True
-                sleep(1)              
-                
+
+                if not self.status.get_flag(FlagsScoopingFuel):
+                    self.ap_ckb('log', 'Fuel scooping Ended')
+                    return True
+
+                sleep(1)
+
             logger.debug('refuel=complete')
             return True
 
