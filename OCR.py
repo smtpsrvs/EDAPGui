@@ -6,6 +6,7 @@ from datetime import datetime
 import cv2
 import numpy as np
 from paddleocr import PaddleOCR
+from strsimpy.jaro_winkler import JaroWinkler
 
 from EDlogger import logger
 
@@ -24,6 +25,8 @@ class OCR:
         self.screen = screen
         self.paddleocr = PaddleOCR(use_angle_cls=True, lang='en', use_gpu=False, show_log=False, use_dilation=True,
                                    use_space_char=True)
+        # Class for text similarity metrics
+        self.jarowinkler = JaroWinkler()
 
     def image_ocr(self, image):
         """ Perform OCR with no filtering. Returns the full OCR data and a simplified list of strings.
@@ -71,6 +74,7 @@ class OCR:
                     ocr_textlist.append(line[1][0])
 
             #print(ocr_textlist)
+            #logger.info(f"OCR: {ocr_textlist}")
             return ocr_textlist
 
     def get_highlighted_item_data(self, image, min_w, min_h):

@@ -121,6 +121,7 @@ class EDAutopilot:
 
         # Create instance of each of the needed Classes
         self.scr = Screen.Screen()
+        self.ocr = OCR(self.scr)
         self.templ = Image_Templates.Image_Templates(self.scr.scaleX, self.scr.scaleY)
         self.scrReg = Screen_Regions.Screen_Regions(self.scr, self.templ)
         self.jn = EDJournal()
@@ -292,7 +293,7 @@ class EDAutopilot:
             self.scr.scaleY = self.scr.scaleX
 
             # must reload the templates with this scale value
-            self.templ.reload_templates(self.scr.scaleX, self.scr.scaleY)
+            self.templ.reload_templates(self.scr.scaleX, self.scr.scaleY, self.current_ship)
 
             # do image matching on the compass and the target
             compass_image, (minVal, maxVal, minLoc, maxLoc), match = self.scrReg.match_template_in_region('compass', 'compass')
@@ -482,7 +483,7 @@ class EDAutopilot:
         get away. Use return result to determine the next action (continue, or do something else).
         """
         # Return if we are not being interdicted.
-        if not self.status.get_flag(FlagsBeingInterdicted) and not self.status.get_flag(FlagsIsInDanger):
+        if not self.status.get_flag(FlagsBeingInterdicted):
             return False
 
         # Interdiction detected.
@@ -670,6 +671,7 @@ class EDAutopilot:
         logger.debug("Disenage = "+str(maxVal))
 
         if (maxVal > scr_reg.disengage_thresh):
+            logger.info("'PRESS [] TO DISENGAGE' detected. Disengaging Supercruise")
             self.vce.say("Disengaging Supercruise")
             return True
         else:
@@ -719,7 +721,7 @@ class EDAutopilot:
         # if we get docking granted ED's docking computer will take over
         self.keys.send('SetSpeedZero', repeat=2)
 
-        sleep(4)  # Wait for ship to come to stop
+        sleep(3)  # Wait for ship to come to stop
         self.request_docking()
         sleep(1)
 
@@ -733,7 +735,7 @@ class EDAutopilot:
                     self.keys.send('SetSpeed50')
                     sleep(5)
                     self.keys.send('SetSpeedZero', repeat=2)
-                sleep(4)  # Wait for ship to come to stop
+                sleep(3)  # Wait for ship to come to stop
                 self.request_docking()
                 self.keys.send('SetSpeedZero', repeat=2)
                 sleep(1.5)
@@ -1629,7 +1631,15 @@ class EDAutopilot:
             # Check if this is a target we cannot dock at
             skip_docking = False
             if not self.jn.ship_state()['SupercruiseDestinationDrop_type'] is None:
-                if self.jn.ship_state()['SupercruiseDestinationDrop_type'].startswith("$USS_Type"):
+                if (self.jn.ship_state()['SupercruiseDestinationDrop_type'].startswith("$USS_Type")
+                        # Bulk Cruisers
+                        or "-class Cropper" in self.jn.ship_state()['SupercruiseDestinationDrop_type']
+                        or "-class Hauler" in self.jn.ship_state()['SupercruiseDestinationDrop_type']
+                        or "-class Reformatory" in self.jn.ship_state()['SupercruiseDestinationDrop_type']
+                        or "-class Researcher" in self.jn.ship_state()['SupercruiseDestinationDrop_type']
+                        or "-class Surveyor" in self.jn.ship_state()['SupercruiseDestinationDrop_type']
+                        or "-class Traveller" in self.jn.ship_state()['SupercruiseDestinationDrop_type']
+                        or "-class Tanker" in self.jn.ship_state()['SupercruiseDestinationDrop_type']):
                     skip_docking = True
 
             if not skip_docking:
@@ -1925,6 +1935,8 @@ class EDAutopilot:
                         self.ap_ckb('log', f"Warning, this {ship} is not fitted with a Fuel Scoop.")
 
                 self.current_ship = ship
+                # Reload templates in case there is a ship specific template
+                self.templ.reload_templates(self.scr.scaleX, self.scr.scaleY, self.current_ship)
 
             self.update_overlay()
             cv2.waitKey(10)

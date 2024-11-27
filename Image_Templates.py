@@ -14,7 +14,7 @@ Author: sumzer0@yahoo.com
 """
 
 class Image_Templates:
-    def __init__(self, scaleX, scaleY):
+    def __init__(self, scaleX, scaleY, ship: str = ''):
    
         self.template = { 'elw'       : {'image': None, 'width': 1, 'height': 1},
                           'elw_sig'   : {'image': None, 'width': 1, 'height': 1}, 
@@ -26,7 +26,7 @@ class Image_Templates:
                         }
  
         # load the templates and scale them.  Default templates assumed 3440x1440 screen resolution
-        self.reload_templates(scaleX, scaleY)
+        self.reload_templates(scaleX, scaleY, ship)
        
     def load_template(self, file_name, scaleX, scaleY):
         """ Load the template image in color. If we need grey scale for matching, we can apply that later as needed.
@@ -40,11 +40,16 @@ class Image_Templates:
     
 
     # Load the full set of image templates
-    def reload_templates(self, scaleX, scaleY):
+    def reload_templates(self, scaleX, scaleY, ship: str):
         self.template['elw']       = self.load_template("templates/elw-template.png", scaleX, scaleY) 
         self.template['elw_sig']   = self.load_template("templates/elw-sig-template.png", scaleX, scaleY) 
         self.template['navpoint']  = self.load_template("templates/navpoint.png", scaleX, scaleY)
-        self.template['compass']   = self.load_template("templates/compass.png", scaleX, scaleY)         
+        if ship == 'mandalay':
+            print('loading mandalay compass template')
+            self.template['compass']   = self.load_template("templates/compass-mandalay.png", scaleX, scaleY)
+        else:
+            print('loading standard compass template')
+            self.template['compass'] = self.load_template("templates/compass.png", scaleX, scaleY)
         self.template['target']    = self.load_template("templates/destination.png", scaleX, scaleY) 
         self.template['target_occluded']    = self.load_template("templates/target_occluded.png", scaleX, scaleY) 
         self.template['disengage'] = self.load_template("templates/sc-disengage.png", scaleX, scaleY) 

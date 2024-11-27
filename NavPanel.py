@@ -10,7 +10,6 @@ from OCR import OCR
 from Screen import Screen
 from StatusParser import StatusParser
 from Test_Routines import reg_scale_for_station, size_scale_for_station
-from strsimpy.jaro_winkler import JaroWinkler
 
 """
 File:navPanel.py    
@@ -469,9 +468,6 @@ class NavPanel:
             logger.debug(f"Unable to scroll to top of list.")
             return False
 
-        # Class for text similarity metrics
-        jarowinkler = JaroWinkler()
-
         y_last = -1
         in_list = False  # Have we seen one item yet? Prevents quiting if we have not selected the first item.
         while 1:
@@ -502,7 +498,7 @@ class NavPanel:
             sim_match = 0.9  # Similarity match 0.0 - 1.0 for 0% - 100%)
             ocr_textlist = self.ocr.image_simple_ocr(img_selected)
             if ocr_textlist is not None:
-                sim = jarowinkler.similarity(f"['{dst_name.upper()}']", str(ocr_textlist))
+                sim = self.ocr.jarowinkler.similarity(f"['{dst_name.upper()}']", str(ocr_textlist))
                 # print(f"Similarity of ['{dst_name.upper()}'] and {str(ocr_textlist)} is {sim}")
                 if sim > sim_match:
                     logger.debug(f"Found '{dst_name}' in list.")
