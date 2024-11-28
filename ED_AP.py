@@ -487,8 +487,8 @@ class EDAutopilot:
             return False
 
         # Interdiction detected.
-        self.vce.say("Danger. Interdiction detected or in danger.")
-        self.ap_ckb('log', 'Interdiction detected or in danger.')
+        self.vce.say("Danger. Interdiction detected.")
+        self.ap_ckb('log', 'Interdiction detected.')
 
         # Keep setting speed to zero to submit while in supercruise or system jump.
         while self.status.get_flag(FlagsSupercruise) or self.status.get_flag2(Flags2FsdHyperdriveCharging):
@@ -677,6 +677,95 @@ class EDAutopilot:
         else:
             return False
 
+    def sc_disengage_active(self, scr_reg) -> bool:
+        image = self.scr.get_screen_region(scr_reg.reg['disengage']['rect'])
+
+        # OCR the selected item
+        sim_match = 0.75  # Similarity match 0.0 - 1.0 for 0% - 100%)
+        ocr_textlist = self.ocr.image_simple_ocr(image)
+        if ocr_textlist is not None:
+            #for s in ocr_textlist:
+            #sim = self.ocr.jarowinkler.similarity(f"'PRESS [] TO DISENGAGE'", s)
+            sim = self.ocr.jarowinkler.similarity(f"'PRESS [] TO DISENGAGE'", str(ocr_textlist))
+            logger.info(f"Disengage similarity with {str(ocr_textlist)} is {sim}")
+            if sim > sim_match:
+                logger.info("'PRESS [] TO DISENGAGE' detected. Disengaging Supercruise")
+                cv2.imwrite(f'test/disengage.png', image)
+                return True
+
+        return False
+
+    def sc_7_second_to_target(self, scr_reg) -> bool:
+        """ Check if we are 0:07 from the target in supercruise.
+        Returns True if time to target is 0:07, otherwise False."""
+        # Try to grab the area around the target
+        dst_image, (minVal, maxVal, minLoc, maxLoc), match = scr_reg.match_template_in_region('target', 'target')
+        targ_left = scr_reg.reg['target']['rect'][0]
+        targ_top = scr_reg.reg['target']['rect'][1]
+
+        width = scr_reg.templates.template['target']['width']
+        height = scr_reg.templates.template['target']['height']
+
+        x_left = targ_left + maxLoc[0]
+        y_top = targ_top + maxLoc[1] - int(0.5 * height)
+        x_right = targ_left + maxLoc[0] + int(3.5 * width)
+        y_bot = targ_top + maxLoc[1] + height
+        image = self.scr.get_screen(x_left, y_top, x_right, y_bot)
+        # cv2.imwrite(f'test/target-test.png', image)
+
+        ocr_textlist = self.ocr.image_simple_ocr(image)
+        if ocr_textlist is not None:
+            print(ocr_textlist)
+            for s in ocr_textlist:
+                if s == '0:07':
+                    return True
+        return False
+
+    def sc_sco_active(self, scr_reg) -> bool:
+        image = self.scr.get_screen_region(scr_reg.reg['disengage']['rect'])
+
+        # OCR the selected item
+        sim_match = 0.8  # Similarity match 0.0 - 1.0 for 0% - 100%)
+        ocr_textlist = self.ocr.image_simple_ocr(image)
+        #print(ocr_textlist)
+        if ocr_textlist is not None:
+            for s in ocr_textlist:
+                sim = self.ocr.jarowinkler.similarity(f"'SUPERCRUISE OVERCHARGE'", s)
+                logger.info(f"SCO similarity with {s} is {sim}")
+                if sim > sim_match:
+                    logger.info("Supercruise Overcharge (SCO) is active")
+                    #cv2.imwrite(f'test/sco.png', image)
+                    return True
+
+        return False
+
+    def sc_sco_check(self, scr_reg) -> bool:
+        if self.sc_sco_active(scr_reg):
+            while self.sc_sco_active(scr_reg):
+                if self.status.get_flag(FlagsOverHeating):
+                    logger.info("SCO Aborting, overheating")
+                    self.ap_ckb('log', "SCO Aborting, overheating")
+                    self.keys.send('UseBoostJuice')
+                    return False
+                elif self.status.get_flag(FlagsLowFuel):
+                    logger.info("SCO Aborting, < 25% fuel")
+                    self.ap_ckb('log', "SCO Aborting, < 25% fuel")
+                    self.keys.send('UseBoostJuice')
+                    return False
+                elif self.jn.ship_state()['fuel_percent'] < self.config['FuelThreasholdAbortAP']:
+                    logger.info("SCO Aborting, < users low fuel threshold")
+                    self.ap_ckb('log', "SCO Aborting, < users low fuel threshold")
+                    self.keys.send('UseBoostJuice')
+                    return False
+
+            image = self.scr.get_screen_region(scr_reg.reg['disengage']['rect'])
+            cv2.imwrite(f'test/sco.png', image)
+            logger.info("SCO aborted")
+            self.keys.send('UseBoostJuice')
+            #return True
+        else:
+            return False
+
     # Performs menu action to undock from Station
     #  
     def undock(self):
@@ -843,6 +932,9 @@ class EDAutopilot:
                 self.pitchDown(90)
             off = self.get_nav_offset(scr_reg)
 
+            # Check if SCO active
+            self.sc_sco_check(scr_reg)
+
         # check if converged, unlikely at this point
         if off['z'] > 0 and abs(off['x']) < close and abs(off['y']) < close:
             return
@@ -851,6 +943,9 @@ class EDAutopilot:
         # the vehicle should be positioned with the sun below us via the sun_avoid() routine after a jump
         for ii in range(self.config['NavAlignTries']):
             off = self.get_nav_offset(scr_reg)
+
+            # Check if SCO active
+            self.sc_sco_check(scr_reg)
 
             if off['z'] > 0 and abs(off['x']) < close and abs(off['y']) < close:
                 break
@@ -861,6 +956,9 @@ class EDAutopilot:
                 if off['y'] < 0:
                     self.pitchDown(45)
                 off = self.get_nav_offset(scr_reg)
+
+                # Check if SCO active
+                self.sc_sco_check(scr_reg)
 
             # determine the angle and the hold time to keep the button pressed to roll that number of degrees
             ang = self.x_angle(off)%90
@@ -894,6 +992,9 @@ class EDAutopilot:
                 if off['y'] < 0:
                     self.pitchDown(45)
                 off = self.get_nav_offset(scr_reg)
+
+                # Check if SCO active
+                self.sc_sco_check(scr_reg)
 
             # calc pitch time based on nav point location
             # this is assuming 40 offset is max displacement on the Y axis.  So get percentage we are offset
@@ -1016,10 +1117,9 @@ class EDAutopilot:
 
             return False
 
-        logger.debug("sc_target_align x: "+str(off['x'])+" y:"+str(off['y']))
+        #logger.debug("sc_target_align x: "+str(off['x'])+" y:"+str(off['y']))
 
-        while (abs(off['x']) > close) or \
-                (abs(off['y']) > close):
+        while (abs(off['x']) > close) or (abs(off['y']) > close):
 
             if (abs(off['x']) > 25):
                 hold_yaw = 0.2
@@ -1031,7 +1131,7 @@ class EDAutopilot:
             else:
                 hold_pitch = 0.075
 
-            logger.debug("  sc_target_align x: "+str(off['x'])+" y:"+str(off['y']))
+            #logger.debug("  sc_target_align x: "+str(off['x'])+" y:"+str(off['y']))
 
             if off['x'] > close:
                 self.keys.send('YawRightButton', hold=hold_yaw)
@@ -1048,12 +1148,15 @@ class EDAutopilot:
             if self.is_destination_occluded(scr_reg) == True:
                 self.reposition(scr_reg)
 
+            # Check if SCO active
+            self.sc_sco_check(scr_reg)
+
             new = self.get_destination_offset(scr_reg)
             if new:
                 off = new
 
             # Check if target is outside the target region (behind us) and break loop
-            if new == None:
+            if new is None:
                 logger.debug("sc_target_align lost target")
                 self.ap_ckb('log', 'Target lost, attempting re-alignment.')
 
@@ -1608,6 +1711,7 @@ class EDAutopilot:
                     self.nav_align(scr_reg) # Align to target
             else:
                 # if we dropped from SC, then we rammed into planet
+                logger.debug("No longer in supercruise")
                 align_failed = True
                 break
 
@@ -1618,11 +1722,17 @@ class EDAutopilot:
                 self.keys.send('SetSpeed50')
                 self.nav_align(scr_reg)  # realign with station
 
+            # Check if SCO active
+            self.sc_sco_check(scr_reg)
+
             # check for SC Disengage
-            if (self.sc_disengage(scr_reg) == True):
-                #sleep(1)  # wait another sec
-                self.keys.send('HyperSuperCombination')#, hold=0.001)
+            #if (self.sc_disengage(scr_reg) == True):
+            if self.sc_disengage_active(scr_reg):
+                self.keys.send('HyperSuperCombination')
                 break
+
+            if self.sc_7_second_to_target(scr_reg):
+                self.keys.send('SetSpeed50')
 
         # if no error, we must have gotten disengage
         if align_failed == False and do_docking == True:
