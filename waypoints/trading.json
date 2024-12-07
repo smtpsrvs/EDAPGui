@@ -1,0 +1,35 @@
+{
+    "LHS 2764A": {
+        "DockWithStation": "low orbital",
+        "StationCoord": [
+            0,
+            0
+        ],
+        "StationBookmark": 0,
+        "SellNumDown": -1,
+        "BuyNumDown": 15,
+        "Completed": false
+    },
+    "LHS 2887": {
+        "DockWithStation": "massimino dock",
+        "StationCoord": [
+            0,
+            0
+        ],
+        "StationBookmark": 0,
+        "SellNumDown": 29,
+        "BuyNumDown": -1,
+        "Completed": false
+    },
+    "REPEAT": {
+        "DockWithStation": null,
+        "StationCoord": [
+            0,
+            0
+        ],
+        "StationBookmark": -1,
+        "SellNumDown": -1,
+        "BuyNumDown": -1,
+        "Completed": false
+    }
+}

@@ -1,7 +1,7 @@
 from pynput.mouse import *
-
 from time import sleep
-
+import win32gui
+import win32con
 
 """
 File:MousePt.py    
@@ -17,9 +17,27 @@ class MousePoint:
         self.x = 0
         self.y = 0
         self.term = False
- 
+        self.ed_window_name = "Elite - Dangerous (CLIENT)"
         self.ls = None # Listener(on_move=self.on_move, on_click=self.on_click, on_scroll=self.on_scroll)
         self.ms = Controller()    
+
+    def focus_elite_window(self) -> bool:
+        """Focus the Elite Dangerous window and return whether successful"""
+        handle = win32gui.FindWindow(0, self.ed_window_name)
+        if handle == 0:
+            return False
+            
+        # Bring window to front and give it focus
+        win32gui.ShowWindow(handle, win32con.SW_RESTORE)
+        win32gui.SetForegroundWindow(handle)
+        
+        # Get window position and size for coordinate translation
+        rect = win32gui.GetWindowRect(handle)
+        self.window_x = rect[0]
+        self.window_y = rect[1]
+        
+        sleep(0.1) # Give time for window to focus
+        return True
 
     def on_move(self, x, y):
         return True
@@ -33,14 +51,13 @@ class MousePoint:
         self.term = True
         return True
         
-        #print('{0} at {1}'.format('Pressed' if pressed else 'Released', (x1, y1)))
-        
-        
     def get_location(self):
+        self.focus_elite_window()  # Ensure ED window is focused
+        
         self.term = False
         self.x = 0
         self.y = 0
-        self.ls  = Listener(on_move=self.on_move, on_click=self.on_click, on_scroll=self.on_scroll)
+        self.ls = Listener(on_move=self.on_move, on_click=self.on_click, on_scroll=self.on_scroll)
         self.ls.start()
         
         try:
@@ -51,29 +68,33 @@ class MousePoint:
         
         self.ls.stop()
 
-        return self.x, self.y
- 
+        # Convert coordinates to be relative to ED window
+        return self.x - self.window_x, self.y - self.window_y
         
     def do_click(self, x, y, delay = 0.1):
-        # position the mouse and do left click, duration in seconds
-        self.ms.position=(x, y)
-        #hself.ms.click(Button.left)
+        # Focus ED window and get its position
+        if not self.focus_elite_window():
+            return
+            
+        # Convert coordinates to absolute screen position
+        screen_x = self.window_x + x
+        screen_y = self.window_y + y
         
+        # Store current mouse position
+        current_x, current_y = self.ms.position
+        
+        # Position the mouse and do left click
+        self.ms.position = (screen_x, screen_y)
         self.ms.press(Button.left)
         sleep(delay)
         self.ms.release(Button.left)
+        
+        # Return mouse to original position
+        self.ms.position = (current_x, current_y)
 
 
 def main():
     m = MousePoint()
-    
-   # x, y = m.get_location()
-    
-    #print(str(x)+' '+str(y))
-    
-   # x, y = m.get_location()
-    
-   # print(str(x)+' '+str(y))
     m.do_click(1977,510)  
     """
     for i in range(2):

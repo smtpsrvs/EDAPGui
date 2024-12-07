@@ -138,13 +138,15 @@ class EDWayPoint:
         sleep(3.5)
         if self.is_odyssey and bookmark != -1:
             ap.keys.send('UI_Left')
-            sleep(1)
+            sleep(1.5)
             ap.keys.send('UI_Select')
-            sleep(.5)
-            ap.keys.send('UI_Down', repeat=2)
-            sleep(.5)
+            sleep(0.7)
             ap.keys.send('UI_Right')
-            sleep(.5)
+            sleep(0.7)
+            ap.keys.send('UI_Down', repeat=2)
+            sleep(0.7)
+            ap.keys.send('UI_Select')
+            sleep(0.7)
             ap.keys.send('UI_Down', repeat=bookmark)
             sleep(.5)
             ap.keys.send('UI_Select', hold=4.0)
@@ -235,17 +237,17 @@ class EDWayPoint:
 
         sleep(1)
         self.mouse.do_click(x, y)
-        sleep(0.1)
+        sleep(0.8)
         ap.keys.send('UI_Right', repeat=4) 
      
-        sleep(0.1)       
+        sleep(0.5)       
 
         # go down 6x's to plot to target
         for i in range(7):    # ED 4.0 update, since have new menu item
             ap.keys.send('UI_Down') 
-            sleep(0.05)
+            sleep(0.15)
   
-        sleep(0.1)
+        sleep(0.6)
                
         # select Plot course       
         ap.keys.send('UI_Select')

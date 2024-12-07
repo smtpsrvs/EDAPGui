@@ -13,8 +13,8 @@
     "HotKey_StartRobigo": "pgup",
     "HotKey_StopAllAssists": "end",
     "Robigo_Single_Loop": false,
-    "EnableRandomness": false,
-    "ActivateEliteEachKey": false,
+    "EnableRandomness": true,
+    "ActivateEliteEachKey": true,
     "OverlayTextEnable": false,
     "OverlayTextYOffset": 400,
     "OverlayTextXOffset": 50,
@@ -30,5 +30,5 @@
     "LogDEBUG": true,
     "LogINFO": false,
     "Enable_CV_View": 0,
-    "ShipConfigFile": null
+    "ShipConfigFile": "ships\\cutter.json"
 }
