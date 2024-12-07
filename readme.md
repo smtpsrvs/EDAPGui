@@ -262,7 +262,9 @@ Hot keys are now configurable in the config-AP.json file, so you can remap them.
 
 ## Setup
 
-_Requires **Python 3** and **git**_
+_Requires **Python 3.11** and **git**_ ad **miniconda**
+
+If you are using miniconda, dont forget to restart your terminal after the installation.
 
 1. Clone this repository
 
@@ -274,15 +276,24 @@ _Requires **Python 3** and **git**_
 
    ```sh
    > cd EDAPGui
-   > pip install -r requirements.txt
+   // For miniconda
+   > conda create --prefix ./conda_env python=3.11
+   > conda activate ./conda_env 
+
+   // Normal pip install
+   > python -m pip install -r requirements.txt
    ```
 
-3. Run script
+3. Run scriptcl
 
    ```sh
    > python EDAPGui.py
    # OR if you have both Python 2 and 3 installed:
    > python3 EDAPGui.py
+
+   # Or if you are running in a miniconda environment and windows:
+   > conda activate edap_env
+   > start_ed_ap.bat
    ```
 
 If you encounter any issues during pip install, try running:

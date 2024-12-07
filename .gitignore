@@ -12,6 +12,6 @@
 /build.bat
 /screen/old-screen_cap.png
 /templates/bck
-/configs/AP.json
 /EDAPGui.exe
+/conda_env
 .idea/

@@ -1803,7 +1803,9 @@ class EDAutopilot:
                 self.update_overlay()
 
             self.update_overlay()
-            cv2.waitKey(10)
+            # Only call waitKey if CV view is enabled
+            if self.cv_view:  # Add this condition
+                cv2.waitKey(10)
             sleep(1)
 
     def ship_tst_pitch(self):
