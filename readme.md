@@ -284,7 +284,18 @@ If you are using miniconda, dont forget to restart your terminal after the insta
    > python -m pip install -r requirements.txt
    ```
 
-3. Run scriptcl
+3. Prepare Client Elite Dangerous
+  
+    Thanks to an awsome Discord user from "ED AP" that shared his bindings that works
+    with this ED AP. To get you started quickly just copy over the custom bindings to your
+    elite dangerus option bindings folder. Please make an backup of your existing
+    bindings before doing so. Windows only. Copy from custom-bindings folder to:
+
+    ```terminal
+    %LOCALAPPDATA%\Frontier Developments\Elite Dangerous\Options\Bindings
+    ```
+
+4. Run scriptcl
 
    ```sh
    > python EDAPGui.py

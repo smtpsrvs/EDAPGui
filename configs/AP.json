@@ -27,8 +27,8 @@
     "VoiceEnable": false,
     "VoiceID": 1,
     "ElwScannerEnable": false,
-    "LogDEBUG": false,
-    "LogINFO": true,
+    "LogDEBUG": true,
+    "LogINFO": false,
     "Enable_CV_View": 0,
     "ShipConfigFile": null
 }

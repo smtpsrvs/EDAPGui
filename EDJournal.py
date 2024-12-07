@@ -228,13 +228,13 @@ class EDJournal:
                 self.ship['cur_station'] = log['StationName']
                 self.ship['cur_station_type'] = log['StationType']
 
-                # parse location
+            # parse location
             elif log_event == 'Location':
                 self.ship['location'] = log['StarSystem']
                 self.ship['cur_star_system'] = log['StarSystem']
-                self.ship['cur_station'] = log['StationName']
-                self.ship['cur_station_type'] = log['StationType']
-                if log['Docked'] == True:
+                if log.get('Docked', False):
+                    self.ship['cur_station'] = log['StationName']
+                    self.ship['cur_station_type'] = log['StationType']
                     self.ship['status'] = 'in_station'
 
             elif log_event == 'Interdicted':
