@@ -7,7 +7,7 @@
         ],
         "StationBookmark": 0,
         "SellNumDown": -1,
-        "BuyNumDown": 15,
+        "BuyNumDown": 14,
         "Completed": false
     },
     "LHS 2887": {
@@ -17,7 +17,7 @@
             0
         ],
         "StationBookmark": 0,
-        "SellNumDown": 29,
+        "SellNumDown": 28,
         "BuyNumDown": -1,
         "Completed": false
     },

@@ -245,7 +245,7 @@ class EDWayPoint:
         # go down 6x's to plot to target
         for i in range(7):    # ED 4.0 update, since have new menu item
             ap.keys.send('UI_Down') 
-            sleep(0.15)
+            sleep(0.04)
   
         sleep(0.6)
                

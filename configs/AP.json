@@ -13,9 +13,9 @@
     "HotKey_StartRobigo": "pgup",
     "HotKey_StopAllAssists": "end",
     "Robigo_Single_Loop": false,
-    "EnableRandomness": true,
-    "ActivateEliteEachKey": true,
-    "OverlayTextEnable": false,
+    "EnableRandomness": false,
+    "ActivateEliteEachKey": false,
+    "OverlayTextEnable": true,
     "OverlayTextYOffset": 400,
     "OverlayTextXOffset": 50,
     "OverlayTextFont": "Eurostyle",
@@ -27,8 +27,8 @@
     "VoiceEnable": false,
     "VoiceID": 1,
     "ElwScannerEnable": false,
-    "LogDEBUG": true,
-    "LogINFO": false,
+    "LogDEBUG": false,
+    "LogINFO": true,
     "Enable_CV_View": 0,
-    "ShipConfigFile": "ships\\cutter.json"
+    "ShipConfigFile": null
 }
