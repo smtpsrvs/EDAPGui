@@ -262,7 +262,10 @@ Hot keys are now configurable in the config-AP.json file, so you can remap them.
 
 ## Setup
 
-_Requires **Python 3.11** and **git**_ ad **miniconda**
+_Requires **Python 3.11**, **git**_ and **miniconda**
+
+For first time setup, strongly recommend copying the custom-bindings folder to your Elite Dangerous Options\Bindings folder.
+to get you started quickly.  Please make an backup of your existing bindings before doing so.  Windows only.
 
 If you are using miniconda, dont forget to restart your terminal after the installation.
 
@@ -286,8 +289,7 @@ If you are using miniconda, dont forget to restart your terminal after the insta
 
 3. Prepare Client Elite Dangerous
   
-    Thanks to an awsome Discord user from "ED AP" that shared his bindings that works
-    with this ED AP. To get you started quickly just copy over the custom bindings to your
+    To get you started quickly just copy over the custom bindings to your
     elite dangerus option bindings folder. Please make an backup of your existing
     bindings before doing so. Windows only. Copy from custom-bindings folder to:
 
@@ -297,24 +299,24 @@ If you are using miniconda, dont forget to restart your terminal after the insta
 
 4. Run scriptcl
 
-   ```sh
-   > python EDAPGui.py
-   # OR if you have both Python 2 and 3 installed:
-   > python3 EDAPGui.py
+    ```sh
+    > python EDAPGui.py
+    # OR if you have both Python 2 and 3 installed:
+    > python3 EDAPGui.py
 
-   # Or if you are running in a miniconda environment and windows:
-   > conda activate edap_env
-   > start_ed_ap.bat
-   ```
+    # Or if you are running in a miniconda environment and windows:
+    > conda activate edap_env
+    > start_ed_ap.bat
+    ```
 
-If you encounter any issues during pip install, try running:
-> python -m pip install -r requirements.txt
-instead of > pip install -r requirements.txt
+    If you encounter any issues during pip install, try running:
+    > python -m pip install -r requirements.txt
+    instead of > pip install -r requirements.txt
 
-The following error may occur:
-> AttributeError: '_thread._local' object has no attribute 'srcdc'
+    The following error may occur:
+    > AttributeError: '_thread._local' object has no attribute 'srcdc'
 
-The error is usually as a result of mss incompatibility. Try pip install mss==8.0.3 or pip install mss==8.0.3.
+    The error is usually as a result of mss incompatibility. Try pip install mss==8.0.3 or pip install mss==8.0.3.
 
 ## Known Limitations
 
