@@ -305,7 +305,7 @@ If you are using miniconda, dont forget to restart your terminal after the insta
     > python3 EDAPGui.py
 
     # Or if you are running in a miniconda environment and windows:
-    > conda activate edap_env
+    > conda activate ./conda_env 
     > start_ed_ap.bat
     ```
 
@@ -318,11 +318,14 @@ If you are using miniconda, dont forget to restart your terminal after the insta
 
     The error is usually as a result of mss incompatibility. Try pip install mss==8.0.3 or pip install mss==8.0.3.
 
-## Known Limitations
+## Known Limitations & Issues
 
 * If you jump into a system with 2 suns next to each other, will likely over heat and drop from Supercruise.
 * Have seen a few cases where after doing refueling, depending on ship acceleration, we don't get away from Sun far enough before engaging FSD
-   and can over heat
+   and can overheat.
+* After a Calibration or Elite Dangerous restart when activating Waypoint Assist, it will type the destination name, but the first time you need to manually click on "Plot Route" to get AP running. This is due to how focus is set when ED AP starts and other applications that may be running.
+* CycleNextPanel "NEXT PANEL TAB GENERAL CONTROLS > INTERFACE MODE": In your bindings, if secondary
+is set to END key, remove it and it will fix the issue with auto-docking.
 
 ## Elite Dangerous, Role Play and Autopilot
 
