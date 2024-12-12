@@ -95,7 +95,7 @@ class EDAutopilot:
 
         # config the voice interface
         self.vce = Voice()
-        self.vce.set_on()
+        self.vce.v_enabled = self.config['VoiceEnable']
         self.vce.set_voice_id(self.config['VoiceID'])
         self.vce.say("Welcome to Autopilot")
 
@@ -1238,7 +1238,7 @@ class EDAutopilot:
             self.keys.send('SetSpeedZero', repeat=3)
             
             self.refuel_cnt += 1
-            
+
             # The log will not reflect a FuelScoop until first 5 tons filled, then every 5 tons until complete
             #if we don't scoop first 5 tons with 40 sec break, since not scooping or not fast enough or not at all, then abort
             startime = time.time()
@@ -1303,6 +1303,10 @@ class EDAutopilot:
 
     def waypoint_undock_seq(self):
         self.update_ap_status("Executing Undocking")
+
+        # Store current location (on planet or in space)
+        on_planet = self.status.get_flag(FlagsHasLatLong)
+
         self.undock()
         # need to wait until undock complete, that is when we are back in_space
         while self.jn.ship_state()['status'] != 'in_space':
@@ -1310,12 +1314,39 @@ class EDAutopilot:
 
         self.update_ap_status("Undock Complete, accelerating")
         # move away from station
-        sleep(1.5)
-        self.keys.send('SetSpeed100')
-        sleep(1)
-        self.keys.send('UseBoostJuice')
-        sleep(13)  # get away from Station
-        self.keys.send('SetSpeed50')
+        if not on_planet:
+            # In space (launch from starport or outpost etc.)
+            sleep(1.5)
+            self.keys.send('SetSpeed100')
+            sleep(1)
+            self.keys.send('UseBoostJuice')
+            sleep(13)  # get away from Station
+            self.keys.send('SetSpeed50')
+        else:
+            # From planetary settlement
+            self.keys.send('SetSpeed50')
+            self.pitchUp(90)  # The pitch rates are defined in SC, not normal flights, so this will be approximate.
+            self.keys.send('SetSpeed100')
+
+            # While Mass Locked, keep boosting.
+            while not self.status.wait_for_flag_off(FlagsFsdMassLocked, timeout=2):
+                self.keys.send('UseBoostJuice')
+
+            # Enter supercruise
+            self.keys.send('Supercruise')
+
+            # Wait for SC
+            res = self.status.wait_for_flag_on(FlagsSupercruise, timeout=30)
+
+            # Enable SCO. If SCO not fitted, this will do nothing.
+            self.keys.send('UseBoostJuice')
+
+            # Wait until out of orbit.
+            res = self.status.wait_for_flag_off(FlagsHasLatLong, timeout=60)
+            # TODO - do we need to check if we never leave orbit?
+
+            # Disable SCO. If SCO not fitted, this will do nothing.
+            self.keys.send('UseBoostJuice')
 
     def sc_engage(self):
         """ Engages supercruise, then returns us to 50% speed """
@@ -1520,10 +1551,18 @@ class EDAutopilot:
         # if no error, we must have gotten disengage
         if align_failed == False and do_docking == True:
             sleep(4)  # wait for the journal to catch up
-            self.update_ap_status("Initiating Docking Procedure")
-            self.dock()  # go into docking sequence
-            self.vce.say("Docking complete, Refueled")
-            self.update_ap_status("Docking Complete")
+
+            # Check if this is a target we cannot dock at
+            skip_docking = False
+            if not self.jn.ship_state()['SupercruiseDestinationDrop_type'] is None:
+                if self.jn.ship_state()['SupercruiseDestinationDrop_type'].startswith("$USS_Type"):
+                    skip_docking = True
+
+            if not skip_docking:
+                self.update_ap_status("Initiating Docking Procedure")
+                self.dock()  # go into docking sequence
+                self.vce.say("Docking complete, Refueled")
+                self.update_ap_status("Docking Complete")
         else:
             self.vce.say("Exiting Supercruise, setting throttle to zero")
             self.keys.send('SetSpeedZero')  # make sure we don't continue to land   
@@ -1773,6 +1812,61 @@ class EDAutopilot:
             self.update_overlay()
             cv2.waitKey(10)
             sleep(1)
+
+    def ship_tst_pitch(self):
+        """ Performs a ship pitch test by pitching 360 degrees.
+        If the ship does not rotate enough, decrease the pitch value.
+        If the ship rotates too much, increase the pitch value.
+        """
+        if not self.status.get_flag(FlagsSupercruise):
+            self.ap_ckb('log', "Enter Supercruise and try again.")
+            return
+
+        if self.jn.ship_state()['target'] is None:
+            self.ap_ckb('log', "Select a target system and try again.")
+            return
+
+        self.set_focus_elite_window()
+        sleep(0.25)
+        self.keys.send('SetSpeed50')
+        self.pitchUp(360)
+
+    def ship_tst_roll(self):
+        """ Performs a ship roll test by pitching 360 degrees.
+        If the ship does not rotate enough, decrease the roll value.
+        If the ship rotates too much, increase the roll value.
+        """
+        if not self.status.get_flag(FlagsSupercruise):
+            self.ap_ckb('log', "Enter Supercruise and try again.")
+            return
+
+        if self.jn.ship_state()['target'] is None:
+            self.ap_ckb('log', "Select a target system and try again.")
+            return
+
+        self.set_focus_elite_window()
+        sleep(0.25)
+        self.keys.send('SetSpeed50')
+        self.rotateLeft(360)
+
+    def ship_tst_yaw(self):
+        """ Performs a ship yaw test by pitching 360 degrees.
+        If the ship does not rotate enough, decrease the yaw value.
+        If the ship rotates too much, increase the yaw value.
+        """
+        if not self.status.get_flag(FlagsSupercruise):
+            self.ap_ckb('log', "Enter Supercruise and try again.")
+            return
+
+        if self.jn.ship_state()['target'] is None:
+            self.ap_ckb('log', "Select a target system and try again.")
+            return
+
+        self.set_focus_elite_window()
+        sleep(0.25)
+        self.keys.send('SetSpeed50')
+        self.yawLeft(360)
+
 
 #
 # This main is for testing purposes.

@@ -41,7 +41,7 @@ class StatusParser:
     #         try:
     #             self._watch_file()
     #         except Exception as e:
-    #             logger.error('An error occurred when reading status file')
+    #             logger.debug('An error occurred when reading status file')
     #             sleep(backoff)
     #             logger.debug('Attempting to restart status file reader after failure')
     #             backoff *= 2
@@ -122,6 +122,18 @@ class StatusParser:
             "Telepresence Multicrew": bool(flags2_value & 131072),
             "Physical Multicrew": bool(flags2_value & 262144),
             "Fsd hyperdrive charging": bool(flags2_value & 524288),
+            "Flags2Future20": bool(flags2_value & 1048576),
+            "Flags2Future21": bool(flags2_value & 2097152),
+            "Flags2Future22": bool(flags2_value & 4194304),
+            "Flags2Future23": bool(flags2_value & 8388608),
+            "Flags2Future24": bool(flags2_value & 16777216),
+            "Flags2Future25": bool(flags2_value & 33554432),
+            "Flags2Future26": bool(flags2_value & 67108864),
+            "Flags2Future27": bool(flags2_value & 134217728),
+            "Flags2Future28": bool(flags2_value & 268435456),
+            "Flags2Future29": bool(flags2_value & 536870912),
+            "Flags2Future30": bool(flags2_value & 1073741824),
+            "Flags2Future31": bool(flags2_value & 2147483648),
         }
 
         # Return only flags that are True
@@ -227,7 +239,7 @@ class StatusParser:
         self.last_data = self.current_data
         self.current_data = cleaned_data
         self.last_mod_time = self.get_file_modified_time()
-        logger.debug(f'Status.json mod timestamp {self.last_mod_time} updated.')
+        #logger.debug(f'Status.json mod timestamp {self.last_mod_time} updated.')
         # print(f'Status.json mod timestamp {self.last_mod_time} updated.')
         # print(json.dumps(data, indent=4))
 
@@ -273,12 +285,12 @@ class StatusParser:
         for item in flag_array2:
             print(f"Status Flags2: '{item}' is OFF")
 
-    # Loads data from the JSON file and returns only GuiFocus field.
     def get_gui_focus(self) -> int:
-        with open(self.file_path, 'r') as file:
-            data = json.load(file)
-
-        return data.get('GuiFocus', 0)
+        """ Gets the value of the GUI Focus flag.
+        The Flag constants are defined in 'EDAP_data.py'.
+        """
+        self.get_cleaned_data()
+        return self.current_data.get('GuiFocus', 0)
 
     def wait_for_flag_on(self, flag: int, timeout: float = 15) -> bool:
         """ Waits for the of the selected flag to turn true.
