@@ -8,8 +8,8 @@ from EDAP_data import GuiFocusNoFocus
 from EDlogger import logger
 from MarketParser import MarketParser
 from OCR import OCR
+from Screen_Regions import reg_scale_for_station, size_scale_for_station
 from StatusParser import StatusParser
-from Test_Routines import reg_scale_for_station, size_scale_for_station
 
 """
 File:StationServicesInShip.py    

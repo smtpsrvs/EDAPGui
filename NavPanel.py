@@ -8,8 +8,8 @@ from EDKeys import EDKeys
 from EDlogger import logger
 from OCR import OCR
 from Screen import Screen
+from Screen_Regions import size_scale_for_station
 from StatusParser import StatusParser
-from Test_Routines import reg_scale_for_station, size_scale_for_station
 
 """
 File:navPanel.py    
@@ -498,7 +498,7 @@ class NavPanel:
             sim_match = 0.9  # Similarity match 0.0 - 1.0 for 0% - 100%)
             ocr_textlist = self.ocr.image_simple_ocr(img_selected)
             if ocr_textlist is not None:
-                sim = self.ocr.jarowinkler.similarity(f"['{dst_name.upper()}']", str(ocr_textlist))
+                sim = self.ocr.string_similarity(f"['{dst_name.upper()}']", str(ocr_textlist))
                 # print(f"Similarity of ['{dst_name.upper()}'] and {str(ocr_textlist)} is {sim}")
                 if sim > sim_match:
                     logger.debug(f"Found '{dst_name}' in list.")

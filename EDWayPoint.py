@@ -13,8 +13,8 @@ from pathlib import Path
 
 from NavRouteParser import NavRouteParser
 from OCR import OCR
+from Screen_Regions import reg_scale_for_station
 from StatusParser import StatusParser
-from Test_Routines import reg_scale_for_station
 
 """
 File: EDWayPoint.py    

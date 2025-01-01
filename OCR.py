@@ -6,7 +6,9 @@ from datetime import datetime
 import cv2
 import numpy as np
 from paddleocr import PaddleOCR
+from strsimpy import SorensenDice
 from strsimpy.jaro_winkler import JaroWinkler
+from strsimpy.weighted_levenshtein import WeightedLevenshtein
 
 from EDlogger import logger
 
@@ -27,6 +29,11 @@ class OCR:
                                    use_space_char=True)
         # Class for text similarity metrics
         self.jarowinkler = JaroWinkler()
+        self.sorensendice = SorensenDice()
+
+    def string_similarity(self, s1, s2):
+        #return self.jarowinkler.similarity(s1, s2)
+        return self.sorensendice.similarity(s1, s2)
 
     def image_ocr(self, image):
         """ Perform OCR with no filtering. Returns the full OCR data and a simplified list of strings.
