@@ -1,14 +1,11 @@
 from __future__ import annotations
 
 import time
-from datetime import datetime
-
 import cv2
 import numpy as np
 from paddleocr import PaddleOCR
 from strsimpy import SorensenDice
 from strsimpy.jaro_winkler import JaroWinkler
-from strsimpy.weighted_levenshtein import WeightedLevenshtein
 
 from EDlogger import logger
 
@@ -112,6 +109,9 @@ class OCR:
         rectangle with dark text, instead of orange/blue text on a dark background.
         The image of the first item matching the criteria and minimum width and height is returned
         with x and y co-ordinates, otherwise None.
+        @param image: The image to check.
+        @param min_h: Minimum height in pixels.
+        @param min_w: Minimum width in pixels.
         """
         # Perform HSV mask
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)

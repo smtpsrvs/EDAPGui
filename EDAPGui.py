@@ -197,13 +197,6 @@ class APGui():
         else:
             self.log_msg("WARNING: Perform Nav Panel Calibration (under File Menu) before continuing.")
 
-        # load default ship config file if specified
-        try:
-            if self.ed_ap.config['ShipConfigFile']:
-                self.open_ship_file(self.ed_ap.config['ShipConfigFile'])
-        except FileNotFoundError:
-            logger.warning(f"Ship Config File {self.ed_ap.config['ShipConfigFile']} not found")
-
         # check for updates
         self.check_updates()
 
@@ -216,6 +209,8 @@ class APGui():
         elif key == 'log+vce':
             self.log_msg(body)
             self.ed_ap.vce.say(body)
+        elif key == 'statusline':
+            self.update_statusline(body)
         elif key == 'fsd_stop':
             logger.debug("Detected 'fsd_stop' key")
             self.checkboxvar['FSD Route Assist'].set(0)
@@ -251,17 +246,26 @@ class APGui():
             self.check_cb('Single Waypoint Assist')
         elif key == 'jumpcount':
             self.update_jumpcount(body)
-        elif key == 'statusline':
-            self.update_statusline(body)
+        elif key == 'update_ship_cfg':
+            self.update_ship_cfg()
+
+    def update_ship_cfg(self):
+        # load up the display with what we read from ED_AP for the current ship
+        self.entries['ship']['PitchRate'].delete(0, END)
+        self.entries['ship']['RollRate'].delete(0, END)
+        self.entries['ship']['YawRate'].delete(0, END)
+        self.entries['ship']['SunPitchUp+Time'].delete(0, END)
+
+        self.entries['ship']['PitchRate'].insert(0, self.ed_ap.pitchrate)
+        self.entries['ship']['RollRate'].insert(0, self.ed_ap.rollrate)
+        self.entries['ship']['YawRate'].insert(0, self.ed_ap.yawrate)
+        self.entries['ship']['SunPitchUp+Time'].insert(0, self.ed_ap.sunpitchuptime)
 
     def calibrate_callback(self):
-        msg = 'Select OK to begin Calibration. You must be in space and have a valid station targeted in center screen.'
-        ans = messagebox.askokcancel('Calibration', msg)
-        if not ans:
-            return
-
-        self.log_msg('Calibration starting')
         self.ed_ap.calibrate()
+
+    def calibrate_compass_callback(self):
+        self.ed_ap.calibrate_compass()
 
     def calibrate_nav_pnl_callback(self):
         self.ed_ap.calibrate_nav_pnl()
@@ -449,39 +453,6 @@ class APGui():
         self.ed_ap.sunpitchuptime = float(f_details['SunPitchUp+Time'])
 
         self.ship_filelabel.set("loaded: " + Path(filename).name)
-        self.ed_ap.config['ShipConfigFile'] = os.path.relpath(filename)  # save ship config file path
-        self.ed_ap.update_config()
-
-    def save_ship_file(self):
-        filetypes = (
-            ('json files', '*.json'),
-            ('All files', '*.*')
-        )
-
-        self.ed_ap.pitchrate = float(self.entries['ship']['PitchRate'].get())
-        self.ed_ap.rollrate = float(self.entries['ship']['RollRate'].get())
-        self.ed_ap.yawrate = float(self.entries['ship']['YawRate'].get())
-        self.ed_ap.sunpitchuptime = float(self.entries['ship']['SunPitchUp+Time'].get())
-
-        f_details = {
-            'rollrate': self.ed_ap.rollrate,
-            'pitchrate': self.ed_ap.pitchrate,
-            'yawrate': self.ed_ap.yawrate,
-            'SunPitchUp+Time': self.ed_ap.sunpitchuptime
-        }
-        filename = fd.asksaveasfilename(
-            title='Save a file',
-            initialdir='.', initialfile="ship-",
-            filetypes=filetypes)
-
-        if not filename:
-            return
-
-        with open(filename, 'w') as json_file:
-            json.dump(f_details, json_file)
-
-        self.ship_filelabel.set("loaded: " + Path(filename).name)
-        self.ed_ap.config['ShipConfigFile'] = os.path.relpath(filename)  # save ship config file path
         self.ed_ap.update_config()
 
     def open_wp_file(self):
@@ -505,7 +476,7 @@ class APGui():
     def save_settings(self):
         self.entry_update()
         self.ed_ap.update_config()
-
+        self.ed_ap.update_ship_configs()
 
 
     # new data was added to a field, re-read them all for simple logic
@@ -711,10 +682,8 @@ class APGui():
         #
         menubar = Menu(win, background='#ff8000', foreground='black', activebackground='white', activeforeground='black')
         file = Menu(menubar, tearoff=0)
-        file.add_command(label="Open", command=self.open_ship_file)
-        file.add_command(label="Save as", command=self.save_ship_file)
-        file.add_separator()
-        file.add_command(label="Calibrate", command=self.calibrate_callback)
+        file.add_command(label="Calibrate Target", command=self.calibrate_callback)
+        file.add_command(label="Calibrate Compass", command=self.calibrate_compass_callback)
         file.add_command(label="Calibrate Navigation Panel", command=self.calibrate_nav_pnl_callback)
         self.checkboxvar['Enable CV View'] = IntVar()
         self.checkboxvar['Enable CV View'].set(int(self.ed_ap.config['Enable_CV_View']))  # set IntVar value to the one from config

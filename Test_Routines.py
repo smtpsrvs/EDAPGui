@@ -1,5 +1,8 @@
 import logging
 import os
+
+from EDKeys import EDKeys
+from ED_AP import EDAutopilot
 from OCR import OCR
 from Screen_Regions import *
 from Overlay import *
@@ -63,8 +66,9 @@ def main():
     # hsv_tester("test/disengage/Screenshot 2024-08-13 21-32-58.png")
     # hsv_tester("test/navpoint/Screenshot 2024-07-04 20-02-01.png")
     # hsv_tester("test/navpoint-behind/Screenshot 2024-07-04 20-01-33.png")
-    # hsv_tester("test/target/Screenshot 2024-07-04 23-22-02.png")
+    hsv_tester("test/target/Screenshot 2024-08-09 22-53-50.png")
     # hsv_tester("test/nav panel location_panel - Copy.png")
+    # hsv_tester("test/disengage/Screenshot 2024-08-13 21-32-58.png")
 
     # Testing of OCR...
     #
@@ -80,10 +84,13 @@ def main():
     # Does NOT require Elite Dangerous to be running.
     # =====================================================================================
     #nav_panel_display_all_text_test('test/nav-panel/')
+    # display_all_text_test('test/disengage/', 'PRESS TO DISENGAGE')
+    # display_all_text_test('test/sco-active/', 'SUPERCRUISE OVERCHARGE ACTIVE')
     #nav_panel_selected_item_text('test/nav-panel/')
     # nav_panel_lock_station("QUAID'S VISION")
     # nav_panel_lock_station("SMITH'S OBLIGATION")
     # nav_panel_request_docking()
+
 
 def draw_match_rect(img, pt1, pt2, color, thick):
     """ Utility function to add a rectangle to an image. """
@@ -132,7 +139,8 @@ def draw_match_rect(img, pt1, pt2, color, thick):
 def compass_test():
     """ Performs a compass test. """
     scr = Screen()
-    templ = Image_Templates(scr.scaleX, scr.scaleY)
+    # TODO - include the per ship scaling for compass
+    templ = Image_Templates(scr.scaleX, scr.scaleY, scr.scaleX)
     scr_reg = Screen_Regions(scr, templ)
 
     while True:
@@ -158,8 +166,12 @@ def template_matching_test(region_name, template):
     """ To test the template matching. Using the provided region and template.
     :param region_name: The name of the region with the required filter to apply to the image.
     :param template: The name of the template to find in each file being tested. """
-    scr = Screen()
-    templ = Image_Templates(scr.scaleX, scr.scaleY)
+    ed_ap = EDAutopilot(cb=None)
+    #scr = Screen()
+    scr = ed_ap.scr
+    # TODO - include the per ship scaling for compass
+    templ = Image_Templates(scr.scaleX, scr.scaleY, ed_ap.compass_scale)
+
     scr_reg = Screen_Regions(scr, templ)
 
     while True:
@@ -210,6 +222,41 @@ def template_matching_test(region_name, template):
 #             draw_bounding_boxes(image, ocr_data, 0.25)
 #             cv2.imwrite(image_out_path, image)
 #
+def display_all_text_test(directory, text):
+    """ OCR all the image files in the given folder.
+        :param directory: The directory to process.
+    """
+    scr = Screen()
+    ocr = OCR(scr)
+    keys = EDKeys()
+    keys.activate_window = True  # Helps with single steps testing
+
+    directory_out = os.path.join(directory, 'out')
+    if not os.path.exists(directory_out):
+        os.makedirs(directory_out)
+
+    for filename in os.listdir(directory_out):
+        os.remove(os.path.join(directory_out, filename))
+
+    for filename in os.listdir(directory):
+        if filename.endswith(".png"):
+            image_path = os.path.join(directory, filename)
+            image_out_path = os.path.join(directory_out, filename)
+            text_out_path = os.path.join(directory_out, filename.replace('png', 'txt'))
+
+            # Load image
+            image = cv2.imread(image_path)
+
+            ocr_data, ocr_textlist = ocr.image_ocr(image)
+            sim = ocr.string_similarity(text, str(ocr_textlist))
+
+            cv2.putText(image, f'Text: {str(ocr_textlist)}', (1, 20), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5, (0, 0, 255), 1, cv2.LINE_AA)
+            cv2.putText(image, f'Sim: {sim}', (1, 40), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5, (0, 0, 255), 1, cv2.LINE_AA)
+            draw_bounding_boxes(image, ocr_data, 0.25)
+            cv2.imwrite(image_out_path, image)
+
 #
 # def nav_panel_selected_item_text(directory):
 #     """ OCR all the image files in the given folder. Images are filtered using the filter defined for the region.
@@ -266,7 +313,8 @@ def show_regions(region_names):
         :param region_names: An array names of the regions to indicate on screen (i.e. ["compass", "target"])."""
     ov = Overlay("", 1)
     scr = Screen()
-    templ = Image_Templates(scr.scaleX, scr.scaleY)
+    # TODO - include the per ship scaling for compass
+    templ = Image_Templates(scr.scaleX, scr.scaleY, scr.scaleX)
     scrReg = Screen_Regions(scr, templ)
 
     overlay_colors = [
@@ -348,6 +396,8 @@ def hsv_tester(image_path):
         Change the default values below where indicated to the values associated with the appropriate
         template in image_template.py.
         :param image_path: The file path of the image to test. """
+    scr = Screen()
+    ocr = OCR(scr)
     cv2.namedWindow("Trackbars", cv2.WINDOW_NORMAL)  # cv2.WINDOW_AUTOSIZE)
 
     cv2.createTrackbar("L - H", "Trackbars", 0, 179, callback)
@@ -360,11 +410,11 @@ def hsv_tester(image_path):
     frame = cv2.imread(image_path)
 
     # Set default values
-    cv2.setTrackbarPos("L - H", "Trackbars", 43)
-    cv2.setTrackbarPos("L - S", "Trackbars", 35)
-    cv2.setTrackbarPos("L - V", "Trackbars", 100)
+    cv2.setTrackbarPos("L - H", "Trackbars", 10)
+    cv2.setTrackbarPos("L - S", "Trackbars", 0)
+    cv2.setTrackbarPos("L - V", "Trackbars", 0)
     cv2.setTrackbarPos("U - H", "Trackbars", 100)
-    cv2.setTrackbarPos("U - S", "Trackbars", 255)
+    cv2.setTrackbarPos("U - S", "Trackbars", 150)
     cv2.setTrackbarPos("U - V", "Trackbars", 255)
 
     while True:
@@ -382,6 +432,14 @@ def hsv_tester(image_path):
         mask = cv2.inRange(hsv, lower_range, upper_range)
 
         result = cv2.bitwise_and(frame, frame, mask=mask)
+
+        ocr_textlist = ocr.image_simple_ocr(result)
+        if ocr_textlist is not None:
+            sim = ocr.string_similarity(f"'PRESS [] TO DISENGAGE'", str(ocr_textlist))
+            cv2.putText(result, f'Text: {str(ocr_textlist)}', (1, 20), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5, (0, 0, 255), 1, cv2.LINE_AA)
+            cv2.putText(result, f'Sim: {sim}', (1, 40), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5, (0, 0, 255), 1, cv2.LINE_AA)
 
         cv2.imshow("original", frame)
         cv2.imshow("mask", mask)
@@ -401,7 +459,8 @@ def ocr_tester(image_path):
         :param image_path: The file path of the image to test.
     """
     scr = Screen()
-    templ = Image_Templates(scr.scaleX, scr.scaleY)
+    # TODO - include the per ship scaling for compass
+    templ = Image_Templates(scr.scaleX, scr.scaleY, scr.scaleX)
     scr_reg = Screen_Regions(scr, templ)
     ocr = OCR(scr)
 

@@ -98,18 +98,21 @@ class Screen_Regions:
         # array is in HSV order which represents color ranges for filtering
         self.orange_color_range   = [array([0, 130, 123]),  array([25, 235, 220])]
         self.orange_2_color_range = [array([16, 165, 220]), array([98, 255, 255])]
+        self.orange_text_color_range = [array([10, 100, 100]), array([82, 255, 255])]
         self.target_occluded_range= [array([16, 31, 85]),   array([26, 160, 212])]
-        self.blue_color_range     = [array([0, 28, 170]),   array([180, 100, 255])]
+        self.blue_color_range     = [array([0, 28, 170]), array([180, 100, 255])]
+        self.blue_sco_color_range = [array([10, 0, 0]), array([100, 150, 255])]
         self.fss_color_range      = [array([95, 210, 70]),  array([105, 255, 120])]
 
         self.reg = {}
         # regions with associated filter and color ranges
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
-        self.reg['compass']   = {'rect': [0.33, 0.65, 0.46, 0.97], 'width': 1, 'height': 1, 'filterCB': self.equalize, 'filter': None}
+        self.reg['compass']   = {'rect': [0.33, 0.65, 0.46, 1.0], 'width': 1, 'height': 1, 'filterCB': self.equalize,                                'filter': None}
         self.reg['target']    = {'rect': [0.33, 0.27, 0.66, 0.70], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.orange_2_color_range}   # also called destination
         self.reg['target_occluded']    = {'rect': [0.33, 0.27, 0.66, 0.70], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.target_occluded_range} 
         self.reg['sun']       = {'rect': [0.30, 0.30, 0.70, 0.68], 'width': 1, 'height': 1, 'filterCB': self.filter_sun, 'filter': None}
         self.reg['disengage'] = {'rect': [0.42, 0.65, 0.60, 0.80], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.blue_color_range}
+        self.reg['sco']       = {'rect': [0.42, 0.65, 0.60, 0.80], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.blue_sco_color_range}
         self.reg['fss']       = {'rect': [0.5045, 0.7545, 0.532, 0.7955], 'width': 1, 'height': 1, 'filterCB': self.equalize, 'filter': None}
 
         # convert rect from percent of screen into pixel location, calc the width/height of the area
@@ -203,4 +206,3 @@ class Screen_Regions:
         result = int((wht / (wht+blk))*100)
 
         return result
-

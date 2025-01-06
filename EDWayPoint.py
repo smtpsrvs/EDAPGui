@@ -34,10 +34,9 @@ Example file:
 Author: sumzer0@yahoo.com
 """
 
-
 class EDWayPoint:
     def __init__(self, is_odyssey=True):
-
+        
         self.is_odyssey = is_odyssey
         self.filename = './waypoints.json'
 
@@ -48,55 +47,57 @@ class EDWayPoint:
         # self.waypoints[target]['Completed'] == True
         # if docked and self.waypoints[target]['Completed'] == False
         #    execute_seq(self.waypoints[target]['TradeSeq'])
-
+ 
         ss = self.read_waypoints()
 
         # if we read it then point to it, otherwise use the default table above
         if ss is not None:
             self.waypoints = ss
-            logger.debug("EDWayPoint: read json:" + str(ss))
-
+            logger.debug("EDWayPoint: read json:"+str(ss))    
+            
         self.num_waypoints = len(self.waypoints)
-
+     
         #print("waypoints: "+str(self.waypoints))
         self.step = 0
-
+        
         self.mouse = MousePoint()
         self.status = StatusParser()
 
     def load_waypoint_file(self, filename=None):
         if filename == None:
             return
-
+        
         ss = self.read_waypoints(filename)
-
+        
         if ss is not None:
             self.waypoints = ss
             self.filename = filename
-            logger.debug("EDWayPoint: read json:" + str(ss))
-
+            logger.debug("EDWayPoint: read json:"+str(ss))            
+        
+         
     def read_waypoints(self, fileName='./waypoints/waypoints.json'):
         s = None
         try:
-            with open(fileName, "r") as fp:
+            with open(fileName,"r") as fp:
                 s = json.load(fp)
         except  Exception as e:
             logger.warning("EDWayPoint.py read_waypoints error :" + str(e))
 
-        return s
+        return s    
+       
 
     def write_waypoints(self, data, fileName='./waypoints/waypoints.json'):
         if data is None:
             data = self.waypoints
         try:
-            with open(fileName, "w") as fp:
-                json.dump(data, fp, indent=4)
+            with open(fileName,"w") as fp:
+                json.dump(data,fp, indent=4)
         except Exception as e:
             logger.warning("EDWayPoint.py write_waypoints error:" + str(e))
 
     def mark_waypoint_complete(self, key):
         self.waypoints[key]['Completed'] = True
-        self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name)
+        self.write_waypoints(data=None, fileName='./waypoints/' + Path(self.filename).name)  
 
     def get_waypoint(self):
         """ Returns the next waypoint list or None if we are at the end of the waypoints.
