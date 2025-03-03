@@ -92,6 +92,24 @@ def check_adv_docking_computer(modules: list[dict[str, any]] | None) -> bool:
     return False
 
 
+def check_sco_fsd(modules: list[dict[str, any]] | None) -> bool:
+    """ Gets whether the ship has an FSD with SCO.
+    """
+    # Default to SCO fitted if modules is None
+    if modules is None:
+        return True
+
+    # Check all modules. Could just check the internals, but this is easier.
+    for module in modules:
+        if module['Slot'] == "FrameShiftDrive":
+            if "overcharge" in module['Item'].lower():
+                #print("FrameShiftDrive has SCO!")
+                return True
+
+    #print("FrameShiftDrive has no SCO")
+    return False
+
+
 class EDJournal:
     def __init__(self):
         self.last_mod_time = None
@@ -129,6 +147,7 @@ class EDJournal:
             'has_fuel_scoop': None,
             'SupercruiseDestinationDrop_type': None,
             'has_adv_dock_comp': None,
+            'has_sco_fsd': None,
         }
         self.ship_state()    # load up from file
         self.reset_items()
@@ -169,32 +188,36 @@ class EDJournal:
             # parse ship status
             log_event = log['event']
 
+            if log_event == 'ApproachSettlement':
+                print(f"ApproachSettlement: {log['Name']}")
+
+            if log_event == 'ApproachBody':
+                print(f"ApproachBody: {log['Body']}")
+
             # If fileheader, pull whether running Odyssey or Horizons
-            if log_event == 'Fileheader':
+            elif log_event == 'Fileheader':
                 #self.ship['odyssey'] = log['Odyssey']
                 self.ship['odyssey'] = True   # hardset to true for ED 4.0 since menus now same for Horizon
-                return   # No need to do further processing on this record, should use elif: all the way down
 
-            if log_event == 'ShieldState':
+            elif log_event == 'ShieldState':
                 if log['ShieldsUp'] == True:
                     self.ship['shieldsup'] = True
                 else:
                     self.ship['shieldsup'] = False
-                return   # No need to do further processing on this record
 
-            if  log_event == 'UnderAttack':
+            elif  log_event == 'UnderAttack':
                 self.ship['under_attack'] = True
 
-            if  log_event == 'FighterDestroyed':
+            elif  log_event == 'FighterDestroyed':
                 self.ship['fighter_destroyed'] = True
-                
-            if  log_event == 'MissionCompleted':
+
+            elif  log_event == 'MissionCompleted':
                 self.ship['mission_completed'] = self.ship['mission_completed'] + 1  
-                
-            if  log_event == 'MissionRedirected':
+
+            elif  log_event == 'MissionRedirected':
                 self.ship['mission_redirected'] = self.ship['mission_redirected'] + 1  
 
-            if log_event == 'StartJump':
+            elif log_event == 'StartJump':
                 self.ship['status'] = str('starting_'+log['JumpType']).lower()
                 self.ship['SupercruiseDestinationDrop_type'] = None
                 if log['JumpType'] == 'Hyperspace':
@@ -275,19 +298,20 @@ class EDJournal:
                 self.ship['interdicted'] = True
 
             # parse ship type
-            if log_event == 'LoadGame':
+            elif log_event == 'LoadGame':
                 self.ship['type'] = log['Ship'].lower()
                 self.ship['ship_size'] = get_ship_size(log['Ship'])
 
             # Parse Loadout
             # When written: at startup, when loading from main menu, or when switching ships,
             # or after changing the ship in Outfitting, or when docking SRV back in mothership
-            if log_event == 'Loadout':
+            elif log_event == 'Loadout':
                 self.ship['type'] = log['Ship'].lower()
                 self.ship['ship_size'] = get_ship_size(log['Ship'])
                 self.ship['cargo_capacity'] = log['CargoCapacity']
                 self.ship['has_fuel_scoop'] = check_fuel_scoop(log['Modules'])
                 self.ship['has_adv_dock_comp'] = check_adv_docking_computer(log['Modules'])
+                self.ship['has_sco_fsd'] = check_sco_fsd(log['Modules'])
 
             # parse fuel
             if 'FuelLevel' in log and self.ship['type'] != 'TestBuggy':
@@ -339,7 +363,7 @@ class EDJournal:
                 self.ship['dist_jumped'] = log["JumpDist"]
 
             # parse nav route clear
-            if log_event == 'NavRouteClear':
+            elif log_event == 'NavRouteClear':
                 self.ship['target'] = None
                 self.ship['jumps_remains'] = 0
 

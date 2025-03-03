@@ -58,6 +58,20 @@ def main():
     wanted_regions = ["compass", "target", "nav_panel", "disengage"]  # The more common regions for navigation
     # show_regions(wanted_regions)
 
+    # Testing of images...
+    # The result of image matching will be placed in the 'out' folder for each image group.
+    #
+    # Does NOT require Elite Dangerous to be running.
+    # =====================================================================================
+    # image_matching_test('test/target/','target', 'target')
+    # image_matching_test('test/compass/','compass', 'compass')
+    # image_matching_test('test/navpoint/','navpoint','navpoint')
+    # image_matching_test('test/navpoint-behind/','navpoint-behind','navpoint-behind')
+    image_matching_test('test/disengage/','disengage', 'disengage')
+    # image_matching_test('test/target-occluded/','target_occluded', 'target_occluded')
+    # image_matching_test('test/dest-sirius-atmos/', 'mission_dest', 'dest_sirius')
+    # image_matching_test('test/robigo-no-completed-missions/', 'missions', 'missions')
+
     # HSV Tester...
     #
     # Does NOT require Elite Dangerous to be running.
@@ -66,7 +80,8 @@ def main():
     # hsv_tester("test/disengage/Screenshot 2024-08-13 21-32-58.png")
     # hsv_tester("test/navpoint/Screenshot 2024-07-04 20-02-01.png")
     # hsv_tester("test/navpoint-behind/Screenshot 2024-07-04 20-01-33.png")
-    hsv_tester("test/target/Screenshot 2024-08-09 22-53-50.png")
+    # hsv_tester("test/target/Screenshot 2024-08-09 22-53-50.png")
+    #ocr_tester("test/target/Screenshot 2024-08-09 22-53-50.png")
     # hsv_tester("test/nav panel location_panel - Copy.png")
     # hsv_tester("test/disengage/Screenshot 2024-08-13 21-32-58.png")
 
@@ -74,9 +89,10 @@ def main():
     #
     # Does NOT require Elite Dangerous to be running.
     # =====================================================================================
-    # image_ocr_test('test/dest-sirius-atmos/','mission_dest_col')
-    # image_ocr_alltext_test('test/dest-sirius-atmos/','mission_dest_col')
+    #image_ocr_test('test/dest-sirius-atmos/','mission_dest_col')
+    #image_ocr_alltext_test('test/dest-sirius-atmos/','mission_dest_col')
     # image_ocr_test('test/dest-sirius-atmos/', 'nav_panel')
+    # display_all_text_test('test/target/','')
     # get_highlighted_item_in_image("test/nav panel location_panel - Copy.png")
 
     # Testing of Nav Panel OCR...
@@ -250,10 +266,9 @@ def display_all_text_test(directory, text):
             ocr_data, ocr_textlist = ocr.image_ocr(image)
             sim = ocr.string_similarity(text, str(ocr_textlist))
 
-            cv2.putText(image, f'Text: {str(ocr_textlist)}', (1, 20), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5, (0, 0, 255), 1, cv2.LINE_AA)
-            cv2.putText(image, f'Sim: {sim}', (1, 40), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5, (0, 0, 255), 1, cv2.LINE_AA)
+            image = cv2.rectangle(image, (0, 0), (1000, 30), (0, 0, 0), -1)
+            cv2.putText(image, f'Text: {str(ocr_textlist)}', (1, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(image, f'Similarity: {sim:5.4f}', (1, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
             draw_bounding_boxes(image, ocr_data, 0.25)
             cv2.imwrite(image_out_path, image)
 
@@ -307,6 +322,57 @@ def display_all_text_test(directory, text):
 #                 # if key == 27:  # ESC
 #                 #     break
 #
+
+
+def image_matching_test(directory, region_name, template):
+    """ Test all the image files in the given folder. Images are filtered using the filter defined for the region.
+        The template is matched within each image and the result saved in the 'out' folder.
+        :param directory: The directory to process.
+        :param region_name: The name of the region with the required filter to apply to the image.
+        :param template: The name of the template to find in each file being tested. """
+    scr = Screen()
+    templ = Image_Templates(scr.scaleX, scr.scaleY, scr.scaleX)
+    scr_reg = Screen_Regions(scr, templ)
+
+    directory_out = os.path.join(directory, 'out')
+    if not os.path.exists(directory_out):
+        os.makedirs(directory_out)
+
+    for filename in os.listdir(directory_out):
+        os.remove(os.path.join(directory_out, filename))
+
+    for filename in os.listdir(directory):
+        if filename.endswith(".png"):
+            image_path = os.path.join(directory, filename)
+            image_out_path = os.path.join(directory_out, filename)
+
+            image = cv2.imread(image_path)
+
+            # Scale image to user scaling
+            image = cv2.resize(image, (0, 0), fx=scr.scaleX, fy=scr.scaleY)
+
+            img_filtered, (minVal, maxVal, minLoc, maxLoc), match = (
+                scr_reg.match_template_in_filtered_image(image, region_name, template))
+
+            pt = maxLoc
+            c_wid = scr_reg.templates.template[template]['width']
+            c_hgt = scr_reg.templates.template[template]['height']
+
+            img_output = img_filtered
+            img_output = image
+            draw_match_rect(img_output, pt, (pt[0] + c_wid, pt[1] + c_hgt), (0, 0, 255), 2)
+            cv2.rectangle(img_output, (0,0), (150,12), color=(0,0,0), thickness= cv2.FILLED)
+            cv2.putText(img_output, f'Match: {maxVal:5.2f}', (1, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35,
+                        (255, 255, 255), 1, cv2.LINE_AA)
+            # cv2.imshow(template, image)
+            # cv2.imshow(template + 'filtered', img_output)
+            # cv2.imshow(template + ' match', match)
+
+            cv2.imwrite(image_out_path, img_output)
+
+            # key = cv2.waitKey(1)
+            # if key == 27: # ESC
+            #    break
 
 def show_regions(region_names):
     """ Draw a rectangle indicating the given region on the Elite Dangerous window.
@@ -436,10 +502,9 @@ def hsv_tester(image_path):
         ocr_textlist = ocr.image_simple_ocr(result)
         if ocr_textlist is not None:
             sim = ocr.string_similarity(f"'PRESS [] TO DISENGAGE'", str(ocr_textlist))
-            cv2.putText(result, f'Text: {str(ocr_textlist)}', (1, 20), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5, (0, 0, 255), 1, cv2.LINE_AA)
-            cv2.putText(result, f'Sim: {sim}', (1, 40), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5, (0, 0, 255), 1, cv2.LINE_AA)
+            result = cv2.rectangle(result, (0, 0), (1000, 30), (0, 0, 0), -1)
+            cv2.putText(result, f'Text: {str(ocr_textlist)}', (1, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(result, f'Similarity: {sim:5.4f}', (1, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
 
         cv2.imshow("original", frame)
         cv2.imshow("mask", mask)
@@ -530,7 +595,8 @@ def ocr_tester(image_path):
 
         ocr_data, ocr_textlist = ocr.image_ocr(adjusted)
 
-        draw_bounding_boxes(result, ocr_data, 0.25)
+        if ocr_data is not None:
+            draw_bounding_boxes(result, ocr_data, 0.25)
 
         cv2.imshow("original", img_warped)
         cv2.imshow("result", result)

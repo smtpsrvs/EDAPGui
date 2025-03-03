@@ -93,12 +93,13 @@ class Screen_Regions:
         self.target_thresh = 0.40
         self.target_occluded_thresh = 0.75
         self.sun_threshold = 125
-        self.disengage_thresh = 0.45
+        self.disengage_thresh = 0.25
 
         # array is in HSV order which represents color ranges for filtering
         self.orange_color_range   = [array([0, 130, 123]),  array([25, 235, 220])]
         self.orange_2_color_range = [array([16, 165, 220]), array([98, 255, 255])]
-        self.orange_text_color_range = [array([10, 100, 100]), array([82, 255, 255])]
+        self.orange_text_color_range = [array([15, 110, 150]), array([50, 255, 255])]
+        self.orange_text_color_range = [array([0, 0, 0]), array([179, 255, 255])]
         self.target_occluded_range= [array([16, 31, 85]),   array([26, 160, 212])]
         self.blue_color_range     = [array([0, 28, 170]), array([180, 100, 255])]
         self.blue_sco_color_range = [array([10, 0, 0]), array([100, 150, 255])]
@@ -111,7 +112,7 @@ class Screen_Regions:
         self.reg['target']    = {'rect': [0.33, 0.27, 0.66, 0.70], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.orange_2_color_range}   # also called destination
         self.reg['target_occluded']    = {'rect': [0.33, 0.27, 0.66, 0.70], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.target_occluded_range} 
         self.reg['sun']       = {'rect': [0.30, 0.30, 0.70, 0.68], 'width': 1, 'height': 1, 'filterCB': self.filter_sun, 'filter': None}
-        self.reg['disengage'] = {'rect': [0.42, 0.65, 0.60, 0.80], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.blue_color_range}
+        self.reg['disengage'] = {'rect': [0.42, 0.65, 0.60, 0.80], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.blue_sco_color_range}
         self.reg['sco']       = {'rect': [0.42, 0.65, 0.60, 0.80], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.blue_sco_color_range}
         self.reg['fss']       = {'rect': [0.5045, 0.7545, 0.532, 0.7955], 'width': 1, 'height': 1, 'filterCB': self.equalize, 'filter': None}
 
@@ -154,6 +155,28 @@ class Screen_Regions:
         (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(match)
         return image, (minVal, maxVal, minLoc, maxLoc), match     
     
+    def image_filtered(self, image, region_name):
+        """ Return an image filtered by the filter associated with the provided region name."""
+        if self.reg[region_name]['filterCB'] is None:
+            # return the screen region untouched in BGRA format.
+            return image
+        else:
+            # return the screen region in the format returned by the filter.
+            return self.reg[region_name]['filterCB'](image, self.reg[region_name]['filter'])
+
+    def match_template_in_filtered_image(self, image, region_name, template):
+        """ Attempt to match the given template in the given image which is filtered using the region filter.
+        Returns the filtered image, detail of match and the match mask. """
+        img_filtered = self.image_filtered(image, region_name)
+        img_filtered = cv2.cvtColor(img_filtered, cv2.COLOR_BGRA2BGR)
+
+        # Perform matching in color. Greyscale should be applied by applying a filter.
+        im = self.templates.template[template]['image']
+        im = cv2.cvtColor(im, cv2.COLOR_BGRA2BGR)
+        match = cv2.matchTemplate(img_filtered, im, cv2.TM_CCOEFF_NORMED)
+
+        (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(match)
+        return img_filtered, (minVal, maxVal, minLoc, maxLoc), match
 
     def equalize(self, image=None, noOp=None):
         # Load the image in greyscale

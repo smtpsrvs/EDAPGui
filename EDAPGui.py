@@ -308,12 +308,14 @@ class APGui():
         self.ed_ap.set_fsd_assist(True)
         self.FSD_A_running = True
         self.log_msg("FSD Route Assist start")
+        self.ed_ap.vce.say("FSD Route Assist On")
 
     def stop_fsd(self):
         logger.debug("Entered: stop_fsd")
         self.ed_ap.set_fsd_assist(False)
         self.FSD_A_running = False
         self.log_msg("FSD Route Assist stop")
+        self.ed_ap.vce.say("FSD Route Assist Off")
         self.update_statusline("Idle")
 
     def start_sc(self):
@@ -321,12 +323,14 @@ class APGui():
         self.ed_ap.set_sc_assist(True)
         self.SC_A_running = True
         self.log_msg("SC Assist start")
+        self.ed_ap.vce.say("Supercruise Assist On")
 
     def stop_sc(self):
         logger.debug("Entered: stop_sc")
         self.ed_ap.set_sc_assist(False)
         self.SC_A_running = False
         self.log_msg("SC Assist stop")
+        self.ed_ap.vce.say("Supercruise Assist Off")
         self.update_statusline("Idle")
 
     def start_waypoint(self):
@@ -334,12 +338,14 @@ class APGui():
         self.ed_ap.set_waypoint_assist(True)
         self.WP_A_running = True
         self.log_msg("Waypoint Assist start")
+        self.ed_ap.vce.say("Waypoint Assist On")
 
     def stop_waypoint(self):
         logger.debug("Entered: stop_waypoint")
         self.ed_ap.set_waypoint_assist(False)
         self.WP_A_running = False
         self.log_msg("Waypoint Assist stop")
+        self.ed_ap.vce.say("Waypoint Assist Off")
         self.update_statusline("Idle")
 
     def start_robigo(self):
@@ -347,12 +353,14 @@ class APGui():
         self.ed_ap.set_robigo_assist(True)
         self.RO_A_running = True
         self.log_msg("Robigo Assist start")
+        self.ed_ap.vce.say("Robigo Assist On")
 
     def stop_robigo(self):
         logger.debug("Entered: stop_robigo")
         self.ed_ap.set_robigo_assist(False)
         self.RO_A_running = False
         self.log_msg("Robigo Assist stop")
+        self.ed_ap.vce.say("Robigo Assist Off")
         self.update_statusline("Idle")
 
     def start_single_waypoint_assist(self):
@@ -478,6 +486,13 @@ class APGui():
         self.ed_ap.update_config()
         self.ed_ap.update_ship_configs()
 
+    def load_tce_dest(self):
+        filename = 'C:/TCE/DUMP/Destination.json'
+        with open(filename, 'r') as json_file:
+            f_details = json.load(json_file)
+
+        self.debug_system.set(f_details['StarSystem'])
+        self.debug_station.set(f_details['Station'])
 
     # new data was added to a field, re-read them all for simple logic
     def entry_update(self, event=''):
@@ -870,6 +885,8 @@ class APGui():
         self.checkboxvar['Single Waypoint Assist'] = BooleanVar()
         cb_single_waypoint = Checkbutton(blk_debug_buttons_settings, text='Single Waypoint Assist', onvalue=1, offvalue=0, anchor='w', pady=3, justify=LEFT, variable=self.checkboxvar['Single Waypoint Assist'], command=(lambda field='Single Waypoint Assist': self.check_cb(field)))
         cb_single_waypoint.grid(row=2, column=0, padx=2, pady=2, columnspan=2, sticky=(N, E, W, S))
+        btn_load_tce = Button(blk_debug_buttons_settings, text='Load TCE Destination', command=self.load_tce_dest)
+        btn_load_tce.grid(row=3, column=0, padx=2, pady=20, columnspan=2, sticky=(N, E, W, S))
 
         btn_save = Button(blk_debug_buttons, text='Save All Settings', command=self.save_settings)
         btn_save.grid(row=3, column=0, padx=2, pady=20, columnspan=2, sticky=(N, E, W, S))

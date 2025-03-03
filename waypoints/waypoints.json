@@ -1,16 +1,16 @@
 {
     "1": {
-        "System": "HR 6836",
-        "DockWithStation": "Popovich Terminal",
-        "BuyItem": "Gold",
-        "SellItem": "Indite",
+        "System": "ICZ LC-V c2-14",
+        "DockWithStation": "System Colonisation Ship",
+        "BuyItem": "",
+        "SellItem": "",
         "Completed": false
     },
     "2": {
-        "System": "Alino",
-        "DockWithStation": "Hadfield Orbital",
-        "SellItem": "Gold",
-        "BuyItem": "Indite",
+        "System": "MINERVA",
+        "DockWithStation": "STARLACE STATION",
+        "SellItem": "Copper",
+        "BuyItem": "",
         "Completed": false
     },
     "3": {
