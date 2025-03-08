@@ -85,7 +85,7 @@ class Screen_Regions:
         # Perform matching in color. Greyscale should be applied by applying a filter.
         im = self.templates.template[templ_name]['image']
         im = cv2.cvtColor(im, cv2.COLOR_BGRA2BGR)
-        match = cv2.matchTemplate(img_region, self.templates.template[templ_name]['image'], cv2.TM_CCOEFF_NORMED)
+        match = cv2.matchTemplate(img_region, im, cv2.TM_CCOEFF_NORMED)
 
         (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(match)
         return img_region, (minVal, maxVal, minLoc, maxLoc), match 
