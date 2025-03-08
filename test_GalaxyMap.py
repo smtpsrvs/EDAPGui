@@ -3,7 +3,7 @@ import unittest
 import cv2
 
 from EDKeys import EDKeys
-from EDWayPoint import EDWayPoint
+from EDWayPointRevised import EDWayPointRevised
 from Screen import Screen
 
 
@@ -13,7 +13,7 @@ def select_system(target_name) -> bool:
     keys = EDKeys()
     keys.activate_window = True  # Helps with single steps testing
 
-    waypoint = EDWayPoint(True)
+    waypoint = EDWayPointRevised(True)
     return waypoint.set_waypoint_target_odyssey(scr, keys, target_name, None)
 
 
@@ -33,7 +33,7 @@ class GalaxyMapTestCase(unittest.TestCase):
         scr = Screen()
         scr.using_screen = False
         scr.set_screen_image(frame)
-        ed_wp = EDWayPoint(True)
+        ed_wp = EDWayPointRevised(True)
 
         system_name = ed_wp.get_system_from_system_info_panel(scr, system)
         if system_name is None:

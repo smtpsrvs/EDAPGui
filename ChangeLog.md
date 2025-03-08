@@ -1,3 +1,37 @@
+# 3/5/2025 Stumpii
+ - Added single waypoint assist feature. A couple of text boxes and checkbox on the debug screen allow you to enter the system name to go to and then check the box to start your travels to that system.
+ - Fix to gal map send key that accepts hex values only, not string.
+ - Tweak to journal to remove all the if checks when only one type of event may occur at a time.
+ - Changed camyaw to cam zoom and added explanation why the shortcut works.
+ - Added alt, lat and longitude to status parser for future angle of approach calc.
+ - Added NavRouteParser for NavRoute.json files.
+ - Added CargoParser for Cargo.json files.
+ - Added MarketParser for Market.json files.
+ - Added voice messages to assist routines.
+
+# 3/4/205 SumZer0
+ - Updated EDKeys.py to add back in the keyboard binding name to the autopilot.log file instead of just the keyboard scancode.  Also handle KeyError exception when dumping bindings to log file
+
+# 3/2/205 Stumpii: Compass update and OCR fix for high CPU
+ - Removed the OCR detection of SCO as it was using high CPU. Now it will only use OCR when the disengage template is detected.
+ - Lowered discharge threshold so that the discharge template will detect both disengage and sco and use OCR to determine which is active.
+ - Added navpoint-behind template and image to detect when nav point is behind us.
+ - Added rotate right and yaw right control as nav logic can use both now.
+ - Added python 3.9 support to EDKeys update.
+ - Added auto activate ED back into EDKeys (was removed in last update).
+ - Added CamZoomIn for Gal Map to remove mouse click in the future.
+ - Added SCO FSD detection to journal.
+ - Added timestamp to status parser.
+ - Added log if jumping and not in analysis mode.
+
+# 2/28/2025 DGotshalk/SumZer0
+ - Update EDKeys.py
+ - Update to EDKeys.py to import the environ module
+
+# 2/1/2025 RatherRude
+ - Support all buttons on all keyboard layouts
+ - Add hold key, add multiple buttons, add Support for all buttons on all keyboard layouts
+
 # 1/6/2025 Stumpii: Undock from planetary surface
  - Added undocking from planetary surface (i.e. takeoff when not at a docking station). Ship will thrust up, toggle landing gear, rotate roughly 90 deg, boost and SCO out of orbit. 
  - Added extra key bindings for undocking.

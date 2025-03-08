@@ -4,6 +4,9 @@ from math import atan, degrees
 import random
 from tkinter import messagebox
 
+import cv2
+from EDAP_data import *
+from EDWayPointRevised import EDWayPointRevised
 from EDlogger import logger, logging
 import Image_Templates
 import Screen
@@ -12,6 +15,7 @@ from EDWayPoint import *
 from EDJournal import *
 from EDKeys import *
 from EDafk_combat import AFK_Combat
+from NavRouteParser import NavRouteParser
 from OCR import OCR
 from NavPanel import NavPanel
 from Overlay import *
@@ -175,6 +179,7 @@ class EDAutopilot:
         self.stn_svcs_in_ship = StationServicesInShip(self.scr, self.keys, self.vce)
         self.afk_combat = AFK_Combat(self.keys, self.jn, self.vce)
         self.waypoint = EDWayPoint(self.jn.ship_state()['odyssey'])
+        self.waypoint_revised = EDWayPointRevised(self.jn.ship_state()['odyssey'])
         self.robigo = Robigo(self)
         self.status = StatusParser()
         self.mouse = MousePoint()
@@ -1445,12 +1450,6 @@ class EDAutopilot:
             if new is None:
                 logger.debug("sc_target_align lost target")
                 self.ap_ckb('log', 'Target lost, attempting re-alignment.')
-
-                # Store image
-                if self.config["LogDEBUG"]:
-                    image = self.scr.get_screen_full()
-                    self.ap_ckb('log', 'Debug image stored: test/sc_target_align lost target.png')
-                    cv2.imwrite(f'test/sc_target_align lost target.png', image)
                 return False
 
         return True
@@ -1955,8 +1954,8 @@ class EDAutopilot:
     # also can then perform trades if specific in the waypoints file
     #
     def waypoint_assist(self, scr_reg):
-        self.waypoint.step = 0  # start at first waypoint
-        self.ap_ckb('log', "Waypoint file: "+str(Path(self.waypoint.filename).name))
+        self.waypoint_revised.step = 0  # start at first waypoint
+        self.ap_ckb('log', "Waypoint file: "+str(Path(self.waypoint_revised.filename).name))
         #self.jn.ship_state()['target'] = None  # clear last target
 
         # Loop until complete, or error
@@ -1971,7 +1970,7 @@ class EDAutopilot:
                 cur_station_type = cur_station_type.upper()
 
             # Get the waypoint details
-            dest_key, next_waypoint = self.waypoint.get_waypoint()
+            dest_key, next_waypoint = self.waypoint_revised.get_waypoint()
             if dest_key is None:
                 self.ap_ckb('log', "Waypoint list complete.")
                 break
@@ -2012,10 +2011,10 @@ class EDAutopilot:
                 # Successful dock, let do trade, if a seq exists
                 if self.jn.ship_state()['status'] == 'in_station':
                     self.ap_ckb('log', f"Execute trade at Station: {next_station}")
-                    self.waypoint.execute_trade(self, dest_key)
+                    self.waypoint_revised.execute_trade(self, dest_key)
 
             # Mark this waypoint as completed
-            self.waypoint.mark_waypoint_complete(dest_key)
+            self.waypoint_revised.mark_waypoint_complete(dest_key)
             self.update_ap_status("Setting route to next waypoint")
             #self.jn.ship_state()['target'] = None  # clear last target
 
@@ -2027,7 +2026,7 @@ class EDAutopilot:
         """ Jumps to the specified system. Returns True if in the system already,
         or we successfully travel there, else False. """
         self.update_ap_status(f"Targeting System: {system_name}")
-        ret = self.waypoint.set_next_system(self, system_name)
+        ret = self.waypoint_revised.set_next_system(self, system_name)
         if not ret:
             return False
 
@@ -2158,13 +2157,6 @@ class EDAutopilot:
         if not self.have_destination(scr_reg):
             self.ap_ckb('log', "Quiting SC Assist - Compass not found. Rotate ship and try again.")
             logger.debug("Quiting sc_assist - compass not found")
-
-            # Store image
-            if self.config["LogDEBUG"]:
-                image = self.scr.get_screen_full()
-                self.ap_ckb('log', 'Debug image stored: test/Quiting SC Assist - Compass not found.png')
-                cv2.imwrite(f'test/Quiting SC Assist - Compass not found.png', image)
-
             return
 
         # if we are starting the waypoint docked at a station or landed, we need to undock/takeoff first

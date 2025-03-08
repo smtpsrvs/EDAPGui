@@ -113,8 +113,8 @@ class APGui():
         self.radiobuttonvar = {}
         self.entries = {}
         self.lab_ck = {}
-        self.debug_system = StringVar()
-        self.debug_station = StringVar()
+        self.single_waypoint_system = StringVar()
+        self.single_waypoint_station = StringVar()
 
         self.FSD_A_running = False
         self.SC_A_running = False
@@ -366,13 +366,14 @@ class APGui():
     def start_single_waypoint_assist(self):
         """ The debug command to go to a system or station or both."""
         logger.debug("Entered: start_single_waypoint_assist")
-        system = self.debug_system.get()
-        station = self.debug_station.get()
+        system = self.single_waypoint_system.get()
+        station = self.single_waypoint_station.get()
 
         if system != "" or station != "":
             self.ed_ap.set_single_waypoint_assist(system, station, True)
             self.SWP_A_running = True
-            self.log_msg("Single Waypoint Assist stop")
+            self.log_msg("Single Waypoint Assist start")
+            self.ed_ap.vce.say("Single Waypoint Assist On")
 
     def stop_single_waypoint_assist(self):
         """ The debug command to go to a system or station or both."""
@@ -380,6 +381,7 @@ class APGui():
         self.ed_ap.set_single_waypoint_assist("", "", False)
         self.SWP_A_running = False
         self.log_msg("Single Waypoint Assist stop")
+        self.ed_ap.vce.say("Single Waypoint Assist Off")
         self.update_statusline("Idle")
 
     def about(self):
@@ -491,8 +493,8 @@ class APGui():
         with open(filename, 'r') as json_file:
             f_details = json.load(json_file)
 
-        self.debug_system.set(f_details['StarSystem'])
-        self.debug_station.set(f_details['Station'])
+        self.single_waypoint_system.set(f_details['StarSystem'])
+        self.single_waypoint_station.set(f_details['Station'])
 
     # new data was added to a field, re-read them all for simple logic
     def entry_update(self, event=''):
@@ -876,11 +878,11 @@ class APGui():
 
         lbl_system = tk.Label(blk_debug_buttons_settings, text='System:')
         lbl_system.grid(row=0, column=0, padx=2, pady=2, columnspan=1, sticky=(N, E, W, S))
-        txt_system = Entry(blk_debug_buttons_settings, textvariable=self.debug_system)
+        txt_system = Entry(blk_debug_buttons_settings, textvariable=self.single_waypoint_system)
         txt_system.grid(row=0, column=1, padx=2, pady=2, columnspan=1, sticky=(N, E, W, S))
         lbl_station = tk.Label(blk_debug_buttons_settings, text='Station:')
         lbl_station.grid(row=1, column=0, padx=2, pady=2, columnspan=1, sticky=(N, E, W, S))
-        txt_station = Entry(blk_debug_buttons_settings, textvariable=self.debug_station)
+        txt_station = Entry(blk_debug_buttons_settings, textvariable=self.single_waypoint_station)
         txt_station.grid(row=1, column=1, padx=2, pady=2, columnspan=1, sticky=(N, E, W, S))
         self.checkboxvar['Single Waypoint Assist'] = BooleanVar()
         cb_single_waypoint = Checkbutton(blk_debug_buttons_settings, text='Single Waypoint Assist', onvalue=1, offvalue=0, anchor='w', pady=3, justify=LEFT, variable=self.checkboxvar['Single Waypoint Assist'], command=(lambda field='Single Waypoint Assist': self.check_cb(field)))

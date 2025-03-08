@@ -195,7 +195,7 @@ class EDJournal:
                 print(f"ApproachBody: {log['Body']}")
 
             # If fileheader, pull whether running Odyssey or Horizons
-            elif log_event == 'Fileheader':
+            if log_event == 'Fileheader':
                 #self.ship['odyssey'] = log['Odyssey']
                 self.ship['odyssey'] = True   # hardset to true for ED 4.0 since menus now same for Horizon
 
