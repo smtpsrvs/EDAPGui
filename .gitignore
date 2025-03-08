@@ -18,3 +18,7 @@
 test/nav-panel/out/
 test/nav-panel/out_selected/
 test/commodities-market/out/
+test/disengage/out/
+test/passenger-lounge/out/
+test/target/out/
+test/target-occluded/out/
