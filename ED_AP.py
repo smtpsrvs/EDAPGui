@@ -85,9 +85,10 @@ class EDAutopilot:
             "ElwScannerEnable": False,
             "LogDEBUG": False,             # enable for debug messages
             "LogINFO": True,
-            "Enable_CV_View": 0,  # Should CV View be enabled by default
-            "ShipConfigFile": None,  # Ship config to load on start - deprecated
-            "TargetScale": 1.0,  # Scaling of the target when a system is selected
+            "Enable_CV_View": 0,           # Should CV View be enabled by default
+            "ShipConfigFile": None,        # Ship config to load on start - deprecated
+            "TargetScale": 1.0,            # Scaling of the target when a system is selected
+            "TCEDestinationFilepath": "C:\\TCE\\DUMP\\Destination.json",  # Destination file for TCE
             "NavPnlCoords": None,  # Coordinates of the Navigation Panel
         }
         self.ship_configs = {
@@ -117,6 +118,8 @@ class EDAutopilot:
                     cnf['SunBrightThreshold'] = 125
                 if 'TargetScale' not in cnf:
                     cnf['TargetScale'] = 1.0
+                if 'TCEDestinationFilepath' not in cnf:
+                    cnf['TCEDestinationFilepath'] = "C:\\TCE\\DUMP\\Destination.json"
                 if 'NavPnlCoords' not in cnf:
                     cnf['NavPnlCoords'] = None
                 self.config = cnf
@@ -1005,10 +1008,7 @@ class EDAutopilot:
         Returns True if time to target is 0:07, otherwise False."""
 
         # Get Target String data
-        ocr_textlist_dist, ocr_textlist_dur = self.get_target_str_info(scr_reg)
 
-        if ocr_textlist_dur is not None:
-            #print(f"sc_7_second_to_target: {ocr_textlist}")
             for s in ocr_textlist_dur:
                 if s == '0:07':
                     return True
@@ -1016,16 +1016,20 @@ class EDAutopilot:
 
     def sc_30_million_meters_to_target(self, scr_reg) -> bool:
         """ Check if we are 0:07 from the target in supercruise.
-        Returns True if time to target is 0:07, otherwise False."""
 
-        # Get Target String data
-        ocr_textlist_dist, ocr_textlist_dur = self.get_target_str_info(scr_reg)
+            cv2.putText(image, f'Text: {str(ocr_textlist)}', (1, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(image, f'Similarity: {sim:5.4f} > {sim_match}', (1, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.imshow('disengage2', image)
+            cv2.moveWindow('disengage2', self.cv_view_x - 460, self.cv_view_y + 650)
+            cv2.waitKey(30)
 
         if ocr_textlist_dist is not None:
             # print(f"sc_7_second_to_target: {ocr_textlist}")
             for s in ocr_textlist_dist:
-                if 'Mm' in s:
+            logger.info("'PRESS [] TO DISENGAGE' detected. Disengaging Supercruise")
+            #cv2.imwrite(f'test/disengage.png', image)
                     return True
+
         return False
 
     def _sc_sco_active_loop(self):
@@ -1071,7 +1075,6 @@ class EDAutopilot:
 
         if ocr_textlist is not None:
             sim = self.ocr.string_similarity(f"SUPERCRUISE OVERCHARGE ACTIVE", str(ocr_textlist))
-            logger.info(f"SCO similarity with {str(ocr_textlist)} is {sim}")
 
         if self.cv_view:
             image = cv2.rectangle(image, (0, 0), (1000, 30), (0, 0, 0), -1)
@@ -1245,11 +1248,11 @@ class EDAutopilot:
         to put the nav point in the middle of the compass, i.e. target right in front of us """
 
         self.set_speed_50()
-        sleep(3)
+        close = 2
 
         close = 10  # in degrees
         if not (self.jn.ship_state()['status'] == 'in_supercruise' or self.jn.ship_state()['status'] == 'in_space'):
-            logger.error('align=err1')
+            logger.error('align=err1, nav_align not in super or space')
             raise Exception('nav_align not in super or space')
 
         self.vce.say("Navigation Align")
@@ -1407,7 +1410,7 @@ class EDAutopilot:
             self.ap_ckb('log', 'Target not found, terminating SC Assist')
             return False
 
-        logger.debug("sc_target_align x: "+str(off['x'])+" y:"+str(off['y']))
+        #logger.debug("sc_target_align x: "+str(off['x'])+" y:"+str(off['y']))
 
         while (abs(off['x']) > close) or \
                 (abs(off['y']) > close):
@@ -1422,7 +1425,7 @@ class EDAutopilot:
             else:
                 hold_pitch = 0.075
 
-            logger.debug("  sc_target_align x: "+str(off['x'])+" y:"+str(off['y']))
+            #logger.debug("  sc_target_align x: "+str(off['x'])+" y:"+str(off['y']))
 
             if off['x'] > close:
                 self.keys.send('YawRightButton', hold=hold_yaw)
@@ -1499,7 +1502,7 @@ class EDAutopilot:
     #   - perform fss (if enabled) 
     def position(self, scr_reg, did_refuel=True):
         logger.debug('position')
-        add_time = 8
+        add_time = 5
 
         self.vce.say("Maneuvering")
 
@@ -1552,7 +1555,7 @@ class EDAutopilot:
 
             res = self.status.wait_for_flag_on(FlagsFsdJump, 30)
             if not res:
-                logger.warning('FSD jump timeout.')
+                logger.warning('FSD failure to start jump timeout.')
                 self.mnvr_to_target(scr_reg)  # attempt realign to target
                 continue
 
@@ -1561,7 +1564,7 @@ class EDAutopilot:
             # Wait for jump to complete. Should never err
             res = self.status.wait_for_flag_off(FlagsFsdJump, 60)
             if not res:
-                logger.error('Failed to finish FSD jump.')
+                logger.error('FSD failure to complete jump timeout.')
                 continue
 
             # check if we are being interdicted
