@@ -15,6 +15,7 @@ from EDWayPoint import *
 from EDJournal import *
 from EDKeys import *
 from EDafk_combat import AFK_Combat
+from MousePt import MousePoint
 from NavRouteParser import NavRouteParser
 from OCR import OCR
 from NavPanel import NavPanel
@@ -23,6 +24,7 @@ from StationServicesInShip import StationServicesInShip
 from StatusParser import StatusParser
 from Voice import *
 from Robigo import *
+from pathlib import Path
 
 """
 File:EDAP.py    EDAutopilot
@@ -89,7 +91,7 @@ class EDAutopilot:
             "ShipConfigFile": None,        # Ship config to load on start - deprecated
             "TargetScale": 1.0,            # Scaling of the target when a system is selected
             "TCEDestinationFilepath": "C:\\TCE\\DUMP\\Destination.json",  # Destination file for TCE
-            "NavPnlCoords": None,  # Coordinates of the Navigation Panel
+            "NavPnlCoords": None,          # Coordinates of the Navigation Panel
         }
         self.ship_configs = {
             "Ship_Configs": {},  # Dictionary of ship types with additional settings
@@ -181,7 +183,7 @@ class EDAutopilot:
         self.nav_panel = NavPanel(self.scr, self.keys, cb)
         self.stn_svcs_in_ship = StationServicesInShip(self.scr, self.keys, self.vce)
         self.afk_combat = AFK_Combat(self.keys, self.jn, self.vce)
-        self.waypoint = EDWayPoint(self.jn.ship_state()['odyssey'])
+        self.waypoint = EDWayPointRevised(self.jn.ship_state()['odyssey'])
         self.waypoint_revised = EDWayPointRevised(self.jn.ship_state()['odyssey'])
         self.robigo = Robigo(self)
         self.status = StatusParser()
@@ -1008,7 +1010,10 @@ class EDAutopilot:
         Returns True if time to target is 0:07, otherwise False."""
 
         # Get Target String data
+        ocr_textlist_dist, ocr_textlist_dur = self.get_target_str_info(scr_reg)
 
+        if ocr_textlist_dur is not None:
+            #print(f"sc_7_second_to_target: {ocr_textlist}")
             for s in ocr_textlist_dur:
                 if s == '0:07':
                     return True
@@ -1016,20 +1021,16 @@ class EDAutopilot:
 
     def sc_30_million_meters_to_target(self, scr_reg) -> bool:
         """ Check if we are 0:07 from the target in supercruise.
+        Returns True if time to target is 0:07, otherwise False."""
 
-            cv2.putText(image, f'Text: {str(ocr_textlist)}', (1, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.putText(image, f'Similarity: {sim:5.4f} > {sim_match}', (1, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.imshow('disengage2', image)
-            cv2.moveWindow('disengage2', self.cv_view_x - 460, self.cv_view_y + 650)
-            cv2.waitKey(30)
+        # Get Target String data
+        ocr_textlist_dist, ocr_textlist_dur = self.get_target_str_info(scr_reg)
 
         if ocr_textlist_dist is not None:
             # print(f"sc_7_second_to_target: {ocr_textlist}")
             for s in ocr_textlist_dist:
-            logger.info("'PRESS [] TO DISENGAGE' detected. Disengaging Supercruise")
-            #cv2.imwrite(f'test/disengage.png', image)
+                if 'Mm' in s:
                     return True
-
         return False
 
     def _sc_sco_active_loop(self):
@@ -1075,6 +1076,7 @@ class EDAutopilot:
 
         if ocr_textlist is not None:
             sim = self.ocr.string_similarity(f"SUPERCRUISE OVERCHARGE ACTIVE", str(ocr_textlist))
+            #logger.info(f"SCO similarity with {str(ocr_textlist)} is {sim}")
 
         if self.cv_view:
             image = cv2.rectangle(image, (0, 0), (1000, 30), (0, 0, 0), -1)
@@ -1248,7 +1250,7 @@ class EDAutopilot:
         to put the nav point in the middle of the compass, i.e. target right in front of us """
 
         self.set_speed_50()
-        close = 2
+        sleep(3)
 
         close = 10  # in degrees
         if not (self.jn.ship_state()['status'] == 'in_supercruise' or self.jn.ship_state()['status'] == 'in_space'):
@@ -1507,8 +1509,6 @@ class EDAutopilot:
         self.vce.say("Maneuvering")
 
         self.set_speed_100()
-
-
 
         # Need time to move past Sun, account for slowed ship if refuled
         pause_time = add_time
@@ -2121,7 +2121,6 @@ class EDAutopilot:
                 # Do the Discovery Scan (Honk)
                 honk_thread = threading.Thread(target=self.honk, daemon=True)
                 honk_thread.start()
-                #self.honk()
 
                 # Refuel
                 refueled = self.refuel(scr_reg)
