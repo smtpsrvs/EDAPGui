@@ -1562,7 +1562,7 @@ class EDAutopilot:
             # TODO change below as there are 2 scenarios: 1) finish jump. 2) Get hyperdicted.
             logger.debug('jump= in jump')
             # Wait for jump to complete. Should never err
-            res = self.status.wait_for_flag_off(FlagsFsdJump, 60)
+            res = self.status.wait_for_flag_off(FlagsFsdJump, 360)
             if not res:
                 logger.error('FSD failure to complete jump timeout.')
                 continue
