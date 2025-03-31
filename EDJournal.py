@@ -7,7 +7,7 @@ from json import loads
 from time import sleep, time
 from datetime import datetime
 
-from EDAP_data import ship_size_map, ship_name_map
+from EDAP_data import ship_size_map, ship_name_map, fuelscoop_rate_map
 from EDlogger import logger
 from WindowsKnownPaths import *
 
@@ -75,6 +75,22 @@ def check_fuel_scoop(modules: list[dict[str, any]] | None) -> bool:
             return True
 
     return False
+
+
+def get_fuel_scoop_rate(modules: list[dict[str, any]] | None) -> float:
+    """ Gets whether the ship has a fuel scoop.
+    """
+    # Default to fuel scoop fitted if modules is None
+    if modules is None:
+        return True
+
+    # Check all modules. Could just check the internals, but this is easier.
+    for module in modules:
+        if "fuelscoop" in module['Item'].lower():
+            rate = fuelscoop_rate_map[module['Item'].lower()]
+
+            return rate
+    return 0.0
 
 
 def check_adv_docking_computer(modules: list[dict[str, any]] | None) -> bool:
@@ -145,6 +161,7 @@ class EDJournal:
             'cargo_capacity': None,
             'ship_size': None,
             'has_fuel_scoop': None,
+            'fuel_scoop_rate': 0.0,  # The maximum scoop rate of the installed fuel scoop.
             'SupercruiseDestinationDrop_type': None,
             'has_adv_dock_comp': None,
             'has_sco_fsd': None,
@@ -304,6 +321,7 @@ class EDJournal:
                 self.ship['ship_size'] = get_ship_size(log['Ship'])
                 self.ship['cargo_capacity'] = log['CargoCapacity']
                 self.ship['has_fuel_scoop'] = check_fuel_scoop(log['Modules'])
+                self.ship['fuel_scoop_rate'] = get_fuel_scoop_rate(log['Modules'])
                 self.ship['has_adv_dock_comp'] = check_adv_docking_computer(log['Modules'])
                 self.ship['has_sco_fsd'] = check_sco_fsd(log['Modules'])
 

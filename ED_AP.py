@@ -1541,80 +1541,118 @@ class EDAutopilot:
         else:
             scr_reg.set_sun_threshold(self.config['SunBrightThreshold'])
                     
-        # Lets avoid the sun, shall we
-        self.vce.say("Avoiding star")
-        self.update_ap_status("Avoiding star")
-        self.ap_ckb('log', 'Avoiding star')
-        self.sun_avoid(scr_reg)
-
-        if self.jn.ship_state()['fuel_percent'] < self.config['RefuelThreshold'] and is_star_scoopable and has_fuel_scoop:
-            logger.debug('refuel= start refuel')
-            self.vce.say("Refueling")
-            self.ap_ckb('log', 'Refueling')
-            self.update_ap_status("Refueling")
-            
-            # mnvr into position
-            self.keys.send('SetSpeed100')
-            sleep(5)
-            self.keys.send('SetSpeed50')
-            sleep(1.7)
-            self.keys.send('SetSpeedZero', repeat=3)
-            
-            self.refuel_cnt += 1
-
-            # The log will not reflect a FuelScoop until first 5 tons filled, then every 5 tons until complete
-            #if we don't scoop first 5 tons with 40 sec break, since not scooping or not fast enough or not at all, then abort
-            startime = time.time()
-            while not self.jn.ship_state()['is_scooping'] and not self.jn.ship_state()['fuel_percent'] == 100:
-                # check if we are being interdicted
-                interdicted = self.interdiction_check()
-                if interdicted:
-                    # Continue journey after interdiction
-                    self.keys.send('SetSpeedZero')
-
-                if ((time.time()-startime) > int(self.config['FuelScoopTimeOut'])):
-                    self.vce.say("Refueling abort, insufficient scooping")
-                    return False
-
-            logger.debug('refuel= wait for refuel')
-            
-            # We started fueling, so lets give it another timeout period to fuel up
-            startime = time.time()
-            while not self.jn.ship_state()['fuel_percent'] == 100:
-                # check if we are being interdicted
-                interdicted = self.interdiction_check()
-                if interdicted:
-                    # Continue journey after interdiction
-                    self.keys.send('SetSpeedZero')
-
-                if ((time.time()-startime) > int(self.config['FuelScoopTimeOut'])):
-                    self.vce.say("Refueling abort, insufficient scooping")
-                    return True
-                sleep(1)              
-                
-            logger.debug('refuel=complete')
-            return True
-
-        elif is_star_scoopable == False:
+        # Conditions to avoid refueling
+        avoid_star = False
+        if not is_star_scoopable:
             self.ap_ckb('log', 'Skip refuel - not a fuel star')
             logger.debug('refuel= needed, unsuitable star')
-            self.pitchUp(20)
-            return False
+            avoid_star = True
 
-        elif self.jn.ship_state()['fuel_percent'] >= self.config['RefuelThreshold']:
+        elif (self.jn.ship_state()['fuel_percent'] == 100 or
+                self.jn.ship_state()['fuel_percent'] >= self.config['RefuelThreshold']):
             self.ap_ckb('log', 'Skip refuel - fuel level okay')
             logger.debug('refuel= not needed')
-            return False
+            avoid_star = True
 
         elif not has_fuel_scoop:
             self.ap_ckb('log', 'Skip refuel - no fuel scoop fitted')
             logger.debug('No fuel scoop fitted.')
+            avoid_star = True
+
+        # Check if we are avoiding this star
+        if avoid_star:
+            # Let's avoid the star, shall we
+            logger.debug('refuel=avoiding star')
+            self.update_ap_status("Avoiding star")
+            self.ap_ckb('log+vce', 'Avoiding star')
+            self.sun_avoid(scr_reg)
+
             self.pitchUp(20)
             return False
 
-        else:
-            self.pitchUp(15)  # if not refueling pitch up somemore so we won't heat up
-            return False
+        # Continue refueling operation
+        logger.debug('refuel=preparing for refuel')
+        self.ap_ckb('log+vce', 'Preparing for refuel')
+        self.update_ap_status("Preparing for refuel")
+
+        # mnvr into position
+        # self.keys.send('SetSpeed100')
+        # sleep(5)
+        # self.keys.send('SetSpeed50')
+        # sleep(1.7)
+        #self.keys.send('SetSpeedZero', repeat=3)
+        self.pitchUp(30)
+        self.keys.send('ForwardKey')  # Increase speed slightly
+
+        self.refuel_cnt += 1
+
+        # The log will not reflect a FuelScoop until first 5 tons filled, then every 5 tons until complete
+        #if we don't scoop first 5 tons with 40 sec break, since not scooping or not fast enough or not at all, then abort
+        startime = time.time()
+        while not self.status.get_flag(FlagsScoopingFuel):
+            # check if we are being interdicted
+            interdicted = self.interdiction_check()
+            if interdicted:
+                # Continue journey after interdiction
+                self.keys.send('SetSpeedZero')
+
+            if (time.time()-startime) > int(self.config['FuelScoopTimeOut']):
+                self.vce.say("Refueling abort, insufficient scooping")
+                return False
+
+        logger.debug('refuel=refueling')
+        self.ap_ckb('log+vce', 'Refueling')
+        self.update_ap_status("Refueling")
+
+        # We started fueling, so lets give it another timeout period to fuel up
+        startime = time.time()
+        while not self.jn.ship_state()['fuel_percent'] == 100:
+            # check if we are being interdicted
+            interdicted = self.interdiction_check()
+            if interdicted:
+                # Continue journey after interdiction
+                self.keys.send('SetSpeedZero')
+
+            if (time.time() - startime) > int(self.config['FuelScoopTimeOut']):
+                self.vce.say("Refueling abort, insufficient scooping")
+                return True
+
+            if not self.status.get_flag(FlagsScoopingFuel):
+                self.ap_ckb('log', 'Fuel scooping Ended')
+                return True
+
+            status = self.status.get_cleaned_data()
+            last_status = self.status.last_data
+            cur_fuel = status['FuelMain']
+            lst_fuel = last_status['FuelMain']
+
+            # Calc fuel
+            fuel_diff = (cur_fuel - lst_fuel) * 1000
+            if status['timestamp_delta'] > 0.0:
+                fuel_diff_rate = fuel_diff / status['timestamp_delta']
+            else:
+                fuel_diff_rate = 0.0
+            timestamp_delta = status['timestamp_delta']
+            print(f'Fuel delta: {fuel_diff_rate} /sec. Time delta: {timestamp_delta}')
+
+            target_rate = self.jn.ship_state()['fuel_scoop_rate'] * 0.25
+            if fuel_diff_rate < target_rate:
+                self.pitchDown(2)
+            else:
+                self.pitchUp(5)
+
+            #sleep(0.5)
+
+        logger.debug('refuel=complete')
+        self.pitchUp(20)
+        return True
+
+
+
+
+
+
+
 
 
     # set focus to the ED window, if ED does not have focus then the key strokes will go to the window

@@ -76,6 +76,8 @@ class EDKeys:
             'Supercruise',
             'UpThrustButton',
             'LandingGearToggle',
+            'ForwardKey',  # Increase forward thrust
+            'BackwardKey',  # Decrease forward thrust
         ]
         self.keys = self.get_bindings()
         self.activate_window = False
