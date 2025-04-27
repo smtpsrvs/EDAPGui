@@ -9,6 +9,7 @@ from EDlogger import logger
 from OCR import OCR
 from Screen import Screen
 from Screen_Regions import size_scale_for_station
+from EDStationServicesInShip import goto_ship_view
 from StatusParser import StatusParser
 
 """
@@ -19,6 +20,39 @@ Description:
 
 Author: Stumpii
 """
+
+
+# def goto_ship_view(keys, status_parser):
+#     # TODO - does this work in all cases?
+#     # TODO - move this to a better place
+#     # TODO - Use GET_GUI_FOCUS instead
+#     status = status_parser.get_cleaned_data()
+#     if status['GuiFocus'] == GuiFocusNoFocus:
+#         return True  # Do nothing
+#     elif status['GuiFocus'] == GuiFocusInternalPanel:
+#         keys.send("UI_Back")
+#     elif status['GuiFocus'] == GuiFocusExternalPanel:
+#         keys.send("UI_Back")
+#     elif status['GuiFocus'] == GuiFocusCommsPanel:
+#         keys.send("UI_Back")
+#     elif status['GuiFocus'] == GuiFocusRolePanel:
+#         keys.send("UI_Back")
+#     elif status['GuiFocus'] == GuiFocusStationServices:
+#         keys.send("UI_Back")
+#     elif status['GuiFocus'] == GuiFocusGalaxyMap:
+#         keys.send("UI_Back")
+#     elif status['GuiFocus'] == GuiFocusSystemMap:
+#         keys.send("UI_Back")
+#         keys.send("UI_Back")  # In case in system map from galaxy map
+#     elif status['GuiFocus'] == GuiFocusOrrery:
+#         keys.send("UI_Back")
+#         keys.send("UI_Back")  # In case in system map from galaxy map
+#     elif status['GuiFocus'] == GuiFocusFSS:
+#         keys.send("UI_Back")
+#     elif status['GuiFocus'] == GuiFocusSAA:
+#         keys.send("UI_Back")
+#     elif status['GuiFocus'] == GuiFocusCodex:
+#         keys.send("UI_Back")
 
 
 class NavPanel:
@@ -227,7 +261,7 @@ class NavPanel:
             return active, active_tab_name
         else:
             print("Open Nav Panel")
-            self.goto_ship_view()
+            goto_ship_view(self.keys, self.status_parser)
             self.keys.send("HeadLookReset")
 
             self.keys.send('UIFocus', state=1)
@@ -244,38 +278,6 @@ class NavPanel:
                 return active, active_tab_name
             else:
                 return False, ""
-
-    def goto_ship_view(self):
-        # TODO - does this work in all cases?
-        # TODO - move this to a better place
-        # TODO - Use GET_GUI_FOCUS instead
-        status = self.status_parser.get_cleaned_data()
-        if status['GuiFocus'] == GuiFocusNoFocus:
-            return True  # Do nothing
-        elif status['GuiFocus'] == GuiFocusInternalPanel:
-            self.keys.send("UI_Back")
-        elif status['GuiFocus'] == GuiFocusExternalPanel:
-            self.keys.send("UI_Back")
-        elif status['GuiFocus'] == GuiFocusCommsPanel:
-            self.keys.send("UI_Back")
-        elif status['GuiFocus'] == GuiFocusRolePanel:
-            self.keys.send("UI_Back")
-        elif status['GuiFocus'] == GuiFocusStationServices:
-            self.keys.send("UI_Back")
-        elif status['GuiFocus'] == GuiFocusGalaxyMap:
-            self.keys.send("UI_Back")
-        elif status['GuiFocus'] == GuiFocusSystemMap:
-            self.keys.send("UI_Back")
-            self.keys.send("UI_Back")  # In case in system map from galaxy map
-        elif status['GuiFocus'] == GuiFocusOrrery:
-            self.keys.send("UI_Back")
-            self.keys.send("UI_Back")  # In case in system map from galaxy map
-        elif status['GuiFocus'] == GuiFocusFSS:
-            self.keys.send("UI_Back")
-        elif status['GuiFocus'] == GuiFocusSAA:
-            self.keys.send("UI_Back")
-        elif status['GuiFocus'] == GuiFocusCodex:
-            self.keys.send("UI_Back")
 
     def show_navigation_tab(self) -> bool | None:
         """ Shows the NAVIGATION tab of the Nav Panel. Opens the Nav Panel if not already open.

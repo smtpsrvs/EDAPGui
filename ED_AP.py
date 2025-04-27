@@ -20,7 +20,7 @@ from NavRouteParser import NavRouteParser
 from OCR import OCR
 from NavPanel import NavPanel
 from Overlay import *
-from StationServicesInShip import StationServicesInShip
+from EDStationServicesInShip import EDStationServicesInShip
 from StatusParser import StatusParser
 from Voice import *
 from Robigo import *
@@ -193,7 +193,7 @@ class EDAutopilot:
         self.keys = EDKeys()
         self.keys.activate_window = self.config['ActivateEliteEachKey']
         self.nav_panel = NavPanel(self.scr, self.keys, cb)
-        self.stn_svcs_in_ship = StationServicesInShip(self.scr, self.keys, self.vce)
+        self.stn_svcs_in_ship = EDStationServicesInShip(self.scr, self.keys, self.vce)
         self.afk_combat = AFK_Combat(self.keys, self.jn, self.vce)
         self.waypoint = EDWayPointRevised(self.jn.ship_state()['odyssey'])
         self.waypoint_revised = EDWayPointRevised(self.jn.ship_state()['odyssey'])

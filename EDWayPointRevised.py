@@ -420,7 +420,7 @@ class EDWayPointRevised:
             ap.stn_svcs_in_ship.commodities_market.buy_commodity(buy_down, 9999)
 
         # Go back to the station services
-        ap.stn_svcs_in_ship.goto_ship_view()
+        ap.stn_svcs_in_ship.goto_ship_view(ap.keys, self.status)
 
 
 # this import the temp class needed for unit testing

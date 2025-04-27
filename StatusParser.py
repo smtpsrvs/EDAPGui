@@ -426,6 +426,7 @@ class StatusParser:
         else:
             return False
 
+
 # Usage Example
 if __name__ == "__main__":
     parser = StatusParser()

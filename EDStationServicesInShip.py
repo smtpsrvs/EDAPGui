@@ -21,7 +21,19 @@ Author: Stumpii
 """
 
 
-class StationServicesInShip:
+def goto_ship_view(keys, status_parser) -> bool:
+    """ Goto ship view. """
+    # Go down to ship view
+    while not status_parser.get_gui_focus() == GuiFocusNoFocus:
+        keys.send("UI_Back")  # make sure back in ship view
+
+    # self.keys.send("UI_Back", repeat=5)  # make sure back in ship view
+    keys.send("UI_Up", repeat=3)  # go to very top (refuel line)
+
+    return True
+
+
+class EDStationServicesInShip:
     def __init__(self, screen, keys, voice):
         self.commodities_at_bottom = False
         self.commodities_in_center = False
@@ -41,7 +53,7 @@ class StationServicesInShip:
     def goto_station_services(self) -> bool:
         """ Goto Station Services. """
         # Go to ship view
-        self.goto_ship_view()
+        goto_ship_view(self.keys, self.status)
         # self.keys.send("UI_Left", hold=1)  # go to very left (refuel line)
 
         self.keys.send("UI_Down")  # station services
@@ -58,17 +70,6 @@ class StationServicesInShip:
         cv2.imwrite(f'test/station-services/station-services.png', image)
 
         return res
-
-    def goto_ship_view(self) -> bool:
-        """ Goto ship view. """
-        # Go down to ship view
-        while not self.status.get_gui_focus() == GuiFocusNoFocus:
-            self.keys.send("UI_Back")  # make sure back in ship view
-
-        # self.keys.send("UI_Back", repeat=5)  # make sure back in ship view
-        self.keys.send("UI_Up", repeat=3)  # go to very top (refuel line)
-
-        return True
 
     def determine_commodities_location(self) -> bool:
         # Get the services layout as the layout may be different per station
@@ -211,7 +212,7 @@ class StationServicesInShip:
 
 
 class PassengerLounge:
-    def __init__(self, station_services_in_ship: StationServicesInShip, ocr, keys, screen):
+    def __init__(self, station_services_in_ship: EDStationServicesInShip, ocr, keys, screen):
         self.parent = station_services_in_ship
         self.ocr = ocr
         self.keys = keys
@@ -294,7 +295,7 @@ class PassengerLounge:
 
 
 class CommoditiesMarket:
-    def __init__(self, station_services_in_ship: StationServicesInShip, ocr, keys, screen):
+    def __init__(self, station_services_in_ship: EDStationServicesInShip, ocr, keys, screen):
         self.parent = station_services_in_ship
         self.ocr = ocr
         self.keys = keys

@@ -5,7 +5,7 @@ from EDAP_data import FlagsDocked
 from EDKeys import EDKeys
 from EDlogger import logger
 from Screen import Screen
-from StationServicesInShip import StationServicesInShip
+from EDStationServicesInShip import EDStationServicesInShip
 from StatusParser import StatusParser
 from Test_Routines import draw_station_regions
 from Voice import Voice
@@ -30,7 +30,7 @@ class CommoditiesMarketTestCase(unittest.TestCase):
         Does NOT require Elite Dangerous to be running.
         ======================================================================
         """
-        stn_svc = StationServicesInShip(None, None, None)
+        stn_svc = EDStationServicesInShip(None, None, None)
         draw_station_regions('test/commodities-market/', stn_svc.commodities_market.reg)
 
         self.assertEqual(True, True)  # add assertion here
@@ -46,7 +46,7 @@ class CommoditiesMarketTestCase(unittest.TestCase):
         vce = Voice()
         vce.v_enabled = True
         keys.activate_window = True  # Helps with single steps testing
-        stn_svc = StationServicesInShip(scr, keys, vce)
+        stn_svc = EDStationServicesInShip(scr, keys, vce)
 
         res = stn_svc.goto_commodities_market()
         self.assertTrue(res, "Could not access commodities market.")  # add assertion here
@@ -73,7 +73,7 @@ class CommoditiesMarketTestCase(unittest.TestCase):
         vce = Voice()
         vce.v_enabled = True
         keys.activate_window = True  # Helps with single steps testing
-        stn_svc = StationServicesInShip(scr, keys, vce)
+        stn_svc = EDStationServicesInShip(scr, keys, vce)
 
         res = stn_svc.goto_commodities_market()
         self.assertTrue(res, "Could not access commodities market.")  # add assertion here
@@ -100,7 +100,7 @@ class CommoditiesMarketTestCase(unittest.TestCase):
         vce = Voice()
         vce.v_enabled = True
         keys.activate_window = True  # Helps with single steps testing
-        stn_svc = StationServicesInShip(scr, keys, vce)
+        stn_svc = EDStationServicesInShip(scr, keys, vce)
 
         stn_svc.goto_commodities_market()
         res = stn_svc.commodities_market.sell_all_commodities()
@@ -117,7 +117,7 @@ class PersonalTransportMissionsTestCase(unittest.TestCase):
         Does NOT require Elite Dangerous to be running.
         ======================================================================
         """
-        stn_svc = StationServicesInShip(None, None, None)
+        stn_svc = EDStationServicesInShip(None, None, None)
         draw_station_regions('test/passenger-lounge/', stn_svc.passenger_lounge.reg)
 
         self.assertEqual(True, True)  # add assertion here
@@ -133,7 +133,7 @@ class PersonalTransportMissionsTestCase(unittest.TestCase):
         vce = Voice()
         vce.v_enabled = True
         keys.activate_window = True  # Helps with single steps testing
-        stn_svc = StationServicesInShip(scr, keys, vce)
+        stn_svc = EDStationServicesInShip(scr, keys, vce)
 
         # stn_svc.goto_passenger_lounge()
         res = stn_svc.passenger_lounge.goto_personal_transport_missions()
