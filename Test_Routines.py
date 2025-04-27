@@ -52,8 +52,7 @@ def main():
     # Shows regions on the Elite window...
     # Requires Elite Dangerous to be running.
     # =======================================
-    wanted_regions = ["compass", "target", "nav_panel", "disengage", "fss", "mission_dest", "missions",
-                      "sun"]
+    wanted_regions = ["compass", "target", "nav_panel", "disengage", "fss", "mission_dest", "missions", "sun"]
     wanted_regions = ["compass", "target", "nav_panel", "disengage"]  # The more common regions for navigation
     # show_regions(wanted_regions)
 
@@ -303,11 +302,11 @@ def image_matching_test(directory, region_name, template):
 def show_regions(region_names):
     """ Draw a rectangle indicating the given region on the Elite Dangerous window.
         :param region_names: An array names of the regions to indicate on screen (i.e. ["compass", "target"])."""
-    ov = Overlay("", 1)
     ed_ap = EDAutopilot(cb=None)
     scr = ed_ap.scr
+    ov = ed_ap.overlay
 
-    templ = Image_Templates(scr.scaleX, scr.scaleY, ed_ap.compass_scale)
+    templ = Image_Templates(scr.scaleX, scr.scaleY, scr.scaleX)
     scrReg = Screen_Regions(scr, templ)
 
     overlay_colors = [
