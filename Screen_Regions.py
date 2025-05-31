@@ -89,13 +89,13 @@ class Screen_Regions:
     def capture_region(self, screen, region_name):
         """ Just grab the screen based on the region name/rect.
         Returns an unfiltered image. """
-        return screen.get_screen_region(self.reg[region_name]['rect'])
+        return screen.get_screen_region(self.reg[region_name]['rect'], rgb=True)
 
-    def capture_region_filtered(self, screen, region_name, inv_col=True):
+    def capture_region_filtered(self, screen, region_name, rgb=True):
         """ Grab screen region and call its filter routine.
         Returns the filtered image. """
-        scr = screen.get_screen_region(self.reg[region_name]['rect'], inv_col)
-        if self.reg[region_name]['filterCB'] == None:
+        scr = screen.get_screen_region(self.reg[region_name]['rect'], rgb)
+        if self.reg[region_name]['filterCB'] is None:
             # return the screen region untouched in BGRA format.
             return scr
         else:

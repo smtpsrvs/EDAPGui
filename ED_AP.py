@@ -964,9 +964,7 @@ class EDAutopilot:
 
     def sc_disengage_active(self, scr_reg) -> bool:
         """ look for the "SUPERCRUISE OVERCHARGE ACTIVE" text using OCR, if in this region then return true. """
-        image = self.scr.get_screen_region(scr_reg.reg['disengage']['rect'])
-        # TODO delete this line when COLOR_RGB2BGR is removed from get_screen()
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = self.scr.get_screen_region(scr_reg.reg['disengage']['rect'], rgb=False)
         mask = scr_reg.capture_region_filtered(self.scr, 'disengage')
         masked_image = cv2.bitwise_and(image, image, mask=mask)
         image = masked_image
