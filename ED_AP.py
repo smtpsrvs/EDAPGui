@@ -994,6 +994,81 @@ class EDAutopilot:
 
         return False
 
+    def get_target_str_info(self, scr_reg):
+        """ Attempts to extract the text from the distance and duration lines
+        of the target. Does not process the data, just returns two lists of strings,
+        one for distance and one for duration. Returns None instead of a list if no
+        data is found."""
+        # Try to grab the area around the target
+        dst_image, (minVal, maxVal, minLoc, maxLoc), match = scr_reg.match_template_in_region('target', 'target')
+
+        targ_left = scr_reg.reg['target']['rect'][0]
+        targ_top = scr_reg.reg['target']['rect'][1]
+
+        width = scr_reg.templates.template['target']['width']
+        height = scr_reg.templates.template['target']['height']
+
+        x_left = targ_left + maxLoc[0]
+        y_top = targ_top + maxLoc[1] - int(0.5 * height)
+        x_right = targ_left + maxLoc[0] + int(3.5 * width)
+        y_bot = targ_top + maxLoc[1] + height
+        ext_width = x_right - x_left
+        ext_height = y_bot - y_top
+
+        image = self.scr.get_screen(x_left, y_top, x_right, y_bot)
+
+        # TODO delete this line when COLOR_RGB2BGR is removed from get_screen()
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        mask = self.scrReg.filter_by_color(image, self.scrReg.orange_text_color_range)
+        image = cv2.bitwise_and(image, image, mask=mask)
+        # cv2.imwrite(f'test/target-test.png', image)
+
+        dist_image = self.scr.crop_image(image, [0, ext_height - int(height * 0.5), ext_width, ext_height - int(height * 0.25)])
+        dur_image = self.scr.crop_image(image, [0, ext_height - int(height * 0.25), ext_width, ext_height])
+
+        ocr_textlist_dist = self.ocr.image_simple_ocr(dist_image)
+        ocr_textlist_dur = self.ocr.image_simple_ocr(dur_image)
+
+        if self.cv_view:
+            image = cv2.rectangle(image, (0, 0), (1000, 25), (0, 0, 0), -1)
+            cv2.putText(image, f'Text: {str(ocr_textlist_dist)}', (1, 10), cv2.FONT_HERSHEY_SIMPLEX,0.4, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(image, f'Text: {str(ocr_textlist_dur)}', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.imshow('sc_7_second_to_target', image)
+            cv2.moveWindow('sc_7_second_to_target', self.cv_view_x + 350, self.cv_view_y + 500)
+            cv2.waitKey(30)
+
+        # Return the data, which can be 2 lists of strings.
+        # Either or both lists may be None if no OCR data is found.
+        return ocr_textlist_dist, ocr_textlist_dur
+
+    def sc_7_second_to_target(self, scr_reg) -> bool:
+        """ Check if we are 0:07 from the target in supercruise.
+        Returns True if time to target is 0:07, otherwise False."""
+
+        # Get Target String data
+        ocr_textlist_dist, ocr_textlist_dur = self.get_target_str_info(scr_reg)
+
+        if ocr_textlist_dur is not None:
+            #print(f"sc_7_second_to_target: {ocr_textlist}")
+            for s in ocr_textlist_dur:
+                if s == '0:07':
+                    return True
+        return False
+
+    def sc_30_million_meters_to_target(self, scr_reg) -> bool:
+        """ Check if we are 0:07 from the target in supercruise.
+        Returns True if time to target is 0:07, otherwise False."""
+
+        # Get Target String data
+        ocr_textlist_dist, ocr_textlist_dur = self.get_target_str_info(scr_reg)
+
+        if ocr_textlist_dist is not None:
+            # print(f"sc_7_second_to_target: {ocr_textlist}")
+            for s in ocr_textlist_dist:
+                if 'Mm' in s:
+                    return True
+        return False
+	
     def start_sco_monitoring(self):
         """ Start Supercruise Overcharge Monitoring. This starts a parallel thread used to detect SCO
         until stop_sco_monitoring if called. """
@@ -2049,6 +2124,17 @@ class EDAutopilot:
                     self.keys.send('HyperSuperCombination')
                     self.stop_sco_monitoring()
                     break
+
+            # CHeck if we are 7 secs to target
+            if self.sc_7_second_to_target(scr_reg):
+                self.set_speed_50()
+
+            # Optional planet check - stop when 30Mm to planet
+            close_to_planet = self.sc_30_million_meters_to_target(scr_reg)
+            if close_to_planet and not close_to_planet_ls:
+                self.set_speed_zero()
+                self.ap_ckb('log+vce', "Within 30 million meters of planet.")
+            close_to_planet_ls = close_to_planet
 
         # if no error, we must have gotten disengage
         if not align_failed and do_docking:

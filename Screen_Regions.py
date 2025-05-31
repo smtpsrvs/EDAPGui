@@ -59,6 +59,8 @@ class Screen_Regions:
         # array is in HSV order which represents color ranges for filtering
         self.orange_color_range   = [array([0, 130, 123]),  array([25, 235, 220])]
         self.orange_2_color_range = [array([16, 165, 220]), array([98, 255, 255])]
+        self.orange_text_color_range = [array([15, 110, 150]), array([50, 255, 255])]
+        self.orange_text_color_range = [array([0, 0, 0]), array([179, 255, 255])]
         self.target_occluded_range= [array([16, 31, 85]),   array([26, 160, 212])]
         self.blue_color_range     = [array([0, 28, 170]), array([180, 100, 255])]
         self.blue_sco_color_range = [array([10, 0, 0]), array([100, 150, 255])]
