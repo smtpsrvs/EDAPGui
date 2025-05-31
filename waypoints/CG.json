@@ -1,0 +1,96 @@
+{
+    "GlobalShoppingList": {
+        "SystemName": "",
+        "StationName": "",
+        "GalaxyBookmarkType": "",
+        "GalaxyBookmarkNumber": 0,
+        "SystemBookmarkType": "",
+        "SystemBookmarkNumber": 0,
+        "SellCommodities": {},
+        "BuyCommodities": {
+            "Semiconductors": 9999
+        },
+        "Comment": null,
+        "UpdateCommodityCount": false,
+        "FleetCarrierTransfer": false,
+        "Skip": true,
+        "Completed": false
+    },
+    "1": {
+        "SystemName": "LP 849-20",
+        "StationName": "Divis Port",
+        "GalaxyBookmarkType": "Favorite",
+        "GalaxyBookmarkNumber": 1,
+        "SystemBookmarkType": "",
+        "SystemBookmarkNumber": 0,
+        "SellCommodities": {},
+        "BuyCommodities": {},
+        "Comment": null,
+        "UpdateCommodityCount": false,
+        "FleetCarrierTransfer": false,
+        "Skip": true,
+        "Completed": false
+    },
+    "2": {
+        "SystemName": "Fetill",
+        "StationName": "Huygens City",
+        "GalaxyBookmarkType": "Favorite",
+        "GalaxyBookmarkNumber": 3,
+        "SystemBookmarkType": "",
+        "SystemBookmarkNumber": 0,
+        "SellCommodities": {},
+        "BuyCommodities": {},
+        "Comment": null,
+        "UpdateCommodityCount": false,
+        "FleetCarrierTransfer": false,
+        "Skip": false,
+        "Completed": true
+    },
+    "3": {
+        "SystemName": "Folna",
+        "StationName": "Patsayev City",
+        "GalaxyBookmarkType": "Favorite",
+        "GalaxyBookmarkNumber": 4,
+        "SystemBookmarkType": "",
+        "SystemBookmarkNumber": 0,
+        "SellCommodities": {},
+        "BuyCommodities": {},
+        "Comment": null,
+        "UpdateCommodityCount": false,
+        "FleetCarrierTransfer": false,
+        "Skip": true,
+        "Completed": false
+    },
+    "4": {
+        "SystemName": "Apura",
+        "StationName": "Fuca Dock",
+        "GalaxyBookmarkType": "Favorite",
+        "GalaxyBookmarkNumber": 2,
+        "SystemBookmarkType": "",
+        "SystemBookmarkNumber": 0,
+        "SellCommodities": {
+            "Semiconductors": 9999
+        },
+        "BuyCommodities": {},
+        "Comment": null,
+        "UpdateCommodityCount": false,
+        "FleetCarrierTransfer": false,
+        "Skip": false,
+        "Completed": false
+    },
+    "5": {
+        "SystemName": "REPEAT",
+        "StationName": "",
+        "GalaxyBookmarkType": "",
+        "GalaxyBookmarkNumber": 0,
+        "SystemBookmarkType": "",
+        "SystemBookmarkNumber": 0,
+        "SellCommodities": {},
+        "BuyCommodities": {},
+        "Comment": null,
+        "UpdateCommodityCount": false,
+        "FleetCarrierTransfer": false,
+        "Skip": false,
+        "Completed": false
+    }
+}

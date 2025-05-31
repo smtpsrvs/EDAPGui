@@ -3,7 +3,6 @@ import traceback
 from math import atan, degrees
 import random
 from tkinter import messagebox
-from warnings import deprecated
 
 import cv2
 from simple_localization import LocalizationManager
@@ -870,19 +869,31 @@ class EDAutopilot:
 
         pt = maxLoc
 
+        destination_left = scr_reg.reg['target']['rect'][0]
+        destination_top = scr_reg.reg['target']['rect'][1]
         destination_width = scr_reg.reg['target']['width']
         destination_height = scr_reg.reg['target']['height']
 
         width = scr_reg.templates.template['target']['width']
         height = scr_reg.templates.template['target']['height']
 
-        # need some fug numbers since our template is not symetric to determine center
-        final_x = ((pt[0]+((1/2)*width))-((1/2)*destination_width))-7
-        final_y = (((1/2)*destination_height)-(pt[1]+((1/2)*height)))+22
+        target_x_max = self.scr.screen_width - width
+        target_y_max = self.scr.screen_height - height
 
-        #  print("get dest, final:" + str(final_x)+ " "+str(final_y))
-        #  print(destination_width, destination_height, width, height)
-        #  print(maxLoc)
+        # X as percent (-1.0 to 1.0, 0.0 in the center)
+        #print(f"pt[0]: {pt[0]}")
+        #print(f"destination_left: {destination_left}")
+        final_x_pct = 2.0*(((pt[0]+destination_left)/(target_x_max))-0.5)
+        final_x_pct = 100 * max(min(final_x_pct, 1.0), -1.0)
+        final_x_pct = final_x_pct * self.scr.screen_width/self.scr.screen_height  # Scale for aspect ratio so the % is the same x and y.
+
+        # Y as percent (-1.0 to 1.0, 0.0 in the center)
+        #print(f"pt[1]: {pt[1]}")
+        #print(f"destination_top: {destination_top}")
+        final_y_pct = -2.0*(((pt[1]+destination_top)/(target_y_max))-0.5)
+        final_y_pct = 100 * max(min(final_y_pct, 1.0), -1.0)
+
+        final_r_pct = math.sqrt((final_x_pct ** 2) + (final_y_pct ** 2))
 
         if self.cv_view:
             dst_image_d = cv2.cvtColor(dst_image, cv2.COLOR_GRAY2RGB)
@@ -892,9 +903,10 @@ class EDAutopilot:
 
                 img = cv2.resize(dst_image_d, dim, interpolation=cv2.INTER_AREA)
                 img = cv2.rectangle(img, (0, 0), (1000, 25), (0, 0, 0), -1)
-                cv2.putText(img, f'{maxVal:5.4f} > {scr_reg.target_thresh:5.2f}', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
+                cv2.putText(img, f'{maxVal:5.4f} > {scr_reg.target_thresh:5.2f}', (1, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
+                cv2.putText(img, f'x: {final_x_pct:5.2f} y: {final_y_pct:5.2f} r: {final_r_pct:5.2f}',
+                            (1, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
                 cv2.imshow('target', img)
-                #cv2.imshow('tt', scr_reg.templates.template['target']['image'])
                 cv2.moveWindow('target', self.cv_view_x, self.cv_view_y+425)
             except Exception as e:
                 print("exception in getdest: "+str(e))
@@ -905,7 +917,7 @@ class EDAutopilot:
         if maxVal < scr_reg.target_thresh:
             result = None
         else:
-            result = {'x': final_x, 'y': final_y}
+            result = {'x': round(final_x_pct, 2), 'y': round(final_y_pct, 2), 'r': round(final_r_pct, 2)}
 
         return result
 
@@ -1229,7 +1241,7 @@ class EDAutopilot:
         """ Use the compass to find the nav point position.  Will then perform rotation and pitching
         to put the nav point in the middle of the compass, i.e. target right in front of us """
 
-        close = 10  # in degrees
+        close = 7.5  # in degrees
         if not (self.jn.ship_state()['status'] == 'in_supercruise' or self.jn.ship_state()['status'] == 'in_space'):
             logger.error('align=err1, nav_align not in super or space')
             raise Exception('nav_align not in super or space')
@@ -1299,7 +1311,7 @@ class EDAutopilot:
 
         logger.debug('align= fine align')
 
-        close = 50
+        close = 20  # (20%)
 
         # TODO: should use Pitch Rates to calculate, but this seems to work fine with all ships
         hold_pitch = 0.150
@@ -1368,43 +1380,44 @@ class EDAutopilot:
         """ Stays tight on the target, monitors for disengage and obscured.
         If target could not be found, return false."""
 
-        close = 6
+        close = 6.0  # 6%. Anything outside of this range will cause alignment.
+        inner_lim = 2.5  # Stop alignment when in this range to avoid endless tweaking.
+        y_off = 1.0  # To keep the target above the center line.
         off = None
 
-        hold_pitch = 0.100
-        hold_yaw = 0.100
         for i in range(5):
             new = self.get_destination_offset(scr_reg)
             if new:
                 off = new
+                logger.debug(f"sc_target_align x: {str(off['x'])} y:{str(off['y'])}")
+                # Apply offset to keep target above center
+                off['y'] = off['y'] - y_off
                 break
+
             if self.is_destination_occluded(scr_reg):
                 self.occluded_reposition(scr_reg)
                 self.ap_ckb('log+vce', 'Target Align')
             sleep(0.1)
 
         # Could not be found, return
-        if off == None:
+        if off is None:
             logger.debug("sc_target_align not finding target")
             self.ap_ckb('log', 'Target not found, terminating SC Assist')
             return False
 
-        #logger.debug("sc_target_align x: "+str(off['x'])+" y:"+str(off['y']))
+        while ((abs(off['x']) > close) or
+               (abs(off['y']) > close) or
+               (abs(off['r']) > close)):
 
-        while (abs(off['x']) > close) or \
-                (abs(off['y']) > close):
+            close = inner_lim  # 2.0% Alignment will continue until within this range.
 
-            if (abs(off['x']) > 25):
-                hold_yaw = 0.2
-            else:
-                hold_yaw = 0.09
+            yaw_factor = 0.5
+            hold_yaw = abs(off['x']) * yaw_factor / self.yawrate
+            #hold_yaw = max(hold_yaw, 0.05)
 
-            if (abs(off['y']) > 25):
-                hold_pitch = 0.15
-            else:
-                hold_pitch = 0.075
-
-            #logger.debug("  sc_target_align x: "+str(off['x'])+" y:"+str(off['y']))
+            pitch_factor = 0.5
+            hold_pitch = abs(off['y']) * pitch_factor / self.pitchrate
+            #hold_pitch = max(hold_pitch, 0.05)
 
             if off['x'] > close:
                 self.keys.send('YawRightButton', hold=hold_yaw)
@@ -1412,7 +1425,7 @@ class EDAutopilot:
                 self.keys.send('YawLeftButton', hold=hold_yaw)
             if off['y'] > close:
                 self.keys.send('PitchUpButton', hold=hold_pitch)
-            if off['y'] < -close:
+            if off['y'] < -close:  # -close:
                 self.keys.send('PitchDownButton', hold=hold_pitch)
 
             sleep(.02)  # time for image to catch up
@@ -1433,6 +1446,10 @@ class EDAutopilot:
             new = self.get_destination_offset(scr_reg)
             if new:
                 off = new
+                logger.debug(f"sc_target_align 2 x: {str(off['x'])} y:{str(off['y'])}")
+
+                # Apply offset to keep target above center
+                off['y'] = off['y'] - y_off
 
             # Check if target is outside the target region (behind us) and break loop
             if new is None:
@@ -1450,16 +1467,16 @@ class EDAutopilot:
         bring the target into view quickly. """
         self.ap_ckb('log+vce', 'Target occluded, repositioning.')
         self.keys.send('SetSpeed50')
-        sleep(5)
-        self.pitchDown(90)
+        sleep(3)
+        self.pitchDown(120)
 
         # Speed away
         self.keys.send('SetSpeed100')
-        sleep(15)
+        sleep(20)
 
         self.keys.send('SetSpeed50')
-        sleep(5)
-        self.pitchUp(90)
+        sleep(3)
+        self.pitchUp(120)
         self.nav_align(scr_reg)
         self.keys.send('SetSpeed50')
 
@@ -1853,12 +1870,17 @@ class EDAutopilot:
         also can then perform trades if specific in the waypoints file."""
         self.waypoint.waypoint_assist(keys, scr_reg)
 
-    def jump_to_system(self, scr_reg, system_name: str) -> bool:
-        """ Jumps to the specified system. Returns True if in the system already,
-        or we successfully travel there, else False. """
-        self.update_ap_status(f"Targeting System: {system_name}")
-        ret = self.galaxy_map.set_next_system(self, system_name)
-        if not ret:
+    def jump_to_system(self, scr_reg) -> bool:
+        """ Jumps to the currently targeted system. Returns True if we successfully travel there, else False. """
+        # Current in game destination
+        status = self.status.get_cleaned_data()
+        destination_body = status['Destination_Body']  # The body number (0 for prim star)
+        destination_name = status['Destination_Name']  # The system/body/station/settlement name
+
+        # Check we have a route and that we have a destination to a star (body 0).
+        # We can have one without the other.
+        if destination_body != 0 or destination_name == "":
+            self.ap_ckb('log', "A valid destination system is not selected.")
             return False
 
         # if we are starting the waypoint docked at a station, we need to undock first
@@ -2128,7 +2150,17 @@ class EDAutopilot:
             return False
 
         if self._single_waypoint_system != "":
-            res = self.jump_to_system(self.scrReg, self._single_waypoint_system)
+            self.ap_ckb('log+vce', f"Targeting system {self._single_waypoint_system}.")
+            # Select destination in galaxy map based on name
+            res = self.galaxy_map.set_gal_map_destination_text(self, self._single_waypoint_system, self.jn.ship_state)
+            if res:
+                self.ap_ckb('log', f"System has been targeted.")
+            else:
+                self.ap_ckb('log+vce', f"Unable to target {self._single_waypoint_system} in Galaxy Map.")
+                return False
+
+            # Jump to destination
+            res = self.jump_to_system(self.scrReg)
             if res is False:
                 return False
 
@@ -2271,6 +2303,12 @@ class EDAutopilot:
     #
     def engine_loop(self):
         while not self.terminate:
+            # Show compass all the time
+            self.get_nav_offset(self.scrReg)
+
+            # Show target all the time
+            self.get_destination_offset(self.scrReg)
+
             self._sc_sco_active_loop_enable = True
 
             if self._sc_sco_active_loop_enable:
