@@ -9,7 +9,7 @@ import numpy as np
 from EDAP_data import FlagsDocked
 from EDKeys import EDKeys
 from EDlogger import logger
-from NavPanel import NavPanel
+from EDNavPanel import NavPanel
 from Screen import Screen
 from StatusParser import StatusParser
 from Test_Routines import draw_station_regions

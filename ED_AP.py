@@ -18,7 +18,7 @@ from EDafk_combat import AFK_Combat
 from MousePt import MousePoint
 from NavRouteParser import NavRouteParser
 from OCR import OCR
-from NavPanel import NavPanel
+from EDNavPanel import NavPanel
 from Overlay import *
 from EDStationServicesInShip import EDStationServicesInShip
 from StatusParser import StatusParser
