@@ -52,6 +52,18 @@ class EDAutopilot:
 
     def __init__(self, cb, doThread=True):
 
+        self.cur_timedate = None
+        self._cur_timedate_ls = None
+        self.PlanetRadius = None
+        self.Altitude = None
+        self.Heading = None
+        self.Longitude = None
+        self.Latitude = None
+        self._Altitude_ls = 0.0
+        self._Heading_ls = 0
+        self._Longitude_ls = 0.0
+        self._Latitude_ls = 0.0
+        self._PlanetRadius_ls = 0.0
         # NOTE!!! When adding a new config value below, add the same after read_config() to set
         # a default value or an error will occur reading the new value!
         self.config = {
@@ -2278,6 +2290,62 @@ class EDAutopilot:
                     self._sc_sco_active_loop_thread = threading.Thread(target=self._sc_sco_active_loop, daemon=True)
                     self._sc_sco_active_loop_thread.start()
 
+            status = self.status.get_cleaned_data()
+            last_status = self.status.last_data
+            self.cur_timedate = status['timestamp']
+            self._cur_timedate_ls = last_status['timestamp']
+
+            timedelta = 0.0
+            if self.cur_timedate is not None and self._cur_timedate_ls is not None:
+                timedelta = (self.cur_timedate - self._cur_timedate_ls).total_seconds()
+                #print(f"Time delta: {timedelta}")
+
+            self.Latitude = status['Latitude']
+            self._Latitude_ls = last_status['Latitude']
+
+            self.Longitude = status['Longitude']
+            self._Longitude_ls = last_status['Longitude']
+
+            self.Altitude = status['Altitude']
+            self._Altitude_ls = last_status['Altitude']
+
+            self.Heading = status['Heading']
+            self._Heading_ls = last_status['Heading']
+
+            self.PlanetRadius = status['PlanetRadius']
+            self._PlanetRadius_ls = last_status['PlanetRadius']
+
+            if (self.Latitude is not None and self._Latitude_ls is not None and
+                    self.Altitude is not None and self._Altitude_ls is not None):
+                lat = math.fabs(self.Latitude - self._Latitude_ls)
+                lng = math.fabs(self.Longitude - self._Longitude_ls)
+
+                # Circumference of planet
+                circum = 2 * math.pi * self.PlanetRadius
+
+                # Circumference of planet at given latitude
+                rad_at_lat = self.PlanetRadius * math.cos(math.radians(self.Latitude))
+                circum_at_lat = 2 * math.pi * rad_at_lat
+
+                # lat and long distance in meters
+                lat_dist = lat * circum / 360
+                lng_dist = lng * circum_at_lat / 360
+
+                ll_dist = math.sqrt(lat_dist ** 2 + lng_dist ** 2)
+
+                alt = math.fabs(self.Altitude - self._Altitude_ls)
+                dist = math.sqrt(ll_dist ** 2 + alt ** 2)
+                #print(f"dist: {dist:5.2f}")
+                #print(f"alt: {alt:5.2f}")
+                if timedelta > 0.0:
+                    spd = dist/timedelta
+                else:
+                    spd = 0.0
+                print(f"spd: {spd:5.2f}")
+                ll_dist = max(ll_dist, 0.01)  # Prevent divide by zero
+                ang = math.degrees(atan(alt/ll_dist))
+                print(f"Angle of flight: {ang:5.2f}")
+		
             if self.fsd_assist_enabled == True:
                 logger.debug("Running fsd_assist")
                 self.set_focus_elite_window()
