@@ -1678,6 +1678,9 @@ class EDAutopilot:
 
         self.refuel_cnt += 1
 
+            if self.status.get_flag(FlagsScoopingFuel):
+                self.ap_ckb('log', 'Flag: FlagsScoopingFuel ON')
+
         # The log will not reflect a FuelScoop until first 5 tons filled, then every 5 tons until complete
         #if we don't scoop first 5 tons with 40 sec break, since not scooping or not fast enough or not at all, then abort
         startime = time.time()
