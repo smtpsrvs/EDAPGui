@@ -3,6 +3,7 @@ import traceback
 from math import atan, degrees
 import random
 from tkinter import messagebox
+from warnings import deprecated
 
 import cv2
 from simple_localization import LocalizationManager
@@ -924,8 +925,8 @@ class EDAutopilot:
             self.draw_match_rect(dis_image, pt, (pt[0] + width, pt[1] + height), (0,255,0), 2)
             dis_image = cv2.rectangle(dis_image, (0, 0), (1000, 25), (0, 0, 0), -1)
             cv2.putText(dis_image, f'{maxVal:5.4f} > {scr_reg.disengage_thresh}', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.imshow('disengage', dis_image)
-            cv2.moveWindow('disengage', self.cv_view_x-460,self.cv_view_y+575)
+            cv2.imshow('sc_disengage_label_up', dis_image)
+            cv2.moveWindow('sc_disengage_label_up', self.cv_view_x-460,self.cv_view_y+575)
             cv2.waitKey(1)
 
         if maxVal > scr_reg.disengage_thresh:
@@ -934,7 +935,9 @@ class EDAutopilot:
             return False
 
     def sc_disengage(self, scr_reg) -> bool:
-        """ look for the "PRESS [J] TO DISENGAGE" image, if in this region then return true """
+        """ DEPRECATED - Replaced with 'sc_disengage_label_up' and 'sc_disengage_active' using OCR.
+        look for the "PRESS [J] TO DISENGAGE" image, if in this region then return true
+        """
         dis_image, (minVal, maxVal, minLoc, maxLoc), match = scr_reg.match_template_in_region('disengage', 'disengage')
 
         pt = maxLoc
@@ -1231,7 +1234,7 @@ class EDAutopilot:
             logger.error('align=err1, nav_align not in super or space')
             raise Exception('nav_align not in super or space')
 
-        self.vce.say("Navigation Align")
+        self.ap_ckb('log+vce', 'Compass Align')
 
         # try multiple times to get aligned.  If the sun is shining on console, this it will be hard to match
         # the vehicle should be positioned with the sun below us via the sun_avoid() routine after a jump
@@ -1241,7 +1244,7 @@ class EDAutopilot:
             if abs(off['yaw']) < close and abs(off['pit']) < close:
                 break
 
-            for i in range(3):
+            for i in range(20):
                 # Calc roll time based on nav point location
                 if abs(off['roll']) > close and (180 - abs(off['roll']) > close):
                     # first roll to get the nav point at the vertical position
@@ -1262,7 +1265,7 @@ class EDAutopilot:
                 else:
                     break
 
-            for i in range(3):
+            for i in range(20):
                 # Calc pitch time based on nav point location
                 if abs(off['pit']) > close:
                     if off['pit'] < 0:
@@ -1274,7 +1277,7 @@ class EDAutopilot:
                 else:
                     break
 
-            for i in range(3):
+            for i in range(20):
                 # Calc yaw time based on nav point location
                 if abs(off['yaw']) > close:
                     if off['yaw'] < 0:
@@ -1377,6 +1380,7 @@ class EDAutopilot:
                 break
             if self.is_destination_occluded(scr_reg):
                 self.occluded_reposition(scr_reg)
+                self.ap_ckb('log+vce', 'Target Align')
             sleep(0.1)
 
         # Could not be found, return
@@ -1416,6 +1420,15 @@ class EDAutopilot:
             # this checks if suddenly the target show up behind the planet
             if self.is_destination_occluded(scr_reg):
                 self.occluded_reposition(scr_reg)
+                self.ap_ckb('log+vce', 'Target Align')
+
+            # check for SC Disengage
+            if self.sc_disengage_label_up(scr_reg):
+                if self.sc_disengage_active(scr_reg):
+                    self.ap_ckb('log+vce', 'Disengage Supercruise')
+                    self.keys.send('HyperSuperCombination')
+                    self.stop_sco_monitoring()
+                    break
 
             new = self.get_destination_offset(scr_reg)
             if new:
@@ -2032,13 +2045,13 @@ class EDAutopilot:
         # Ensure we are 50%, don't want the loop of shame
         # Align Nav to target
         self.keys.send('SetSpeed50')
-        self.nav_align(scr_reg)
+        self.nav_align(scr_reg)  # Compass Align
         self.keys.send('SetSpeed50')
 
         self.jn.ship_state()['interdicted'] = False
 
         # Loop forever keeping tight align to target, until we get SC Disengage popup
-        self.vce.say("Target Align")
+        self.ap_ckb('log+vce', 'Target Align')
         while True:
             sleep(0.05)
             if self.jn.ship_state()['status'] == 'in_supercruise':
@@ -2048,7 +2061,7 @@ class EDAutopilot:
                     # self.keys.send('SetSpeed100')
                     sleep(10)
                     self.keys.send('SetSpeed50')
-                    self.nav_align(scr_reg)  # Align to target
+                    self.nav_align(scr_reg)  # Compass Align
             elif self.status.get_flag2(Flags2GlideMode):
                 # Gliding - wait to complete
                 logger.debug("Gliding")
