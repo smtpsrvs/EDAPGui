@@ -184,24 +184,28 @@ class Screen:
         if rgb:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         return frame
-
-    def get_screen_region_pct(self, region):
+        
+    def get_screen_rect_pct(self, rect):
         """ Grabs a screenshot and returns the selected region as an image in BGR format for CV2.
-        @param region: The region to check in % (0.0 - 1.0).
+        @param rect: A rect array ([L, T, R, B]) in percent (0.0 - 1.0)
+        @return: An image defined by the region.
         """
         if self.using_screen:
-            abs_rect = self.screen_pct_to_abs(region)
+            abs_rect = self.screen_rect_to_abs(rect)
             image = self.get_screen(abs_rect[0], abs_rect[1], abs_rect[2], abs_rect[3], False)
             return image
         else:
             if self._screen_image is None:
                 return None
        
-            image = self.crop_image_by_pct(self._screen_image, region)
+            image = self.crop_image_by_pct(self._screen_image, rect)
             return image
 
-    def screen_pct_to_abs(self, reg):
-        """ Converts and array of real percentage screen values to int absolutes. """
+    def screen_rect_to_abs(self, rect):
+        """ Converts and array of real percentage screen values to int absolutes.
+        @param rect: A rect array ([L, T, R, B]) in percent (0.0 - 1.0)
+        @return: A rect array ([L, T, R, B]) in pixels
+        """
         return [
             int(reg[0] * self.screen_width),
             int(reg[1] * self.screen_height),
