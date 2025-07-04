@@ -227,4 +227,3 @@ class EDGalaxyMap:
             logger.debug("Galaxy Map is already open")
             self.keys.send('UI_Left', repeat=2)
             self.keys.send('UI_Up', hold=2)  # Go up to search bar. Allows 1 left to bookmarks.
-
