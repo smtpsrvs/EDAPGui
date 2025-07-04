@@ -1,3 +1,50 @@
+# 7/3/2025 Stumpii: Small improvements.
+ - Added Russian localisation file.
+ - Added language selection for OCR.
+ - Added localisation to nav panel.
+ - Added TCE Integration class.
+ - Added OCR to station services screen check.
+ - Added fix for Robigo issue not selecting system in gal map.
+ - Improved debug for gal map.
+ - Separated Station Services and Construction Services because OCR only works for Station Services (Construction Services are not as slow to open).
+ - Moved docking cleanup to Nav Panel class.
+ - Added OCR test class.
+ - Test code for gal map.
+ - Prevent gal map being opened twice for no reason.
+ - Added region scaling for stations.
+ - Added EDNavigationPanel.py for navigation panel code.
+ - Disabled build-executable.yml as it always fails.
+
+# 6/1/2025 Stumpii: Bug fix.
+ - Removed 'deprecated' warning that does not work in old python versions.
+
+# 5/30/2025 Stumpii: Various minor updates. 
+ - Added check for disengage while in target align.
+ - Log new file on each startup of EDAP. Store previous runs.
+ - Increase scroll up time for buy/sell to make sure at top of list.
+ - Attempt to improve status.json file reading that sometimes results in a file error.
+
+# 5/28/2025 Stumpii: Various minor updates.
+ - Added cobra-mk5 config file.
+ - Added galaxy and system map selection to EDMesg server.
+ - Allow more target align tires.
+ - Updated waypoints to new format. Removed some no longer required.
+ - Renamed capture_region as there was a duplicate.
+ - Added debug and improvment to gal map.
+ - Changed log message to avoid double timestamp and unnecessary text. Cleans up log file.
+
+# 5/24/2025 Stumpii: Check update crash
+ - Fix crash when checking for updates.
+ - Updated version.
+
+# 5/20/2025 Stumpii: Waypoints
+ - Added new waypoint system. NOTE: This breaks compatibility with the old waypoints, so needs any existing waypoint to be remade.
+ - Added EDMesg system.
+ - Enabled target occlusion.
+ - Added localisation for OCR.
+ - A whole slew of other changes. Too many to mention.
+ - This has a number of new modules added, so update python modules.
+
 # 4/26/2025 Stumpii: Minor updates.
 - Added support for negative sunpitch times.
 - Added docking retries to GUI.

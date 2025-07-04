@@ -15,6 +15,8 @@
 /configs/AP.json
 /EDAPGui.exe
 .idea/
+EDMesg/__pycache__/
+simple_localization/__pycache__/
 test/compass/out/
 test/navpoint/out/
 test/navpoint-behind/out/

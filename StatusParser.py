@@ -192,17 +192,22 @@ class StatusParser:
             return self.current_data
 
         # Read file
-        backoff = 1
+        attempt = 1
+        backoff = 0.1
         while True:
-            try:
-                with open(self.file_path, 'r') as file:
-                    data = json.load(file)
-                    break
-            except Exception as e:
-                logger.debug('An error occurred reading Status.json file. File may be open.')
-                sleep(backoff)
-                logger.debug('Attempting to re-read Status.json file after delay.')
-                backoff *= 2
+            if os.access(self.file_path, os.R_OK):
+                try:
+                    with open(self.file_path, 'r') as file:
+                        data = json.load(file)
+                        if attempt > 1:
+                            print(f"Status file attempt: {attempt}")
+                        break
+                except Exception as e:
+                    logger.debug('An error occurred reading Status.json file. File may be open.')
+                    sleep(backoff)
+                    logger.debug('Attempting to re-read Status.json file after delay.')
+                    backoff *= 2
+                    attempt = attempt + 1
 
         # Combine flags from Flags and Flags2 into a single dictionary
         # combined_flags = {**self.translate_flags(data['Flags'])}
@@ -230,9 +235,9 @@ class StatusParser:
             'Altitude': None,
             'PlanetRadius': None,
             'Balance': None,
-            'Destination_System': None,
-            'Destination_Body': None,
-            'Destination_Name': None,
+            'Destination_System': '',
+            'Destination_Body': -1,
+            'Destination_Name': '',
             'FuelMain': None,
             'FuelReservoir': None,
         }
@@ -330,6 +335,21 @@ class StatusParser:
         self.get_cleaned_data()
         return self.current_data.get('GuiFocus', 0)
 
+    def wait_for_gui_focus(self, gui_focus_flag: int, timeout: float = 15) -> bool:
+        """ Waits for the GUI Focus flag to change to the provided value.
+        Returns True if the flag turns true or False on a time-out.
+        The Flag constants are defined in 'EDAP_data.py'.
+        @param timeout: Timeout in seconds.
+        @param gui_focus_flag: The flag to check for.
+        """
+        start_time = time.time()
+        while (time.time() - start_time) < timeout:
+            self.get_cleaned_data()
+            if self.current_data['GuiFocus'] == gui_focus_flag:
+                return True
+            sleep(0.5)
+        return False
+
     def wait_for_flag_on(self, flag: int, timeout: float = 15) -> bool:
         """ Waits for the of the selected flag to turn true.
         Returns True if the flag turns true or False on a time-out.
@@ -371,7 +391,7 @@ class StatusParser:
         @param timeout: Timeout in seconds.
         @param flag: The flag to check for.
         """
-        if 'Flags2' not in data:
+        if 'Flags2' not in self.current_data:
             return False
 
         start_time = time.time()
@@ -391,7 +411,7 @@ class StatusParser:
         @param timeout: Timeout in seconds.
         @param flag: The flag to check for.
         """
-        if 'Flags2' not in data:
+        if 'Flags2' not in self.current_data:
             return False
 
         start_time = time.time()
@@ -426,22 +446,32 @@ class StatusParser:
         else:
             return False
 
+    def wait_for_file_change(self, start_timestamp, timeout: float = 5) -> bool:
+        """ Waits for the file to change.
+        Returns True if the file changes or False on a time-out.
+        @param start_timestamp: The initial timestamp from 'timestamp' value.
+        @param timeout: Timeout in seconds.
+        """
+        start_time = time.time()
+        while (time.time() - start_time) < timeout:
+            # Check file and read now data
+            self.get_cleaned_data()
+            # Check if internal timestamp changed
+            if self.current_data['timestamp'] != start_timestamp:
+                return True
+
+            sleep(0.5)
+
+        return False
+
+
 # Usage Example
 if __name__ == "__main__":
+
     parser = StatusParser()
 
     while True:
-        start_time = time.time()
-        data = parser.get_cleaned_data()
+        parser.get_cleaned_data()
+        parser.log_flag_diffs()
+        parser.last_data = parser.current_data
         sleep(1)
-        #docked = parser.get_flag(FlagsDocked, False)
-        #landed = parser.get_flag(FlagsLanded, False)
-
-        inmainship = parser.get_flag(FlagsInMainShip)
-        print(f"Time: {(time.time() - start_time)}")
-        #sc = parser.get_flag(FlagsSupercruise, False)
-
-        #print(json.dumps(data, indent=4))
-        #print(f"Supercruise: {sc}")
-        time.sleep(1)
-        #print("\n" * 10)

@@ -14,6 +14,77 @@ Author: sumzer0@yahoo.com
 """
 
 
+def reg_scale_for_station(region, w: int, h: int) -> [int, int, int, int]:
+    """ Scale a station services region based on the target resolution.
+    This is performed because the tables on the station services screen do
+    not increase proportionally with the screen size. The width changes with
+    the screen size, the height does not change based on the screen size
+    height, but on the screen width and the position stays consistent to the
+    center of the screen.
+    To calculate the new region height, we take the initial region defined at
+    1920x1080 and scale up the height based on the target width and apply the
+    new proportion against the center line.
+    @param h: The screen height in pixels
+    @param w: The screen width in pixels
+    @param region: The region at 1920x1080
+    @return: The new region in %
+    """
+    ref_w = 1920
+    ref_h = 1080
+
+    # Calc the x and y scaling.
+    x_scale = w / ref_w
+    y_scale = h / ref_h
+
+    # Determine centre of the region
+    reg_avg = 0.5
+    # This alternate method below is based on the centre of the region instead of the centre of screen.
+    # This will generally NOT work for station screens that are obviously centred vertically.
+    # reg_avg = (region['rect'][1] + region['rect'][3]) / 2
+
+    # Recalc the region as a % above and below the center line.
+    pct_abv = (reg_avg - region['rect'][1]) * x_scale / y_scale
+    pct_blw = (region['rect'][3] - reg_avg) * x_scale / y_scale
+
+    # Apply new % to the center line.
+    new_rect1 = reg_avg - pct_abv
+    new_rect3 = reg_avg + pct_blw
+
+    # Return the update top and bottom Y percentages with the original X percentages.
+    new_reg = {'rect': [region['rect'][0], new_rect1, region['rect'][2], new_rect3]}
+    return new_reg
+
+
+def size_scale_for_station(width: int, height: int, w: int, h: int) -> (int, int):
+    """ Scale an item in the station services region based on the target resolution.
+    This is performed because the tables on the station services screen do
+    not increase proportionally with the screen size. The width changes with
+    the screen size, the height does not change based on the screen size
+    height, but on the screen width and the position stays consistent to the
+    center of the screen.
+    To calculate the new region height, we take the initial region defined at
+    1920x1080 and scale up the height based on the target width and apply the
+    new proportion against the center line.
+    @param width: The width of the item in pixels
+    @param height: The height of the item in pixels
+    @param h: The screen height in pixels
+    @param w: The screen width in pixels
+    """
+    ref_w = 1920
+    ref_h = 1080
+
+    # Calc the x and y scaling.
+    x_scale = w / ref_w
+    y_scale = h / ref_h
+
+    # Increase the height by the ratio of the width
+    new_width = width * x_scale
+    new_height = height * x_scale
+
+    # Return the new height in pixels.
+    return new_width, new_height
+
+
 class Screen_Regions:
     def __init__(self, screen, templ):
         self.screen = screen
@@ -23,7 +94,7 @@ class Screen_Regions:
         self.compass_match_thresh = 0.35
         self.navpoint_match_thresh = 0.70
         self.target_thresh = 0.40
-        self.target_occluded_thresh = 0.75
+        self.target_occluded_thresh = 0.55
         self.sun_threshold = 125
         self.disengage_thresh = 0.25
 
@@ -38,7 +109,7 @@ class Screen_Regions:
 
         self.reg = {}
         # regions with associated filter and color ranges
-        # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
+        # The rect is [L, T, R, B] top left x, y, and bottom right x, y in fraction of screen resolution
         self.reg['compass']   = {'rect': [0.33, 0.65, 0.46, 1.0], 'width': 1, 'height': 1, 'filterCB': self.equalize,                                'filter': None}
         self.reg['navpoint'] = {'rect': [0.30, 0.60, 0.46, 0.97], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.blue_color_range} # For purpose of testing. The actually code determine the navpoint from the compass region.
         self.reg['navpoint-behind'] = {'rect': [0.30, 0.60, 0.46, 0.97], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.blue_color_range}
@@ -65,10 +136,10 @@ class Screen_Regions:
         Returns an unfiltered image. """
         return screen.get_screen_region(self.reg[region_name]['rect'])
 
-    def capture_region_filtered(self, screen, region_name):
+    def capture_region_filtered(self, screen, region_name, inv_col=True):
         """ Grab screen region and call its filter routine.
         Returns the filtered image. """
-        scr = screen.get_screen_region(self.reg[region_name]['rect'])
+        scr = screen.get_screen_region(self.reg[region_name]['rect'], inv_col)
         if self.reg[region_name]['filterCB'] == None:
             # return the screen region untouched in BGRA format.
             return scr
@@ -76,10 +147,10 @@ class Screen_Regions:
             # return the screen region in the format returned by the filter.
             return self.reg[region_name]['filterCB'] (scr, self.reg[region_name]['filter'])          
 
-    def match_template_in_region(self, region_name, templ_name):
+    def match_template_in_region(self, region_name, templ_name, inv_col=True):
         """ Attempt to match the given template in the given region which is filtered using the region filter.
         Returns the filtered image, detail of match and the match mask. """
-        img_region = self.capture_region_filtered(self.screen, region_name)    # which would call, reg.capture_region('compass') and apply defined filter
+        img_region = self.capture_region_filtered(self.screen, region_name, inv_col)    # which would call, reg.capture_region('compass') and apply defined filter
         img_region = cv2.cvtColor(img_region, cv2.COLOR_BGRA2BGR)
 
         # Perform matching in color. Greyscale should be applied by applying a filter.
