@@ -207,10 +207,10 @@ class Screen:
         @return: A rect array ([L, T, R, B]) in pixels
         """
         return [
-            int(reg[0] * self.screen_width),
-            int(reg[1] * self.screen_height),
-            int(reg[2] * self.screen_width),
-            int(reg[3] * self.screen_height)
+            int(rect[0] * self.screen_width),
+            int(rect[1] * self.screen_height),
+            int(rect[2] * self.screen_width),
+            int(rect[3] * self.screen_height)
         ]
 
     def get_screen_full(self):
