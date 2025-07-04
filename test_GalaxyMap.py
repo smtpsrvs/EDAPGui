@@ -1,70 +1,51 @@
 import unittest
-
-import cv2
-
-from EDKeys import EDKeys
-from EDWayPointRevised import EDWayPointRevised
-from Screen import Screen
+from EDGalaxyMap import EDGalaxyMap
 
 
-def select_system(target_name) -> bool:
-    """ Select a system in the galaxy map. """
-    scr = Screen()
-    keys = EDKeys()
-    keys.activate_window = True  # Helps with single steps testing
-
-    waypoint = EDWayPointRevised(True)
-    return waypoint.set_waypoint_target_odyssey(scr, keys, target_name, None)
+def dummy_cb(msg, body=None):
+    pass
 
 
 class GalaxyMapTestCase(unittest.TestCase):
-    def test_draw_system_info(self):
-        """
-        Does NOT require Elite Dangerous to be running.
-        ======================================================================
-        """
-        image_path = "test/test-images/Screenshot 2024-10-14 20-45-42.png"
-        image_path = "test/test-images/Screenshot 2024-10-14 20-48-01.png"
-        image_path = "test/test-images/Screenshot_0006 2024-11-16 17-56-19.png"
-        system = "Beimech"
+    @classmethod
+    def setUpClass(cls):
+        from ED_AP import EDAutopilot
+        cls.ed_ap = EDAutopilot(cb=dummy_cb)
 
-        frame = cv2.imread(image_path)
+        scr = cls.ed_ap.scr
+        keys = cls.ed_ap.keys
+        keys.activate_window = True  # Helps with single steps testing
 
-        scr = Screen()
-        scr.using_screen = False
-        scr.set_screen_image(frame)
-        ed_wp = EDWayPointRevised(True)
-
-        system_name = ed_wp.get_system_from_system_info_panel(scr, system)
-        if system_name is None:
-            self.assertTrue(False, f"Unable to find system info panel.")  # add assertion here
-
-        res = system.upper() == system_name.upper()
-        self.assertTrue(res, f"Unable to find system {system}")  # add assertion here
+        cls.gal_map = EDGalaxyMap(cls.ed_ap, scr, keys, dummy_cb, True)
 
     def test_System1(self):
         """ A single system (no duplicates). """
         system = "ROBIGO"
-        res = select_system(system)
+        res = self.select_system(system)
         self.assertTrue(res, f"Unable to find system {system}")  # add assertion here
 
     def test_System2(self):
         """ A duplicate system with multiple similar named systems. """
         system = "LHS 54"
-        res = select_system(system)
+        res = self.select_system(system)
         self.assertTrue(res, f"Unable to find system {system}")  # add assertion here
 
     def test_System3(self):
         system = "Cubeo"
-        res = select_system(system)
+        res = self.select_system(system)
         self.assertTrue(res, f"Unable to find system {system}")  # add assertion here
 
-    def test_AllSystems(self):
-        self.test_System1()
-        self.test_System2()
-        self.test_System3()
-
-        self.assertTrue(True, f"Unable to find systems")  # add assertion here
+    def select_system(self, target_name) -> bool:
+        """ Select a system in the galaxy map. """
+        # from ED_AP import EDAutopilot
+        # test_ed_ap = EDAutopilot(cb=dummy_cb)
+        #
+        # scr = test_ed_ap.scr
+        # keys = test_ed_ap.keys
+        # keys.activate_window = True  # Helps with single steps testing
+        #
+        # gal_map = EDGalaxyMap(test_ed_ap, scr, keys, dummy_cb, True)
+        return self.gal_map.set_gal_map_destination_text_odyssey(self.ed_ap, target_name)
 
 
 if __name__ == '__main__':

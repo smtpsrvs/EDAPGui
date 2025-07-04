@@ -79,6 +79,7 @@ def check_fuel_scoop(modules: list[dict[str, any]] | None) -> bool:
 
 def check_adv_docking_computer(modules: list[dict[str, any]] | None) -> bool:
     """ Gets whether the ship has an advanced docking computer.
+    Advanced docking computer will dock and undock automatically.
     """
     # Default to docking computer fitted if modules is None
     if modules is None:
@@ -87,6 +88,22 @@ def check_adv_docking_computer(modules: list[dict[str, any]] | None) -> bool:
     # Check all modules. Could just check the internals, but this is easier.
     for module in modules:
         if "dockingcomputer_advanced" in module['Item'].lower():
+            return True
+
+    return False
+
+
+def check_std_docking_computer(modules: list[dict[str, any]] | None) -> bool:
+    """ Gets whether the ship has a standard docking computer.
+    Standard docking computer will dock automatically, but not undock.
+    """
+    # Default to docking computer fitted if modules is None
+    if modules is None:
+        return True
+
+    # Check all modules. Could just check the internals, but this is easier.
+    for module in modules:
+        if "dockingcomputer_standard" in module['Item'].lower():
             return True
 
     return False
@@ -111,7 +128,8 @@ def check_sco_fsd(modules: list[dict[str, any]] | None) -> bool:
 
 
 class EDJournal:
-    def __init__(self):
+    def __init__(self, cb):
+        self.ap_ckb = cb
         self.last_mod_time = None
         self.log_file = None
         self.current_log = self.get_latest_log()
@@ -139,14 +157,15 @@ class EDJournal:
             'fuel_level': None,
             'fuel_percent': None,
             'is_scooping': False,
-            'cur_star_system': None,
-            'cur_station': None,
-            'cur_station_type': None,
+            'cur_star_system': "",
+            'cur_station': "",
+            'cur_station_type': "",
             'cargo_capacity': None,
             'ship_size': None,
             'has_fuel_scoop': None,
             'SupercruiseDestinationDrop_type': None,
             'has_adv_dock_comp': None,
+            'has_std_dock_comp': None,
             'has_sco_fsd': None,
             'StationServices': None,
         }
@@ -188,12 +207,6 @@ class EDJournal:
         try:
             # parse ship status
             log_event = log['event']
-
-            if log_event == 'ApproachSettlement':
-                print(f"ApproachSettlement: {log['Name']}")
-
-            if log_event == 'ApproachBody':
-                print(f"ApproachBody: {log['Body']}")
 
             # If fileheader, pull whether running Odyssey or Horizons
             if log_event == 'Fileheader':
@@ -313,6 +326,7 @@ class EDJournal:
                 self.ship['cargo_capacity'] = log['CargoCapacity']
                 self.ship['has_fuel_scoop'] = check_fuel_scoop(log['Modules'])
                 self.ship['has_adv_dock_comp'] = check_adv_docking_computer(log['Modules'])
+                self.ship['has_std_dock_comp'] = check_std_docking_computer(log['Modules'])
                 self.ship['has_sco_fsd'] = check_sco_fsd(log['Modules'])
 
             # parse fuel
@@ -369,6 +383,12 @@ class EDJournal:
                 self.ship['target'] = None
                 self.ship['jumps_remains'] = 0
 
+            elif log_event == 'CarrierJump':
+                self.ship['location'] = log['StarSystem']
+                self.ship['cur_star_system'] = log['StarSystem']
+                self.ship['cur_station'] = log['StationName']
+                self.ship['cur_station_type'] = log['StationType']
+
         # exceptions
         except Exception as e:
             #logger.exception("Exception occurred")
@@ -404,8 +424,12 @@ class EDJournal:
         return self.ship
 
 
+def dummy_cb(msg, body=None):
+    pass
+
+
 def main():
-    jn = EDJournal()
+    jn = EDJournal(cb=dummy_cb)
     while True:
         sleep(5)
         print("Ship = ", jn.ship_state())

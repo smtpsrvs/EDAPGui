@@ -1,15 +1,14 @@
 import time
-from time import sleep
 
 import cv2
-
-from CargoParser import CargoParser
-from EDAP_data import GuiFocusNoFocus
-from EDlogger import logger
 from MarketParser import MarketParser
 from OCR import OCR
-from Screen_Regions import reg_scale_for_station, size_scale_for_station
 from StatusParser import StatusParser
+from time import sleep
+from EDlogger import logger
+from Screen_Regions import reg_scale_for_station, size_scale_for_station
+from EDAP_data import GuiFocusNoFocus
+from CargoParser import CargoParser
 
 """
 File:StationServicesInShip.py    
@@ -20,42 +19,33 @@ Description:
 Author: Stumpii
 """
 
-
-def goto_ship_view(keys, status_parser) -> bool:
-    """ Goto ship view. """
-    # Go down to ship view
-    while not status_parser.get_gui_focus() == GuiFocusNoFocus:
-        keys.send("UI_Back")  # make sure back in ship view
-
-    # self.keys.send("UI_Back", repeat=5)  # make sure back in ship view
-    keys.send("UI_Up", repeat=3)  # go to very top (refuel line)
-
-    return True
-
-
 class EDStationServicesInShip:
-    def __init__(self, screen, keys, voice):
+    """ Handles Station Services In Ship. """
+    def __init__(self, ed_ap, screen, keys, cb):
+        self.ap = ed_ap
         self.commodities_at_bottom = False
         self.commodities_in_center = False
         self.commodities_in_right = False
         self.screen = screen
         self.ocr = OCR(screen)
         self.keys = keys
-        self.vce = voice
+        self.ap_ckb = cb
         self.passenger_lounge = PassengerLounge(self, self.ocr, self.keys, self.screen)
         self.commodities_market = CommoditiesMarket(self, self.ocr, self.keys, self.screen)
-        self.status = StatusParser()
+        self.status_parser = StatusParser()
+        self.market_parser = MarketParser()
         # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
         self.reg = {'connected_to': {'rect': [0.0, 0.0, 0.25, 0.25]},
                     'stn_svc_layout': {'rect': [0.05, 0.40, 0.60, 0.76]},
-                    'commodities_market': {'rect': [0.0, 0.0, 0.25, 0.25]}}
+                    'commodities_market': {'rect': [0.0, 0.0, 0.25, 0.25]},
+                    }
 
     def goto_station_services(self) -> bool:
         """ Goto Station Services. """
-        # Go to ship view
-        goto_ship_view(self.keys, self.status)
-        # self.keys.send("UI_Left", hold=1)  # go to very left (refuel line)
+        # Go to cockpit view
+        self.ap.ship_control.goto_cockpit_view()
 
+        self.keys.send("UI_Up", repeat=3)  # go to very top (refuel line)
         self.keys.send("UI_Down")  # station services
         self.keys.send("UI_Select")  # station services
 
@@ -331,25 +321,31 @@ class CommoditiesMarket:
     def __get_time_since_market_mod(self) -> float:
         return time.time() - self.market_parser.get_file_modified_time()
 
-    def select_buy(self) -> bool:
+    def select_buy(self, keys) -> bool:
         """ Select Buy. Assumes on Commodities Market screen. """
 
         # Select Buy
-        self.keys.send("UI_Left", repeat=2)
-        self.keys.send("UI_Up", repeat=4)
+        keys.send("UI_Left", repeat=2)
+        keys.send("UI_Up", repeat=4)
 
-        self.keys.send("UI_Select")  # Select Buy
+        keys.send("UI_Select")  # Select Buy
+
+        sleep(0.5)  # give time to bring up list
+        keys.send('UI_Right')  # Go to top of commodities list
         return True
 
-    def select_sell(self) -> bool:
+    def select_sell(self, keys) -> bool:
         """ Select Buy. Assumes on Commodities Market screen. """
 
         # Select Buy
-        self.keys.send("UI_Left", repeat=2)
-        self.keys.send("UI_Up", repeat=4)
+        keys.send("UI_Left", repeat=2)
+        keys.send("UI_Up", repeat=4)
 
-        self.keys.send("UI_Down")
-        self.keys.send("UI_Select")  # Select Sell
+        keys.send("UI_Down")
+        keys.send("UI_Select")  # Select Sell
+
+        sleep(0.5)  # give time to bring up list
+        keys.send('UI_Right')  # Go to top of commodities list
         return True
 
     def buy_commodity(self, name: str, qty: int) -> bool:

@@ -5,9 +5,16 @@ import random
 from tkinter import messagebox
 
 import cv2
-from EDAP_data import *
-from EDWayPointRevised import EDWayPointRevised
-from EDlogger import logger, logging
+
+from simple_localization import LocalizationManager
+
+from EDAP_EDMesg_Server import EDMesgServer
+from EDGalaxyMap import EDGalaxyMap
+from EDGraphicsSettings import EDGraphicsSettings
+from EDShipControl import EDShipControl
+from EDStationServicesInShip import EDStationServicesInShip
+from EDSystemMap import EDSystemMap
+from EDlogger import logging
 import Image_Templates
 import Screen
 import Screen_Regions
@@ -16,15 +23,15 @@ from EDJournal import *
 from EDKeys import *
 from EDafk_combat import AFK_Combat
 from MousePt import MousePoint
+from EDInternalStatusPanel import EDInternalStatusPanel
 from NavRouteParser import NavRouteParser
 from OCR import OCR
-from EDNavPanel import NavPanel
+from EDNavigationPanel import EDNavigationPanel
 from Overlay import *
-from EDStationServicesInShip import EDStationServicesInShip
 from StatusParser import StatusParser
 from Voice import *
 from Robigo import *
-from pathlib import Path
+from TCE_Integration import TceIntegration
 
 """
 File:EDAP.py    EDAutopilot
@@ -47,18 +54,6 @@ class EDAutopilot:
 
     def __init__(self, cb, doThread=True):
 
-        self.cur_timedate = None
-        self._cur_timedate_ls = None
-        self.PlanetRadius = None
-        self.Altitude = None
-        self.Heading = None
-        self.Longitude = None
-        self.Latitude = None
-        self._Altitude_ls = 0.0
-        self._Heading_ls = 0
-        self._Longitude_ls = 0.0
-        self._Latitude_ls = 0.0
-        self._PlanetRadius_ls = 0.0
         # NOTE!!! When adding a new config value below, add the same after read_config() to set
         # a default value or an error will occur reading the new value!
         self.config = {
@@ -96,7 +91,15 @@ class EDAutopilot:
             "ShipConfigFile": None,        # Ship config to load on start - deprecated
             "TargetScale": 1.0,            # Scaling of the target when a system is selected
             "TCEDestinationFilepath": "C:\\TCE\\DUMP\\Destination.json",  # Destination file for TCE
-            "AutomaticLogout": False,  # Logout when we are done with the mission
+            "TCEInstallationPath": "C:\\TCE",
+            "AutomaticLogout": False,      # Logout when we are done with the mission
+            "FCDepartureTime": 5.0,        # Extra time to fly away from a Fleet Carrier
+            "Language": 'en',              # Language (matching ./locales/xx.json file)
+            "OCRLanguage": 'en',           # Language for OCR detection (see OCR language doc in \docs)
+            "EnableEDMesg": False,
+            "EDMesgActionsPort": 15570,
+            "EDMesgEventsPort": 15571,
+            "DebugOverlay": False,
             "NavPnlCoords": None,          # Coordinates of the Navigation Panel
         }
         # NOTE!!! When adding a new config value above, add the same after read_config() to set
@@ -105,8 +108,8 @@ class EDAutopilot:
         self.ship_configs = {
             "Ship_Configs": {},  # Dictionary of ship types with additional settings
         }
-        self._compass_loop_thread = None
-        self._compass_loop_enable = False
+        self._cv_view_compass_loop_thread = Thread(target=self._cv_view_compass_loop, daemon=True)
+        self._cv_view_compass_loop_enable = False
         self._sc_sco_active_loop_thread = None
         self._sc_sco_active_loop_enable = False
         self.sc_sco_is_active = 0
@@ -115,7 +118,7 @@ class EDAutopilot:
         self._single_waypoint_system = None
         self._prev_star_system = None
         self.honk_thread = None
-        self.speed_demand = None
+        self._tce_integration = None
 
         # used this to write the self.config table to the json file
         # self.write_config(self.config)
@@ -133,8 +136,20 @@ class EDAutopilot:
                     cnf['TargetScale'] = 1.0
                 if 'TCEDestinationFilepath' not in cnf:
                     cnf['TCEDestinationFilepath'] = "C:\\TCE\\DUMP\\Destination.json"
+                if 'TCEInstallationPath' not in cnf:
+                    cnf['TCEInstallationPath'] = "C:\\TCE"
                 if 'AutomaticLogout' not in cnf:
                     cnf['AutomaticLogout'] = False
+                if 'FCDepartureTime' not in cnf:
+                    cnf['FCDepartureTime'] = 5.0
+                if 'Language' not in cnf:
+                    cnf['Language'] = 'en'
+                if 'OCRLanguage' not in cnf:
+                    cnf['OCRLanguage'] = 'en'
+                if 'EnableEDMesg' not in cnf:
+                    cnf['EnableEDMesg'] = False
+                    cnf['EDMesgActionsPort'] = 15570
+                    cnf['EDMesgEventsPort'] = 15571
                 if 'NavPnlCoords' not in cnf:
                     cnf['NavPnlCoords'] = None
                 self.config = cnf
@@ -144,6 +159,9 @@ class EDAutopilot:
                 logger.debug("read AP json:"+str(cnf))
         else:
             self.write_config(self.config)
+
+        # Load selected language
+        self.locale = LocalizationManager('locales', self.config['Language'])
 
         shp_cnf = self.read_ship_configs()
         # if we read it then point to it, otherwise use the default table above
@@ -184,26 +202,38 @@ class EDAutopilot:
         self.single_waypoint_enabled = False
 
         # Create instance of each of the needed Classes
-        self.scr = Screen.Screen()
+        self.gfx_settings = EDGraphicsSettings()
+
+        self.scr = Screen.Screen(cb)
         self.scr.scaleX = self.config['TargetScale']
         self.scr.scaleY = self.config['TargetScale']
 
-        self.ocr = OCR(self.scr)
+        self.ocr = OCR(self.scr, self.config['OCRLanguage'])
         self.templ = Image_Templates.Image_Templates(self.scr.scaleX, self.scr.scaleY, self.scr.scaleX)
         self.scrReg = Screen_Regions.Screen_Regions(self.scr, self.templ)
-        self.jn = EDJournal()
-        self.keys = EDKeys()
+        self.jn = EDJournal(cb)
+        self.keys = EDKeys(cb)
         self.keys.activate_window = self.config['ActivateEliteEachKey']
-        self.nav_panel = NavPanel(self.scr, self.keys, cb)
-        self.stn_svcs_in_ship = EDStationServicesInShip(self.scr, self.keys, self.vce)
         self.afk_combat = AFK_Combat(self.keys, self.jn, self.vce)
-        self.waypoint = EDWayPointRevised(self.jn.ship_state()['odyssey'])
-        self.waypoint_revised = EDWayPointRevised(self.jn.ship_state()['odyssey'])
+        self.waypoint = EDWayPoint(self, self.jn.ship_state()['odyssey'])
         self.robigo = Robigo(self)
         self.status = StatusParser()
+        self.nav_route = NavRouteParser()
+        self.ship_control = EDShipControl(self, self.scr, self.keys, cb)
+        self.internal_panel = EDInternalStatusPanel(self, self.scr, self.keys, cb)
+        self.galaxy_map = EDGalaxyMap(self, self.scr, self.keys, cb, self.jn.ship_state()['odyssey'])
+        self.system_map = EDSystemMap(self, self.scr, self.keys, cb, self.jn.ship_state()['odyssey'])
+        self.stn_svcs_in_ship = EDStationServicesInShip(self, self.scr, self.keys, cb)
+        self.nav_panel = EDNavigationPanel(self, self.scr, self.keys, cb)
         self.mouse = MousePoint()
 
-        # rate as ship dependent.   Can be found on the outfitting page for the ship.  However, it looks like supercruise
+        self.mesg_server = EDMesgServer(self, cb)
+        self.mesg_server.actions_port = self.config['EDMesgActionsPort']
+        self.mesg_server.events_port = self.config['EDMesgEventsPort']
+        if self.config['EnableEDMesg']:
+            self.mesg_server.start_server()
+
+        # rate as ship dependent. Can be found on the outfitting page for the ship. However, it looks like supercruise
         # has worse performance for these rates
         # see:  https://forums.frontier.co.uk/threads/supercruise-handling-of-ships.396845/
         #
@@ -246,6 +276,13 @@ class EDAutopilot:
         if doThread:
             self.ap_thread = kthread.KThread(target=self.engine_loop, name="EDAutopilot")
             self.ap_thread.start()
+
+    @property
+    def tce_integration(self) -> TceIntegration:
+        """ Load TCE Integration class when needed. """
+        if not self._tce_integration:
+            self._tce_integration = TceIntegration(self, self.ap_ckb)
+        return self._tce_integration
 
     # Loads the configuration file
     #
@@ -587,7 +624,7 @@ class EDAutopilot:
     def fss_detect_elw(self, scr_reg):
 
         #open fss
-        self.set_speed_zero()
+        self.keys.send('SetSpeedZero')
         sleep(0.1)
         self.keys.send('ExplorationFSSEnter')
         sleep(2.5)
@@ -642,7 +679,7 @@ class EDAutopilot:
         else:
             self.fss_detected = "nothing found"
 
-        self.set_speed_100()
+        self.keys.send('SetSpeed100')
 
         return
 
@@ -673,11 +710,11 @@ class EDAutopilot:
 
         # Keep setting speed to zero to submit while in supercruise or system jump.
         while self.status.get_flag(FlagsSupercruise) or self.status.get_flag2(Flags2FsdHyperdriveCharging):
-            self.set_speed_zero()
+            self.keys.send('SetSpeedZero')  # Submit.
             sleep(0.5)
 
         # Set speed to 100%.
-        self.set_speed_100()
+        self.keys.send('SetSpeed100')
 
         # Wait for cooldown to start.
         self.status.wait_for_flag_on(FlagsFsdCooldown)
@@ -701,10 +738,9 @@ class EDAutopilot:
         self.jn.ship_state()['interdicted'] = False  # reset flag
         return True
 
-    def _compass_loop(self):
-        while self._compass_loop_enable:
+    def _cv_view_compass_loop(self):
+        while self._cv_view_compass_loop_enable:
             self.get_nav_offset(self.scrReg)
-
             sleep(0.5)
 
     def get_nav_offset(self, scr_reg):
@@ -813,20 +849,19 @@ class EDAutopilot:
             #cv2.putText(icompass_image_d, f'Result: {result}', (1, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
             cv2.putText(icompass_image_d, f'x: {final_x_pct:5.2f} y: {final_y_pct:5.2f} z: {final_z_pct:5.2f}', (1, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
             cv2.putText(icompass_image_d, f'r: {final_roll_deg:5.2f}deg p: {final_pit_deg:5.2f}deg y: {final_yaw_deg:5.2f}deg', (1, 55), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
-            #cv2.circle(icompass_image_display, (pt[0]+n_pt[0], pt[1]+n_pt[1]), 5, (0, 255, 0), 3)
             cv2.imshow('compass', icompass_image_d)
-            #cv2.imshow('nav', navpt_image)
             cv2.moveWindow('compass', self.cv_view_x - 400, self.cv_view_y + 600)
-            #cv2.moveWindow('nav', self.cv_view_x, self.cv_view_y)
             cv2.waitKey(30)
 
         return result
 
-    # Looks to see if the 'dashed' line of the target is present indicating the target is occluded by the planet
-    #  return True if meets threshold
-    #
     def is_destination_occluded(self, scr_reg) -> bool:
-        dst_image, (minVal, maxVal, minLoc, maxLoc), match = scr_reg.match_template_in_region('target_occluded', 'target_occluded')
+        """ Looks to see if the 'dashed' line of the target is present indicating the target
+        is occluded by the planet.
+        @param scr_reg: The screen region to check.
+        @return: True if target occluded (meets threshold), else False.
+        """
+        dst_image, (minVal, maxVal, minLoc, maxLoc), match = scr_reg.match_template_in_region('target_occluded', 'target_occluded', inv_col=False)
 
         pt = maxLoc
 
@@ -851,8 +886,10 @@ class EDAutopilot:
             cv2.waitKey(30)
 
         if maxVal > scr_reg.target_occluded_thresh:
+            logger.debug(f"Target is occluded ({maxVal:5.4f} > {scr_reg.target_occluded_thresh:5.2f})")
             return True
         else:
+            #logger.debug(f"Target is not occluded ({maxVal:5.4f} < {scr_reg.target_occluded_thresh:5.2f})")
             return False
 
     def get_destination_offset(self, scr_reg):
@@ -917,8 +954,8 @@ class EDAutopilot:
             self.draw_match_rect(dis_image, pt, (pt[0] + width, pt[1] + height), (0,255,0), 2)
             dis_image = cv2.rectangle(dis_image, (0, 0), (1000, 25), (0, 0, 0), -1)
             cv2.putText(dis_image, f'{maxVal:5.4f} > {scr_reg.disengage_thresh}', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.imshow('disengage', dis_image)
-            cv2.moveWindow('disengage', self.cv_view_x-460,self.cv_view_y+575)
+            cv2.imshow('sc_disengage_label_up', dis_image)
+            cv2.moveWindow('sc_disengage_label_up', self.cv_view_x-460,self.cv_view_y+575)
             cv2.waitKey(1)
 
         if maxVal > scr_reg.disengage_thresh:
@@ -927,7 +964,9 @@ class EDAutopilot:
             return False
 
     def sc_disengage(self, scr_reg) -> bool:
-        """ look for the "PRESS [J] TO DISENGAGE" image, if in this region then return true """
+        """ DEPRECATED - Replaced with 'sc_disengage_label_up' and 'sc_disengage_active' using OCR.
+        look for the "PRESS [J] TO DISENGAGE" image, if in this region then return true
+        """
         dis_image, (minVal, maxVal, minLoc, maxLoc), match = scr_reg.match_template_in_region('disengage', 'disengage')
 
         pt = maxLoc
@@ -966,7 +1005,7 @@ class EDAutopilot:
         sim = 0.0
         ocr_textlist = self.ocr.image_simple_ocr(image)
         if ocr_textlist is not None:
-            sim = self.ocr.string_similarity(f"PRESS TO DISENGAGE", str(ocr_textlist))
+            sim = self.ocr.string_similarity(self.locale["PRESS_TO_DISENGAGE_MSG"], str(ocr_textlist))
             logger.info(f"Disengage similarity with {str(ocr_textlist)} is {sim}")
 
         if self.cv_view:
@@ -984,80 +1023,6 @@ class EDAutopilot:
 
         return False
 
-    def get_target_str_info(self, scr_reg):
-        """ Attempts to extract the text from the distance and duration lines
-        of the target. Does not process the data, just returns two lists of strings,
-        one for distance and one for duration. Returns None instead of a list if no
-        data is found."""
-        # Try to grab the area around the target
-        dst_image, (minVal, maxVal, minLoc, maxLoc), match = scr_reg.match_template_in_region('target', 'target')
-
-        targ_left = scr_reg.reg['target']['rect'][0]
-        targ_top = scr_reg.reg['target']['rect'][1]
-
-        width = scr_reg.templates.template['target']['width']
-        height = scr_reg.templates.template['target']['height']
-
-        x_left = targ_left + maxLoc[0]
-        y_top = targ_top + maxLoc[1] - int(0.5 * height)
-        x_right = targ_left + maxLoc[0] + int(3.5 * width)
-        y_bot = targ_top + maxLoc[1] + height
-        ext_width = x_right - x_left
-        ext_height = y_bot - y_top
-
-        image = self.scr.get_screen(x_left, y_top, x_right, y_bot)
-
-        # TODO delete this line when COLOR_RGB2BGR is removed from get_screen()
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        mask = self.scrReg.filter_by_color(image, self.scrReg.orange_text_color_range)
-        image = cv2.bitwise_and(image, image, mask=mask)
-        # cv2.imwrite(f'test/target-test.png', image)
-
-        dist_image = self.scr.crop_image(image, [0, ext_height - int(height * 0.5), ext_width, ext_height - int(height * 0.25)])
-        dur_image = self.scr.crop_image(image, [0, ext_height - int(height * 0.25), ext_width, ext_height])
-
-        ocr_textlist_dist = self.ocr.image_simple_ocr(dist_image)
-        ocr_textlist_dur = self.ocr.image_simple_ocr(dur_image)
-
-        if self.cv_view:
-            image = cv2.rectangle(image, (0, 0), (1000, 25), (0, 0, 0), -1)
-            cv2.putText(image, f'Text: {str(ocr_textlist_dist)}', (1, 10), cv2.FONT_HERSHEY_SIMPLEX,0.4, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.putText(image, f'Text: {str(ocr_textlist_dur)}', (1, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.imshow('sc_7_second_to_target', image)
-            cv2.moveWindow('sc_7_second_to_target', self.cv_view_x + 350, self.cv_view_y + 500)
-            cv2.waitKey(30)
-
-        # Return the data, which can be 2 lists of strings.
-        # Either or both lists may be None if no OCR data is found.
-        return ocr_textlist_dist, ocr_textlist_dur
-
-    def sc_7_second_to_target(self, scr_reg) -> bool:
-        """ Check if we are 0:07 from the target in supercruise.
-        Returns True if time to target is 0:07, otherwise False."""
-
-        # Get Target String data
-        ocr_textlist_dist, ocr_textlist_dur = self.get_target_str_info(scr_reg)
-
-        if ocr_textlist_dur is not None:
-            #print(f"sc_7_second_to_target: {ocr_textlist}")
-            for s in ocr_textlist_dur:
-                if s == '0:07':
-                    return True
-        return False
-
-    def sc_30_million_meters_to_target(self, scr_reg) -> bool:
-        """ Check if we are 0:07 from the target in supercruise.
-        Returns True if time to target is 0:07, otherwise False."""
-
-        # Get Target String data
-        ocr_textlist_dist, ocr_textlist_dur = self.get_target_str_info(scr_reg)
-
-        if ocr_textlist_dist is not None:
-            # print(f"sc_7_second_to_target: {ocr_textlist}")
-            for s in ocr_textlist_dist:
-                if 'Mm' in s:
-                    return True
-        return False
     def start_sco_monitoring(self):
         """ Start Supercruise Overcharge Monitoring. This starts a parallel thread used to detect SCO
         until stop_sco_monitoring if called. """
@@ -1106,7 +1071,9 @@ class EDAutopilot:
 
     def undock(self):
         """ Performs menu action to undock from Station """
-        # Assume we are in Star Port Services
+        # Go to cockpit view
+        self.ship_control.goto_cockpit_view()
+
         # Now we are on initial menu, we go up to top (which is Refuel)
         self.keys.send('UI_Up', repeat=3)
 
@@ -1114,13 +1081,13 @@ class EDAutopilot:
         self.keys.send('UI_Down')
         self.keys.send('UI_Down')
         self.keys.send('UI_Select')
-        self.set_speed_zero(repeat=2)
+        self.keys.send('SetSpeedZero', repeat=2)
 
         # Performs left menu ops to request docking
 
     def request_docking(self):
         """ Request docking from Nav Panel. """
-        self.nav_panel.request_docking()
+        self.nav_panel.request_docking_ocr()
 
     def dock(self):
         """ Docking sequence.  Assumes in normal space, will get closer to the Station
@@ -1135,17 +1102,17 @@ class EDAutopilot:
             logger.error('In dock(), after wait, but still not in_space')
 
         sleep(5)  # wait 5 seconds to get to 7.5km to request docking
-        self.set_speed_50()
+        self.keys.send('SetSpeed50')
 
         if self.jn.ship_state()['status'] != "in_space":
-            self.set_speed_zero()
+            self.keys.send('SetSpeedZero')
             logger.error('In dock(), after long wait, but still not in_space')
             raise Exception('Docking failed (not in space)')
 
         sleep(12)
         # At this point (of sleep()) we should be < 7.5km from the station.  Go 0 speed
         # if we get docking granted ED's docking computer will take over
-        self.set_speed_zero(repeat=2)
+        self.keys.send('SetSpeedZero', repeat=2)
         sleep(3)  # Wait for ship to come to stop
         self.ap_ckb('log+vce', "Initiating Docking Procedure")
         self.request_docking()
@@ -1160,12 +1127,12 @@ class EDAutopilot:
         else:
             for i in range(tries):
                 if self.jn.ship_state()['no_dock_reason'] == "Distance":
-                    self.set_speed_50()
+                    self.keys.send('SetSpeed50')
                     sleep(5)
-                    self.set_speed_zero(repeat=2)
+                    self.keys.send('SetSpeedZero', repeat=2)
                 sleep(3)  # Wait for ship to come to stop
                 self.request_docking()
-                self.set_speed_zero(repeat=2)
+                self.keys.send('SetSpeedZero', repeat=2)
                 sleep(1.5)
                 if self.jn.ship_state()['status'] == "dockinggranted":
                     granted = True
@@ -1245,7 +1212,7 @@ class EDAutopilot:
             interdicted = self.interdiction_check()
             if interdicted:
                 # Continue journey after interdiction
-                self.set_speed_zero()
+                self.keys.send('SetSpeedZero')
 
             # if we are pitching more than N seconds break, may be in high density area star area (close to core)
             if ((time.time()-starttime) > fail_safe_timeout):
@@ -1269,7 +1236,7 @@ class EDAutopilot:
         """ Use the compass to find the nav point position.  Will then perform rotation and pitching
         to put the nav point in the middle of the compass, i.e. target right in front of us """
 
-        self.set_speed_50()
+        self.keys.send('SetSpeed50')
         sleep(3)
 
         close = 10  # in degrees
@@ -1277,7 +1244,7 @@ class EDAutopilot:
             logger.error('align=err1, nav_align not in super or space')
             raise Exception('nav_align not in super or space')
 
-        self.vce.say("Navigation Align")
+        self.ap_ckb('log+vce', 'Compass Align')
 
         # try multiple times to get aligned.  If the sun is shining on console, this it will be hard to match
         # the vehicle should be positioned with the sun below us via the sun_avoid() routine after a jump
@@ -1287,7 +1254,7 @@ class EDAutopilot:
             if abs(off['yaw']) < close and abs(off['pit']) < close:
                 break
 
-            for i in range(3):
+            for i in range(20):
                 # Calc roll time based on nav point location
                 if abs(off['roll']) > close and (180 - abs(off['roll']) > close):
                     # first roll to get the nav point at the vertical position
@@ -1308,7 +1275,7 @@ class EDAutopilot:
                 else:
                     break
 
-            for i in range(3):
+            for i in range(20):
                 # Calc pitch time based on nav point location
                 if abs(off['pit']) > close:
                     if off['pit'] < 0:
@@ -1320,7 +1287,7 @@ class EDAutopilot:
                 else:
                     break
 
-            for i in range(3):
+            for i in range(20):
                 # Calc yaw time based on nav point location
                 if abs(off['yaw']) > close:
                     if off['yaw'] < 0:
@@ -1403,10 +1370,9 @@ class EDAutopilot:
 
         self.sun_avoid(scr_reg)
         self.nav_align(scr_reg)
-        self.set_speed_100()
+        self.keys.send('SetSpeed100')
 
         self.fsd_target_align(scr_reg)
-
 
     def sc_target_align(self, scr_reg) -> bool:
         """ Stays tight on the target, monitors for disengage and obscured.
@@ -1422,8 +1388,9 @@ class EDAutopilot:
             if new:
                 off = new
                 break
-            if self.is_destination_occluded(scr_reg) == True:
-                self.reposition(scr_reg)
+            if self.is_destination_occluded(scr_reg):
+                self.occluded_reposition(scr_reg)
+                self.ap_ckb('log+vce', 'Target Align')
             sleep(0.1)
 
         # Could not be found, return
@@ -1460,9 +1427,18 @@ class EDAutopilot:
 
             sleep(.02)  # time for image to catch up
 
-            # this checks if suddenly the target show up behind the planete
-            if self.is_destination_occluded(scr_reg) == True:
-                self.reposition(scr_reg)
+            # this checks if suddenly the target show up behind the planet
+            if self.is_destination_occluded(scr_reg):
+                self.occluded_reposition(scr_reg)
+                self.ap_ckb('log+vce', 'Target Align')
+
+            # check for SC Disengage
+            if self.sc_disengage_label_up(scr_reg):
+                if self.sc_disengage_active(scr_reg):
+                    self.ap_ckb('log+vce', 'Disengage Supercruise')
+                    self.keys.send('HyperSuperCombination')
+                    self.stop_sco_monitoring()
+                    break
 
             new = self.get_destination_offset(scr_reg)
             if new:
@@ -1476,21 +1452,26 @@ class EDAutopilot:
 
         return True
 
-    # Reposition is use when the target is obscured by a world
-    #   We pitch 90 up for a bit, then down 90, this should make the target underneath us
-    #   this is important because when we do nav_align() if it does not see the Nav Point
-    #   in the compass (because it is a hollow circle), then it will pitch down, this will
-    #   bring the target into view quickly
-    #
-    def reposition(self, scr_reg):
-        self.vce.say("Target obscured, repositioning")
-        self.pitchUp(90)
-        self.set_speed_100()
-        sleep(15)
-        self.pitchDown(90)
+    def occluded_reposition(self, scr_reg):
+        """ Reposition is use when the target is occluded by a planet or other.
+        We pitch 90 deg down for a bit, then up 90, this should make the target underneath us
+        this is important because when we do nav_align() if it does not see the Nav Point
+        in the compass (because it is a hollow circle), then it will pitch down, this will
+        bring the target into view quickly. """
+        self.ap_ckb('log+vce', 'Target occluded, repositioning.')
+        self.keys.send('SetSpeed50')
         sleep(5)
+        self.pitchDown(90)
+
+        # Speed away
+        self.keys.send('SetSpeed100')
+        sleep(15)
+
+        self.keys.send('SetSpeed50')
+        sleep(5)
+        self.pitchUp(90)
         self.nav_align(scr_reg)
-        self.set_speed_50()
+        self.keys.send('SetSpeed50')
 
     def honk(self):
         # Do the Discovery Scan (Honk)
@@ -1540,7 +1521,7 @@ class EDAutopilot:
 
         self.vce.say("Maneuvering")
 
-        self.set_speed_100()
+        self.keys.send('SetSpeed100')
 
         # Need time to move past Sun, account for slowed ship if refuled
         pause_time = add_time
@@ -1607,7 +1588,7 @@ class EDAutopilot:
 
             logger.debug('jump= speed 0')
             self.jump_cnt = self.jump_cnt+1
-            self.set_speed_zero(repeat=3)  # Let's be triply sure that we set speed to 0% :)
+            self.keys.send('SetSpeedZero', repeat=3)  # Let's be triply sure that we set speed to 0% :)
             sleep(1)  # wait 1 sec after jump to allow graphics to stablize and accept inputs
             logger.debug('jump=complete')
             return True
@@ -1620,189 +1601,26 @@ class EDAutopilot:
     #
     def rotateLeft(self, deg):
         htime = deg/self.rollrate
-
-        off = self.get_nav_offset(self.scrReg)
-
-        if self.speed_demand is None:
-            self.set_speed_50()
-
-        if self.speed_demand not in self.ship_configs['Ship_Configs'][self.current_ship_type]:
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand] = dict()
-        if 'RollRate' not in self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]:
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['RollRate'] = dict()
-
-        for key, value in self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['RollRate'].items():
-            if abs(deg - float(int(key))) < 5:
-                print(f"Demand: {deg}. Closest lookup: {key}, {value}")
-                htime = value
-                break
-            elif deg >= float(int(key)):
-                print(f"Demand: {deg}. Closest lookup: {key}, {value}")
-                pct = deg / float(int(key))
-                htime = value * pct
-            else:
-                break
-
-
-        # Check if we need to find a value
-        if htime == -1:
-            htime = 0.2
-
         self.keys.send('RollLeftButton', hold=htime)
-
-        # # Wait for stabilize
-        # sleep(2)
-        # off2 = self.get_nav_offset(self.scrReg)
-        # delta = abs(off2['roll'] - off['roll'])
-        # delta_int = int(round(delta, 0))
-        #
-        # if delta_int > 10:
-        #     self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['RollRate'][
-        #         delta_int] = round(htime, 2)
 
     def rotateRight(self, deg):
         htime = deg/self.rollrate
-
-        if self.speed_demand is None:
-            self.set_speed_50()
-
-        if self.speed_demand not in self.ship_configs['Ship_Configs'][self.current_ship_type]:
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand] = dict()
-        if 'RollRate' not in self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]:
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['RollRate'] = dict()
-
-        for key, value in self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['RollRate'].items():
-            if abs(deg - float(int(key))) < 5:
-                print(f"Demand: {deg}. Closest lookup: {key}, {value}")
-                htime = value
-                break
-            elif deg >= float(int(key)):
-                print(f"Demand: {deg}. Closest lookup: {key}, {value}")
-                pct = deg / float(int(key))
-                htime = value * pct
-            else:
-                break
-
-        # Check if we need to find a value
-        if htime == -1:
-            htime = 0.2
-
         self.keys.send('RollRightButton', hold=htime)
 
     def pitchDown(self, deg):
         htime = deg/self.pitchrate
-
-        if self.speed_demand is None:
-            self.set_speed_50()
-
-        if self.speed_demand not in self.ship_configs['Ship_Configs'][self.current_ship_type]:
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand] = dict()
-        if 'PitchRate' not in self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]:
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['PitchRate'] = dict()
-
-        for key, value in self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand][            'PitchRate'].items():
-            if abs(deg - float(int(key))) < 5:
-                print(f"Demand: {deg}. Closest lookup: {key}, {value}")
-                htime = value
-                break
-            elif deg >= float(int(key)):
-                print(f"Demand: {deg}. Closest lookup: {key}, {value}")
-                pct = deg / float(int(key))
-                htime = value * pct
-            else:
-                break
-
-        # Check if we need to find a value
-        if htime == -1:
-            htime = 0.3
-
-        self.keys.send('PitchDownButton', hold=htime)
+        self.keys.send('PitchDownButton', htime)
 
     def pitchUp(self, deg):
         htime = deg/self.pitchrate
-
-        if self.speed_demand is None:
-            self.set_speed_50()
-
-        if self.speed_demand not in self.ship_configs['Ship_Configs'][self.current_ship_type]:
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand] = dict()
-        if 'PitchRate' not in self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]:
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['PitchRate'] = dict()
-
-        for key, value in self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand][            'PitchRate'].items():
-            if abs(deg - float(int(key))) < 5:
-                print(f"Demand: {deg}. Closest lookup: {key}, {value}")
-                htime = value
-                break
-            elif deg >= float(int(key)):
-                print(f"Demand: {deg}. Closest lookup: {key}, {value}")
-                pct = deg / float(int(key))
-                htime = value * pct
-            else:
-                break
-
-        # Check if we need to find a value
-        if htime == -1:
-            htime = 0.3
-
-        self.keys.send('PitchUpButton', hold=htime)
+        self.keys.send('PitchUpButton', htime)
 
     def yawLeft(self, deg):
         htime = deg/self.yawrate
-
-        if self.speed_demand is None:
-            self.set_speed_50()
-
-        if self.speed_demand not in self.ship_configs['Ship_Configs'][self.current_ship_type]:
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand] = dict()
-        if 'YawRate' not in self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]:
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['YawRate'] = dict()
-
-        for key, value in self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand][            'YawRate'].items():
-            if abs(deg - float(int(key))) < 5:
-                print(f"Demand: {deg}. Closest lookup: {key}, {value}")
-                htime = value
-                break
-            elif deg >= float(int(key)):
-                print(f"Demand: {deg}. Closest lookup: {key}, {value}")
-                pct = deg / float(int(key))
-                htime = value * pct
-            else:
-                break
-
-        # Check if we need to find a value
-        if htime == -1:
-            htime = 0.5
-
         self.keys.send('YawLeftButton', hold=htime)
 
     def yawRight(self, deg):
-        htime = deg/self.yawrate
-
-        if self.speed_demand is None:
-            self.set_speed_50()
-
-        if self.speed_demand not in self.ship_configs['Ship_Configs'][self.current_ship_type]:
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand] = dict()
-        if 'YawRate' not in self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]:
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['YawRate'] = dict()
-
-        for key, value in self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand][            'YawRate'].items():
-            if abs(deg - float(int(key))) < 5:
-                print(f"Demand: {deg}. Closest lookup: {key}, {value}")
-                htime = value
-                break
-            elif deg >= float(int(key)):
-                print(f"Demand: {deg}. Closest lookup: {key}, {value}")
-                pct = deg / float(int(key))
-                htime = value * pct
-            else:
-                break
-
-        # Check if we need to find a value
-        if htime == -1:
-            htime = 0.5
-
+        htime = deg / self.yawrate
         self.keys.send('YawRightButton', hold=htime)
 
     def refuel(self, scr_reg):
@@ -1842,16 +1660,13 @@ class EDAutopilot:
             self.update_ap_status("Refueling")
 
             # mnvr into position
-            self.set_speed_100()
+            self.keys.send('SetSpeed100')
             sleep(5)
-            self.set_speed_50()
+            self.keys.send('SetSpeed50')
             sleep(1.7)
-            self.set_speed_zero(repeat=3)
+            self.keys.send('SetSpeedZero', repeat=3)
 
             self.refuel_cnt += 1
-
-            if self.status.get_flag(FlagsScoopingFuel):
-                self.ap_ckb('log', 'Flag: FlagsScoopingFuel ON')
 
             # The log will not reflect a FuelScoop until first 5 tons filled, then every 5 tons until complete
             #if we don't scoop first 5 tons with 40 sec break, since not scooping or not fast enough or not at all, then abort
@@ -1861,7 +1676,7 @@ class EDAutopilot:
                 interdicted = self.interdiction_check()
                 if interdicted:
                     # Continue journey after interdiction
-                    self.set_speed_zero()
+                    self.keys.send('SetSpeedZero')
 
                 if ((time.time()-startime) > int(self.config['FuelScoopTimeOut'])):
                     self.vce.say("Refueling abort, insufficient scooping")
@@ -1876,16 +1691,11 @@ class EDAutopilot:
                 interdicted = self.interdiction_check()
                 if interdicted:
                     # Continue journey after interdiction
-                    self.set_speed_zero()
+                    self.keys.send('SetSpeedZero')
 
                 if ((time.time()-startime) > int(self.config['FuelScoopTimeOut'])):
                     self.vce.say("Refueling abort, insufficient scooping")
                     return True
-
-                if not self.status.get_flag(FlagsScoopingFuel):
-                    self.ap_ckb('log', 'Fuel scooping Ended')
-                    return True
-
                 sleep(1)
 
             logger.debug('refuel=complete')
@@ -1921,44 +1731,101 @@ class EDAutopilot:
             win32gui.SetForegroundWindow(handle)  # give focus to ED
 
     def waypoint_undock_seq(self):
-        self.update_ap_status("Executing Undocking")
+        self.update_ap_status("Executing Undocking/Launch")
 
         # Store current location (on planet or in space)
         on_planet = self.status.get_flag(FlagsHasLatLong)
+        on_orbital_construction_site = self.jn.ship_state()['cur_station_type'].upper() == "SpaceConstructionDepot".upper()
+        fleet_carrier = self.jn.ship_state()['cur_station_type'].upper() == "FleetCarrier".upper()
 
-        # Check if we are on a landing pad in space or planet, or landed on a planet
-        if self.status.get_flag(FlagsDocked):
-            # We are on a landing pad in space or planet
-            # Undock from station
-            self.undock()
 
-            # need to wait until undock complete, that is when we are back in_space
-            while self.jn.ship_state()['status'] != 'in_space':
-                sleep(1)
 
-            self.update_ap_status("Undock Complete, accelerating")
-        elif self.status.get_flag(FlagsLanded):
-            # We are on planet surface (not planet landing pad)
-            # Hold UP for takeoff
-            self.keys.send('UpThrustButton', hold=6)
-            self.keys.send('LandingGearToggle')
-
-            self.update_ap_status("Takeoff Complete, accelerating")
-
-        # move away from station
+        # Leave starport or planetary port
         if not on_planet:
-            # In space (launch from starport or outpost etc.)
-            sleep(1.5)
-            self.set_speed_100()
-            sleep(1)
-            self.keys.send('UseBoostJuice')
-            sleep(13)  # get away from Station
-            self.set_speed_50()
-        else:
-            # From planetary settlement
-            self.set_speed_50()
-            self.pitchUp(90)  # The pitch rates are defined in SC, not normal flights, so this will be approximate.
-            self.set_speed_100()
+            # Check that we are docked
+            if self.status.get_flag(FlagsDocked):
+                # Check if we have an advanced docking computer
+                if not self.jn.ship_state()['has_adv_dock_comp']:
+                    self.ap_ckb('log', "Unable to undock. Advanced Docking Computer not fitted.")
+                    logger.warning('Unable to undock. Advanced Docking Computer not fitted.')
+                    raise Exception('Unable to undock. Advanced Docking Computer not fitted.')
+
+                # Undock from station
+                self.undock()
+
+                # need to wait until undock complete, that is when we are back in_space
+                while self.jn.ship_state()['status'] != 'in_space':
+                    sleep(1)
+
+                # If we are on an Orbital Construction Site we will need to pitch up 90 deg to avoid crashes
+                if on_orbital_construction_site:
+                    self.ap_ckb('log+vce', 'Maneuvering')
+                    # The pitch rates are defined in SC, not normal flights, so bump this up a bit
+                    self.pitchUp(90 * 1.25)
+
+                # If we are on a Fleet Carrier we will pitch up 90 deg and fly away to avoid planet
+                elif fleet_carrier:
+                    self.ap_ckb('log+vce', 'Maneuvering')
+                    # The pitch rates are defined in SC, not normal flights, so bump this up a bit
+                    self.pitchUp(90 * 1.25)
+
+                    self.keys.send('SetSpeed100')
+
+                    # While Mass Locked, keep boosting.
+                    while not self.status.wait_for_flag_off(FlagsFsdMassLocked, timeout=2):
+                        self.keys.send('UseBoostJuice')
+
+                    # Enter supercruise to get away from the Fleet Carrier
+                    self.keys.send('Supercruise')
+
+                    # Start SCO monitoring
+                    self.start_sco_monitoring()
+
+                    # Wait the configured time before continuing
+                    self.ap_ckb('log', 'Flying for configured FC departure time.')
+                    sleep(self.config['FCDepartureTime'])
+                    self.keys.send('SetSpeed50')
+
+                if not fleet_carrier:
+                    # In space (launched from starport or outpost etc.)
+                    sleep(1.5)
+                    self.update_ap_status("Undock Complete, accelerating")
+                    self.keys.send('SetSpeed100')
+                    sleep(1)
+                    self.keys.send('UseBoostJuice')
+                    sleep(13)  # get away from Station
+                    self.keys.send('SetSpeed50')
+
+        elif on_planet:
+            # Check if we are on a landing pad (docked), or landed on the planet surface
+            if self.status.get_flag(FlagsDocked):
+                # We are on a landing pad (docked)
+                # Check if we have an advanced docking computer
+                if not self.jn.ship_state()['has_adv_dock_comp']:
+                    self.ap_ckb('log', "Unable to undock. Advanced Docking Computer not fitted.")
+                    logger.warning('Unable to undock. Advanced Docking Computer not fitted.')
+                    raise Exception('Unable to undock. Advanced Docking Computer not fitted.')
+
+                # Undock from port
+                self.undock()
+
+                # need to wait until undock complete, that is when we are back in_space
+                while self.jn.ship_state()['status'] != 'in_space':
+                    sleep(1)
+                self.update_ap_status("Undock Complete, accelerating")
+
+            elif self.status.get_flag(FlagsLanded):
+                # We are on planet surface (not docked at planet landing pad)
+                # Hold UP for takeoff
+                self.keys.send('UpThrustButton', hold=6)
+                self.keys.send('LandingGearToggle')
+                self.update_ap_status("Takeoff Complete, accelerating")
+
+            # Undocked or off the surface, so leave planet
+            self.keys.send('SetSpeed50')
+            # The pitch rates are defined in SC, not normal flights, so bump this up a bit
+            self.pitchUp(90 * 1.25)
+            self.keys.send('SetSpeed100')
 
             # While Mass Locked, keep boosting.
             while not self.status.wait_for_flag_off(FlagsFsdMassLocked, timeout=2):
@@ -1982,96 +1849,29 @@ class EDAutopilot:
 
             # Disable SCO. If SCO not fitted, this will do nothing.
             self.keys.send('UseBoostJuice')
-            self.set_speed_50()
+            self.keys.send('SetSpeed50')
 
     def sc_engage(self):
         """ Engages supercruise, then returns us to 50% speed """
-        self.set_speed_100()
+        self.keys.send('SetSpeed100')
         self.keys.send('Supercruise', hold=0.001)
         # Start SCO monitoring
         self.start_sco_monitoring()
         # TODO - check if we actually go into supercruise
         sleep(12)
 
-        self.set_speed_50()
+        self.keys.send('SetSpeed50')
 
-    # processes the waypoints, performing jumps and sc assist if going to a station
-    # also can then perform trades if specific in the waypoints file
-    #
-    def waypoint_assist(self, scr_reg):
-        self.waypoint_revised.step = 0  # start at first waypoint
-        self.ap_ckb('log', "Waypoint file: "+str(Path(self.waypoint_revised.filename).name))
-        #self.jn.ship_state()['target'] = None  # clear last target
-
-        # Loop until complete, or error
-        while 1:
-            # Current location
-            cur_star_system = self.jn.ship_state()['cur_star_system'].upper()
-            cur_station = self.jn.ship_state()['cur_station']
-            if cur_station is not None:
-                cur_station = cur_station.upper()
-            cur_station_type = self.jn.ship_state()['cur_station_type']
-            if cur_station_type is not None:
-                cur_station_type = cur_station_type.upper()
-
-            # Get the waypoint details
-            dest_key, next_waypoint = self.waypoint_revised.get_waypoint()
-            if dest_key is None:
-                self.ap_ckb('log', "Waypoint list complete.")
-                break
-
-            next_system = next_waypoint['System'].upper()
-            next_station = next_waypoint['DockWithStation'].upper()
-
-            self.ap_ckb('log', f"Next Waypoint: {next_system} | {next_station}")
-
-            # Check current system and go to it if different
-            if next_system != "" and (cur_star_system != next_system):
-                # Jump to the system
-                res = self.jump_to_system(scr_reg, next_system)
-                continue
-            else:
-                self.update_ap_status(f"Already in target System: {next_system}")
-                self.ap_ckb('log', f"Already in target System: {next_system}")
-
-            # Check if we are at the correct station. Note that for FCs, the station name
-            # reported by the Journal is only the ship identifier (ABC-123) and not the carrier name.
-            # So we need to check if the ID (ABC-123) is at the end of the target ('Fleety McFleet ABC-123').
-            if cur_station_type == 'FleetCarrier'.upper():  # Using .upper incase we need to search for 'FleetCarrier'.
-                at_station = next_station.endswith(cur_station)
-            else:
-                at_station = cur_station == next_station
-
-            # Check current station and go to it if different
-            if next_station != "" and not at_station:
-                # Jump to the station
-                res = self.supercruise_to_station(scr_reg, next_station)
-                continue
-            else:
-                self.update_ap_status(f"Already at target Station: {next_station}")
-                self.ap_ckb('log', f"Already at target Station: {next_station}")
-
-            # Are we at the correct station to trade?
-            if next_station != "" and at_station:
-                # Successful dock, let do trade, if a seq exists
-                if self.jn.ship_state()['status'] == 'in_station':
-                    self.ap_ckb('log', f"Execute trade at Station: {next_station}")
-                    self.waypoint_revised.execute_trade(self, dest_key)
-
-            # Mark this waypoint as completed
-            self.waypoint_revised.mark_waypoint_complete(dest_key)
-            self.update_ap_status("Setting route to next waypoint")
-            #self.jn.ship_state()['target'] = None  # clear last target
-
-        # Done with waypoints
-        self.ap_ckb('log', "Waypoint Route Complete, total distance jumped: "+str(self.total_dist_jumped)+"LY")
-        self.update_ap_status("Idle")
+    def waypoint_assist(self, keys, scr_reg):
+        """ Processes the waypoints, performing jumps and sc assist if going to a station
+        also can then perform trades if specific in the waypoints file."""
+        self.waypoint.waypoint_assist(keys, scr_reg)
 
     def jump_to_system(self, scr_reg, system_name: str) -> bool:
         """ Jumps to the specified system. Returns True if in the system already,
         or we successfully travel there, else False. """
         self.update_ap_status(f"Targeting System: {system_name}")
-        ret = self.waypoint_revised.set_next_system(self, system_name)
+        ret = self.galaxy_map.set_next_system(self, system_name)
         if not ret:
             return False
 
@@ -2111,10 +1911,10 @@ class EDAutopilot:
         sleep(3)  # Wait for compass to stop flashing blue!
         if self.have_destination(scr_reg):
             self.ap_ckb('log', " - Station: " + station_name)
-            self.update_ap_status("SC to Station")
+            self.update_ap_status(f"SC to Station: {station_name}")
             self.sc_assist(scr_reg)
         else:
-            self.ap_ckb('log', " - Could not target station: " + station_name)
+            self.ap_ckb('log', f" - Could not target station: {station_name}")
             return False
 
         return True
@@ -2182,7 +1982,7 @@ class EDAutopilot:
 
         # if there is no destination defined, we are done
         if not self.have_destination(scr_reg):
-            self.set_speed_zero()
+            self.keys.send('SetSpeedZero')
             self.vce.say("Destination Reached, distance jumped:"+str(int(self.total_dist_jumped))+" lightyears")
             if self.config["AutomaticLogout"] == True:
                 sleep(5)
@@ -2190,7 +1990,7 @@ class EDAutopilot:
             return True
         # else there is a destination in System, so let jump over to SC Assist
         else:
-            self.set_speed_100()
+            self.keys.send('SetSpeed100')
             self.vce.say("System Reached, preparing for supercruise")
             sleep(1)
             return False
@@ -2198,9 +1998,11 @@ class EDAutopilot:
     # Supercruise Assist loop to travel to target in system and perform autodock
     #
     def sc_assist(self, scr_reg, do_docking=True):
-        close_to_planet_ls = False
-
         logger.debug("Entered sc_assist")
+
+        # Goto cockpit view
+        self.ship_control.goto_cockpit_view()
+
         align_failed = False
         # see if we have a compass up, if so then we have a target
         if not self.have_destination(scr_reg):
@@ -2219,14 +2021,14 @@ class EDAutopilot:
 
         # Ensure we are 50%, don't want the loop of shame
         # Align Nav to target
-        self.set_speed_50()
-        self.nav_align(scr_reg)
-        self.set_speed_50()
+        self.keys.send('SetSpeed50')
+        self.nav_align(scr_reg)  # Compass Align
+        self.keys.send('SetSpeed50')
 
         self.jn.ship_state()['interdicted'] = False
 
         # Loop forever keeping tight align to target, until we get SC Disengage popup
-        self.vce.say("Target Align")
+        self.ap_ckb('log+vce', 'Target Align')
         while True:
             sleep(0.05)
             if self.jn.ship_state()['status'] == 'in_supercruise':
@@ -2235,8 +2037,8 @@ class EDAutopilot:
                     # Continue ahead before aligning to prevent us circling the target
                     # self.keys.send('SetSpeed100')
                     sleep(10)
-                    self.set_speed_50()
-                    self.nav_align(scr_reg)  # Align to target
+                    self.keys.send('SetSpeed50')
+                    self.nav_align(scr_reg)  # Compass Align
             elif self.status.get_flag2(Flags2GlideMode):
                 # Gliding - wait to complete
                 logger.debug("Gliding")
@@ -2252,7 +2054,7 @@ class EDAutopilot:
             interdicted = self.interdiction_check()
             if interdicted:
                 # Continue journey after interdiction
-                self.set_speed_50()
+                self.keys.send('SetSpeed50')
                 self.nav_align(scr_reg)  # realign with station
 
             # check for SC Disengage
@@ -2263,21 +2065,16 @@ class EDAutopilot:
                     self.stop_sco_monitoring()
                     break
 
-            #if self.sc_7_second_to_target(scr_reg):
-                #self.set_speed_50()
-
-            # close_to_planet = self.sc_30_million_meters_to_target(scr_reg)
-            # if close_to_planet and not close_to_planet_ls:
-            #     self.set_speed_zero()
-            #     self.ap_ckb('log+vce', "Within 30 million meters of planet.")
-            # close_to_planet_ls = close_to_planet
-
         # if no error, we must have gotten disengage
         if not align_failed and do_docking:
             sleep(4)  # wait for the journal to catch up
 
             # Check if this is a target we cannot dock at
             skip_docking = False
+            if not self.jn.ship_state()['has_adv_dock_comp'] and not self.jn.ship_state()['has_std_dock_comp']:
+                self.ap_ckb('log', "Skipping docking. No Docking Computer fitted.")
+                skip_docking = True
+
             if not self.jn.ship_state()['SupercruiseDestinationDrop_type'] is None:
                 if (self.jn.ship_state()['SupercruiseDestinationDrop_type'].startswith("$USS_Type")
                         # Bulk Cruisers
@@ -2288,6 +2085,7 @@ class EDAutopilot:
                         or "-class Surveyor" in self.jn.ship_state()['SupercruiseDestinationDrop_type']
                         or "-class Traveller" in self.jn.ship_state()['SupercruiseDestinationDrop_type']
                         or "-class Tanker" in self.jn.ship_state()['SupercruiseDestinationDrop_type']):
+                    self.ap_ckb('log', "Skipping docking. No docking privilege at MegaShips.")
                     skip_docking = True
 
             if not skip_docking:
@@ -2295,9 +2093,11 @@ class EDAutopilot:
                 self.dock()
                 self.ap_ckb('log+vce', "Docking complete, refueled, repaired and re-armed")
                 self.update_ap_status("Docking Complete")
+            else:
+                self.keys.send('SetSpeedZero')
         else:
             self.vce.say("Exiting Supercruise, setting throttle to zero")
-            self.set_speed_zero()
+            self.keys.send('SetSpeedZero')  # make sure we don't continue to land
             self.ap_ckb('log', "Supercruise dropped, terminating SC Assist")
 
         self.ap_ckb('log+vce', "Supercruise Assist complete")
@@ -2492,72 +2292,6 @@ class EDAutopilot:
                     self._sc_sco_active_loop_thread = threading.Thread(target=self._sc_sco_active_loop, daemon=True)
                     self._sc_sco_active_loop_thread.start()
 
-            status = self.status.get_cleaned_data()
-            last_status = self.status.last_data
-            self.cur_timedate = status['timestamp']
-            self._cur_timedate_ls = last_status['timestamp']
-
-            timedelta = 0.0
-            if self.cur_timedate is not None and self._cur_timedate_ls is not None:
-                timedelta = (self.cur_timedate - self._cur_timedate_ls).total_seconds()
-                #print(f"Time delta: {timedelta}")
-
-            self.Latitude = status['Latitude']
-            self._Latitude_ls = last_status['Latitude']
-
-            self.Longitude = status['Longitude']
-            self._Longitude_ls = last_status['Longitude']
-
-            self.Altitude = status['Altitude']
-            self._Altitude_ls = last_status['Altitude']
-
-            self.Heading = status['Heading']
-            self._Heading_ls = last_status['Heading']
-
-            self.PlanetRadius = status['PlanetRadius']
-            self._PlanetRadius_ls = last_status['PlanetRadius']
-
-            if (self.Latitude is not None and self._Latitude_ls is not None and
-                    self.Altitude is not None and self._Altitude_ls is not None):
-                lat = math.fabs(self.Latitude - self._Latitude_ls)
-                lng = math.fabs(self.Longitude - self._Longitude_ls)
-
-                # Circumference of planet
-                circum = 2 * math.pi * self.PlanetRadius
-
-                # Circumference of planet at given latitude
-                rad_at_lat = self.PlanetRadius * math.cos(math.radians(self.Latitude))
-                circum_at_lat = 2 * math.pi * rad_at_lat
-
-                # lat and long distance in meters
-                lat_dist = lat * circum / 360
-                lng_dist = lng * circum_at_lat / 360
-
-                ll_dist = math.sqrt(lat_dist ** 2 + lng_dist ** 2)
-
-                alt = math.fabs(self.Altitude - self._Altitude_ls)
-                dist = math.sqrt(ll_dist ** 2 + alt ** 2)
-                #print(f"dist: {dist:5.2f}")
-                #print(f"alt: {alt:5.2f}")
-                if timedelta > 0.0:
-                    spd = dist/timedelta
-                else:
-                    spd = 0.0
-                print(f"spd: {spd:5.2f}")
-                ll_dist = max(ll_dist, 0.01)  # Prevent divide by zero
-                ang = math.degrees(atan(alt/ll_dist))
-                print(f"Angle of flight: {ang:5.2f}")
-
-            self._compass_loop_enable = True
-
-            if self._compass_loop_enable:
-                if self._compass_loop_thread is None or not self._compass_loop_thread.is_alive():
-                    self._compass_loop_thread = threading.Thread(target=self._compass_loop, daemon=True)
-                    self._compass_loop_thread.start()
-
-            #self.sc_disengage(self.scrReg)
-            #self.sc_disengage_active(self.scrReg)
-
             if self.fsd_assist_enabled == True:
                 logger.debug("Running fsd_assist")
                 self.set_focus_elite_window()
@@ -2619,7 +2353,7 @@ class EDAutopilot:
                 self.total_dist_jumped = 0
                 self.total_jumps = 0
                 try:
-                    self.waypoint_assist(self.scrReg)
+                    self.waypoint_assist(self.keys, self.scrReg)
                 except EDAP_Interrupt:
                     logger.debug("Caught stop exception")
                 except Exception as e:
@@ -2702,6 +2436,8 @@ class EDAutopilot:
                             self.ap_ckb('log+vce', f"Warning, your {ship_fullname} is not fitted with a Fuel Scoop.")
                         if not self.jn.ship_state()['has_adv_dock_comp']:
                             self.ap_ckb('log+vce', f"Warning, your {ship_fullname} is not fitted with an Advanced Docking Computer.")
+                        if self.jn.ship_state()['has_std_dock_comp']:
+                            self.ap_ckb('log+vce', f"Warning, your {ship_fullname} is fitted with a Standard Docking Computer.")
 
                         # Add ship to ship configs if missing
                         if ship is not None:
@@ -2725,7 +2461,7 @@ class EDAutopilot:
                         self.templ.reload_templates(self.scr.scaleX, self.scr.scaleY, self.compass_scale)
 
             self.update_overlay()
-            cv2.waitKey(10)
+            # cv2.waitKey(10)
             sleep(1)
 
     def ship_tst_pitch(self):
@@ -2733,160 +2469,55 @@ class EDAutopilot:
         If the ship does not rotate enough, decrease the pitch value.
         If the ship rotates too much, increase the pitch value.
         """
-        for i in range(3):
-            if i == 0:
-                self.set_speed_50()
-                sleep(10)
-            elif i == 1:
-                self.set_speed_zero()
-                sleep(10)
-            elif i == 2:
-                self.set_speed_100()
-                sleep(10)
+        if not self.status.get_flag(FlagsSupercruise):
+            self.ap_ckb('log', "Enter Supercruise and try again.")
+            return
 
-            if self.speed_demand not in self.ship_configs['Ship_Configs'][self.current_ship_type]:
-                self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand] = dict()
+        if self.jn.ship_state()['target'] is None:
+            self.ap_ckb('log', "Select a target system and try again.")
+            return
 
-            # Clear existing data
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['PitchRate'] = dict()
-
-            test_time = 0.2
-            targ_ang = 10
-            for targ_ang in [5, 10, 15, 20, 30, 45, 60, 75, 90]:
-                while 1:
-                    self.set_focus_elite_window()
-                    off = self.get_nav_offset(self.scrReg)
-                    if off['y'] > 0:
-                        self.keys.send('PitchUpButton', hold=test_time)
-                    else:
-                        self.keys.send('PitchDownButton', hold=test_time)
-
-                    sleep(2)
-                    off2 = self.get_nav_offset(self.scrReg)
-                    delta = abs(off2['pit'] - off['pit'])
-                    delta_int = int(round(delta, 0))
-
-                    test_time = test_time + 0.1
-                    if delta > targ_ang:
-                        self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['PitchRate'][
-                            delta_int] = round(test_time, 2)
-                        print(f"Angle: {delta_int}: Time: {test_time}")
-                        break
-                        #
-                        # if targ_ang >= 90:
-                        #     break
-                        #
-                        # targ_ang = targ_ang + 10
-                        # continue
+        self.set_focus_elite_window()
+        sleep(0.25)
+        self.keys.send('SetSpeed50')
+        self.pitchUp(360)
 
     def ship_tst_roll(self):
         """ Performs a ship roll test by pitching 360 degrees.
         If the ship does not rotate enough, decrease the roll value.
         If the ship rotates too much, increase the roll value.
         """
-        for i in range(3):
-            if i == 0:
-                self.set_speed_50()
-                sleep(10)
-            elif i == 1:
-                self.set_speed_zero()
-                sleep(10)
-            elif i == 2:
-                self.set_speed_100()
-                sleep(10)
+        if not self.status.get_flag(FlagsSupercruise):
+            self.ap_ckb('log', "Enter Supercruise and try again.")
+            return
 
-            if self.speed_demand not in self.ship_configs['Ship_Configs'][self.current_ship_type]:
-                self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand] = dict()
+        if self.jn.ship_state()['target'] is None:
+            self.ap_ckb('log', "Select a target system and try again.")
+            return
 
-            # Clear existing data
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['RollRate'] = dict()
-
-            test_time = 0.2
-            test_inc = 0.05
-            targ_ang = 5
-
-            for targ_ang in [5, 10, 15, 20, 30, 45, 60, 75, 90]:
-                while 1:
-                    self.set_focus_elite_window()
-                    off = self.get_nav_offset(self.scrReg)
-                    if off['roll'] > 0:
-                        self.keys.send('RollRightButton', hold=test_time)
-                    else:
-                        self.keys.send('RollLeftButton', hold=test_time)
-
-                    sleep(2)
-                    off2 = self.get_nav_offset(self.scrReg)
-                    delta = abs(off2['roll'] - off['roll'])
-                    delta_int = int(round(delta,0))
-
-                    test_time = test_time + test_inc
-                    if delta > targ_ang:
-                        self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['RollRate'][
-                            delta_int] = round(test_time, 2)
-                        print(f"Angle: {delta_int}: Time: {test_time}")
-                        break
-
-                        # if targ_ang >= 90:
-                        #     break
-                        #
-                        # if targ_ang < 20:
-                        #     targ_ang = targ_ang + 5
-                        # elif targ_ang < 45:
-                        #     targ_ang = targ_ang + 10
-                        # continue
-
-
+        self.set_focus_elite_window()
+        sleep(0.25)
+        self.keys.send('SetSpeed50')
+        self.rotateLeft(360)
 
     def ship_tst_yaw(self):
         """ Performs a ship yaw test by pitching 360 degrees.
         If the ship does not rotate enough, decrease the yaw value.
         If the ship rotates too much, increase the yaw value.
         """
-        for i in range(3):
-            if i == 0:
-                self.set_speed_50()
-                sleep(10)
-            elif i == 1:
-                self.set_speed_zero()
-                sleep(10)
-            elif i == 2:
-                self.set_speed_100()
-                sleep(10)
+        if not self.status.get_flag(FlagsSupercruise):
+            self.ap_ckb('log', "Enter Supercruise and try again.")
+            return
 
-            if self.speed_demand not in self.ship_configs['Ship_Configs'][self.current_ship_type]:
-                self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand] = dict()
+        if self.jn.ship_state()['target'] is None:
+            self.ap_ckb('log', "Select a target system and try again.")
+            return
 
-            # Clear existing data
-            self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['YawRate'] = dict()
+        self.set_focus_elite_window()
+        sleep(0.25)
+        self.keys.send('SetSpeed50')
+        self.yawLeft(360)
 
-            test_time = 0.2
-            targ_ang = 10
-            for targ_ang in [5, 10, 15, 20, 30, 45, 60, 75, 90]:
-                while 1:
-                    self.set_focus_elite_window()
-                    off = self.get_nav_offset(self.scrReg)
-                    if off['x'] > 0:
-                        self.keys.send('YawRightButton', hold=test_time)
-                    else:
-                        self.keys.send('YawLeftButton', hold=test_time)
-
-                    sleep(2)
-                    off2 = self.get_nav_offset(self.scrReg)
-                    delta = abs(off2['yaw'] - off['yaw'])
-                    delta_int = int(round(delta, 0))
-
-                    test_time = test_time + 0.2
-                    if delta > targ_ang:
-                        self.ship_configs['Ship_Configs'][self.current_ship_type][self.speed_demand]['YawRate'][
-                            delta_int] = round(test_time, 2)
-                        print(f"Angle: {delta_int}: Time: {test_time}")
-                        break
-
-                        # if targ_ang >= 90:
-                        #     break
-                        #
-                        # targ_ang = targ_ang + 10
-                        # continue
 
     def calibrate_nav_pnl(self):
         """ Allows the user to identify the Navigation Panel by clicking on the corners."""
@@ -2915,29 +2546,13 @@ class EDAutopilot:
         self.nav_panel.nav_pnl_coords = [[x0, y0], [x1, y1], [x2, y2], [x3, y3]]  # [top left, top right, bottom left, bottom right]
         self.config['NavPnlCoords'] = self.nav_panel.nav_pnl_coords
 
-    def set_speed_zero(self, repeat=1):
-        if self.status.get_flag(FlagsSupercruise):
-            self.speed_demand = 'SCSpeedZero'
+    def set_cv_view_compass_window(self, enable):
+        """ Enable/disable the debug cv view window for compass. """
+        if enable:
+            self._cv_view_compass_loop_enable = True
+            self._cv_view_compass_loop_thread.start()
         else:
-            self.speed_demand = 'SpeedZero'
-
-        self.keys.send('SetSpeedZero', repeat)
-
-    def set_speed_50(self, repeat=1):
-        if self.status.get_flag(FlagsSupercruise):
-            self.speed_demand = 'SCSpeed50'
-        else:
-            self.speed_demand = 'Speed50'
-
-        self.keys.send('SetSpeed50', repeat)
-
-    def set_speed_100(self, repeat=1):
-        if self.status.get_flag(FlagsSupercruise):
-            self.speed_demand = 'SCSpeed100'
-        else:
-            self.speed_demand = 'Speed100'
-
-        self.keys.send('SetSpeed100', repeat)
+            self._cv_view_compass_loop_enable = False
 
 #
 # This main is for testing purposes.
@@ -2947,7 +2562,7 @@ def main():
     #if handle != None:
     #    win32gui.SetForegroundWindow(handle)  # put the window in foreground
 
-    ed_ap = EDAutopilot(False)
+    ed_ap = EDAutopilot(cb=None, doThread=False)
     ed_ap.cv_view = True
     ed_ap.cv_view_x = 4000
     ed_ap.cv_view_y = 100

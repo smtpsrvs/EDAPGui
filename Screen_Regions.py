@@ -1,6 +1,7 @@
 from numpy import array, sum
 import cv2
 
+
 """
 File:Screen_Regions.py    
 
@@ -25,6 +26,7 @@ def reg_scale_for_station(region, w: int, h: int) -> [int, int, int, int]:
     @param h: The screen height in pixels
     @param w: The screen width in pixels
     @param region: The region at 1920x1080
+    @return: The new region in %
     """
     ref_w = 1920
     ref_h = 1080
@@ -88,18 +90,16 @@ class Screen_Regions:
         self.templates = templ
 
         # Define the thresholds for template matching to be consistent throughout the program
-        self.compass_match_thresh = 0.45
+        self.compass_match_thresh = 0.5
         self.navpoint_match_thresh = 0.8
-        self.target_thresh = 0.40
-        self.target_occluded_thresh = 0.75
+        self.target_thresh = 0.54
+        self.target_occluded_thresh = 0.55
         self.sun_threshold = 125
         self.disengage_thresh = 0.25
 
         # array is in HSV order which represents color ranges for filtering
         self.orange_color_range   = [array([0, 130, 123]),  array([25, 235, 220])]
         self.orange_2_color_range = [array([16, 165, 220]), array([98, 255, 255])]
-        self.orange_text_color_range = [array([15, 110, 150]), array([50, 255, 255])]
-        self.orange_text_color_range = [array([0, 0, 0]), array([179, 255, 255])]
         self.target_occluded_range= [array([16, 31, 85]),   array([26, 160, 212])]
         self.blue_color_range     = [array([0, 28, 170]), array([180, 100, 255])]
         self.blue_sco_color_range = [array([10, 0, 0]), array([100, 150, 255])]
@@ -107,7 +107,7 @@ class Screen_Regions:
 
         self.reg = {}
         # regions with associated filter and color ranges
-        # The rect is top left x, y, and bottom right x, y in fraction of screen resolution
+        # The rect is [L, T, R, B] top left x, y, and bottom right x, y in fraction of screen resolution
         self.reg['compass']   = {'rect': [0.33, 0.65, 0.46, 1.0], 'width': 1, 'height': 1, 'filterCB': self.equalize,                                'filter': None}
         self.reg['target']    = {'rect': [0.33, 0.27, 0.66, 0.70], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.orange_2_color_range}   # also called destination
         self.reg['target_occluded']    = {'rect': [0.33, 0.27, 0.66, 0.70], 'width': 1, 'height': 1, 'filterCB': self.filter_by_color, 'filter': self.target_occluded_range} 
@@ -129,10 +129,10 @@ class Screen_Regions:
         Returns an unfiltered image. """
         return screen.get_screen_region(self.reg[region_name]['rect'])
 
-    def capture_region_filtered(self, screen, region_name):
+    def capture_region_filtered(self, screen, region_name, inv_col=True):
         """ Grab screen region and call its filter routine.
         Returns the filtered image. """
-        scr = screen.get_screen_region(self.reg[region_name]['rect'])
+        scr = screen.get_screen_region(self.reg[region_name]['rect'], inv_col)
         if self.reg[region_name]['filterCB'] == None:
             # return the screen region untouched in BGRA format.
             return scr
@@ -140,10 +140,10 @@ class Screen_Regions:
             # return the screen region in the format returned by the filter.
             return self.reg[region_name]['filterCB'] (scr, self.reg[region_name]['filter'])          
 
-    def match_template_in_region(self, region_name, templ_name):
+    def match_template_in_region(self, region_name, templ_name, inv_col=True):
         """ Attempt to match the given template in the given region which is filtered using the region filter.
         Returns the filtered image, detail of match and the match mask. """
-        img_region = self.capture_region_filtered(self.screen, region_name)    # which would call, reg.capture_region('compass') and apply defined filter
+        img_region = self.capture_region_filtered(self.screen, region_name, inv_col)    # which would call, reg.capture_region('compass') and apply defined filter
         match = cv2.matchTemplate(img_region, self.templates.template[templ_name]['image'], cv2.TM_CCOEFF_NORMED)
         (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(match)
         return img_region, (minVal, maxVal, minLoc, maxLoc), match 

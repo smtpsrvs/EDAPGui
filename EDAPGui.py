@@ -1,3 +1,4 @@
+import queue
 import sys
 import os
 import threading
@@ -54,7 +55,7 @@ Author: sumzer0@yahoo.com
 # ---------------------------------------------------------------------------
 # must be updated with a new release so that the update check works properly!
 # contains the names of the release.
-EDAP_VERSION = "V1.1.0"
+EDAP_VERSION = "V1.5.0"
 # depending on how release versions are best marked you could also change it to the release tag, see function check_update.
 # ---------------------------------------------------------------------------
 
@@ -111,6 +112,10 @@ class APGui():
             'Cap Mouse XY': "This will provide the StationCoord value of the Station in the SystemMap. \nSelecting this button and then clicking on the Station in the SystemMap \nwill return the x,y value that can be pasted in the waypoints file",
             'Reset Waypoint List': "Reset your waypoint list, \nthe waypoint assist will start again at the first point in the list."
         }
+
+        self.gui_loaded = False
+        self.log_buffer = queue.Queue()
+        self.callback('log', f'Starting ED Autopilot {EDAP_VERSION}.')
 
         self.ed_ap = EDAutopilot(cb=self.callback)
         self.ed_ap.robigo.set_single_loop(self.ed_ap.config['Robigo_Single_Loop'])
@@ -216,6 +221,9 @@ class APGui():
         self.check_updates()
 
         self.ed_ap.gui_loaded = True
+        self.gui_loaded = True
+        # Send a log entry which will flush out the buffer.
+        self.callback('log', 'ED Autopilot loaded successfully.')
 
     # callback from the EDAP, to configure GUI items
     def callback(self, msg, body=None):
@@ -243,6 +251,9 @@ class APGui():
         elif msg == 'waypoint_stop':
             logger.debug("Detected 'waypoint_stop' callback msg")
             self.checkboxvar['Waypoint Assist'].set(0)
+            self.check_cb('Waypoint Assist')
+        elif msg == 'waypoint_start':
+            self.checkboxvar['Waypoint Assist'].set(1)
             self.check_cb('Waypoint Assist')
         elif msg == 'robigo_stop':
             logger.debug("Detected 'robigo_stop' callback msg")
@@ -317,18 +328,6 @@ class APGui():
 
     def calibrate_nav_pnl_callback(self):
         self.ed_ap.calibrate_nav_pnl()
-
-    def mouse_coord_callback(self):
-        ans = messagebox.askyesno('Mouse XY', 'Select OK\nYour next Mouse click should be on the Station')
-
-        x, y = self.mouse.get_location()
-
-        # can we auto paste into clipboard?
-        xy_str = '[' + str(x) + ',' + str(y) + ']'
-        self.root.clipboard_clear()
-        self.root.clipboard_append(xy_str)
-        self.root.update()  # it stays on the clipboard
-        messagebox.showinfo('Mouse XY', 'Values: ' + xy_str + '\n has been place in your clipboard')
 
     def quit(self):
         logger.debug("Entered: quit")
@@ -447,11 +446,12 @@ class APGui():
         webbrowser.open_new("https://github.com/SumZer0-git/EDAPGui")
 
     def check_updates(self):
-        response = requests.get("https://api.github.com/repos/SumZer0-git/EDAPGui/releases/latest")
-        if EDAP_VERSION != response.json()["name"]:
-            mb = messagebox.askokcancel("Update Check", "A new release version is available. Download now?")
-            if mb == True:
-                webbrowser.open_new("https://github.com/SumZer0-git/EDAPGui/releases/latest")
+        # response = requests.get("https://api.github.com/repos/SumZer0-git/EDAPGui/releases/latest")
+        # if EDAP_VERSION != response.json()["name"]:
+        #     mb = messagebox.askokcancel("Update Check", "A new release version is available. Download now?")
+        #     if mb == True:
+        #         webbrowser.open_new("https://github.com/SumZer0-git/EDAPGui/releases/latest")
+        pass
 
     def open_changelog(self):
         webbrowser.open_new("https://github.com/SumZer0-git/EDAPGui/blob/main/ChangeLog.md")
@@ -463,9 +463,20 @@ class APGui():
         os.startfile('autopilot.log')
 
     def log_msg(self, msg):
-        self.msgList.insert(END, datetime.now().strftime("%H:%M:%S: ") + msg)
-        self.msgList.yview(END)
-        logger.info(f"Log Msg: {msg}")
+        message = datetime.now().strftime("%H:%M:%S: ") + msg
+
+        if not self.gui_loaded:
+            # Store message in queue
+            self.log_buffer.put(message)
+            logger.info(msg)
+        else:
+            # Add queued messages to the list
+            while not self.log_buffer.empty():
+                self.msgList.insert(END, self.log_buffer.get())
+
+            self.msgList.insert(END, message)
+            self.msgList.yview(END)
+            logger.info(msg)
 
     def set_statusbar(self, txt):
         self.statusbar.configure(text=txt)
@@ -531,8 +542,11 @@ class APGui():
         )
         filename = fd.askopenfilename(title="Waypoint File", initialdir='./waypoints/', filetypes=filetypes)
         if filename != "":
-            self.ed_ap.waypoint.load_waypoint_file(filename)
-            self.wp_filelabel.set("loaded: " + Path(filename).name)
+            res = self.ed_ap.waypoint.load_waypoint_file(filename)
+            if res:
+                self.wp_filelabel.set("loaded: " + Path(filename).name)
+            else:
+                self.wp_filelabel.set("<no list loaded>")
 
     def reset_wp_file(self):
         if self.WP_A_running != True:
@@ -749,6 +763,12 @@ class APGui():
             elif self.checkboxvar['Single Waypoint Assist'].get() == 0 and self.SWP_A_running == True:
                 self.stop_single_waypoint_assist()
 
+        if field == 'CV View Compass Window':
+            if self.checkboxvar['CV View Compass Window'].get():
+                self.ed_ap.set_cv_view_compass_window(True)
+            else:
+                self.ed_ap.set_cv_view_compass_window(False)
+
     def makeform(self, win, ftype, fields, r=0, inc=1, rfrom=0, rto=1000):
         entries = {}
 
@@ -871,12 +891,8 @@ class APGui():
         btn_wp_file.grid(row=0, column=0, padx=2, pady=2, columnspan=2, sticky=(N, E, W, S))
         tip_wp_file = Hovertip(btn_wp_file, self.tooltips['Waypoint List Button'], hover_delay=1000)
 
-        btn_coord = Button(blk_wp_buttons, text='Cap Mouse X,Y', command=self.mouse_coord_callback)
-        btn_coord.grid(row=1, column=0, padx=2, pady=2, columnspan=1, sticky=(N, E, W, S))
-        tip_coord = Hovertip(btn_coord, self.tooltips['Cap Mouse XY'], hover_delay=1000)
-
         btn_reset = Button(blk_wp_buttons, text='Reset List', command=self.reset_wp_file)
-        btn_reset.grid(row=1, column=1, padx=2, pady=2, columnspan=1, sticky=(N, E, W, S))
+        btn_reset.grid(row=1, column=0, padx=2, pady=2, columnspan=2, sticky=(N, E, W, S))
         tip_reset = Hovertip(btn_reset, self.tooltips['Reset Waypoint List'], hover_delay=1000)
 
         # log window
@@ -957,12 +973,12 @@ class APGui():
 
         # debug block
         blk_debug = tk.Frame(page2)
-        blk_debug.grid(row=0, column=0, padx=10, pady=5, columnspan=2, sticky=(E, W))
+        blk_debug.grid(row=0, column=0, padx=10, pady=5, sticky=(E, W))
         blk_debug.columnconfigure([0, 1], weight=1, minsize=100, uniform="group2")
 
         # debug settings block
         blk_debug_settings = LabelFrame(blk_debug, text="DEBUG")
-        blk_debug_settings.grid(row=0, column=0, padx=2, pady=2, columnspan=2, sticky=(N, S, E, W))
+        blk_debug_settings.grid(row=0, column=0, padx=2, pady=2, sticky=(N, S, E, W))
         self.radiobuttonvar['debug_mode'] = StringVar()
         rb_debug_debug = Radiobutton(blk_debug_settings, pady=3, text="Debug + Info + Errors", variable=self.radiobuttonvar['debug_mode'], value="Debug", command=(lambda field='debug_mode': self.check_cb(field)))
         rb_debug_debug.grid(row=0, column=1, columnspan=2, sticky=(W))
@@ -972,6 +988,14 @@ class APGui():
         rb_debug_error.grid(row=2, column=1, columnspan=2, sticky=(W))
         btn_open_logfile = Button(blk_debug_settings, text='Open Log File', command=self.open_logfile)
         btn_open_logfile.grid(row=3, column=0, padx=2, pady=2, columnspan=2, sticky=(N, E, W, S))
+
+        # cv_view settings block
+        blk_cv_view_settings = LabelFrame(blk_debug, text="CV VIEW")
+        blk_cv_view_settings.grid(row=0, column=1, padx=2, pady=2, sticky=(N, S, E, W))
+
+        self.checkboxvar['CV View Compass Window'] = BooleanVar()
+        cb_cv_view_compass = Checkbutton(blk_cv_view_settings, text='Compass Window', onvalue=1, offvalue=0, anchor='w', pady=3, justify=LEFT, variable=self.checkboxvar['CV View Compass Window'], command=(lambda field='CV View Compass Window': self.check_cb(field)))
+        cb_cv_view_compass.grid(row=0, column=0, padx=2, pady=2, columnspan=2, sticky=(N, E, W, S))
 
         # debug settings block
         blk_single_waypoint_asst = LabelFrame(page2, text="Single Waypoint Assist")
@@ -1007,26 +1031,8 @@ class APGui():
         blk_debug_buttons.grid(row=3, column=0, padx=10, pady=5, columnspan=2, sticky=(N, S, E, W))
         blk_debug_buttons.columnconfigure([0, 1], weight=1, minsize=100)
 
-        # debug settings block
-        blk_debug_buttons_settings = LabelFrame(blk_debug, text="Single Waypoint Assist")
-        blk_debug_buttons_settings.grid(row=1, column=0, padx=2, pady=2, columnspan=2, sticky=(N, S, E, W))
-
-        lbl_system = tk.Label(blk_debug_buttons_settings, text='System:')
-        lbl_system.grid(row=0, column=0, padx=2, pady=2, columnspan=1, sticky=(N, E, W, S))
-        txt_system = Entry(blk_debug_buttons_settings, textvariable=self.single_waypoint_system)
-        txt_system.grid(row=0, column=1, padx=2, pady=2, columnspan=1, sticky=(N, E, W, S))
-        lbl_station = tk.Label(blk_debug_buttons_settings, text='Station:')
-        lbl_station.grid(row=1, column=0, padx=2, pady=2, columnspan=1, sticky=(N, E, W, S))
-        txt_station = Entry(blk_debug_buttons_settings, textvariable=self.single_waypoint_station)
-        txt_station.grid(row=1, column=1, padx=2, pady=2, columnspan=1, sticky=(N, E, W, S))
-        self.checkboxvar['Single Waypoint Assist'] = BooleanVar()
-        cb_single_waypoint = Checkbutton(blk_debug_buttons_settings, text='Single Waypoint Assist', onvalue=1, offvalue=0, anchor='w', pady=3, justify=LEFT, variable=self.checkboxvar['Single Waypoint Assist'], command=(lambda field='Single Waypoint Assist': self.check_cb(field)))
-        cb_single_waypoint.grid(row=2, column=0, padx=2, pady=2, columnspan=2, sticky=(N, E, W, S))
-        btn_load_tce = Button(blk_debug_buttons_settings, text='Load TCE Destination', command=self.load_tce_dest)
-        btn_load_tce.grid(row=3, column=0, padx=2, pady=20, columnspan=2, sticky=(N, E, W, S))
-
         btn_save = Button(blk_debug_buttons, text='Save All Settings', command=self.save_settings)
-        btn_save.grid(row=3, column=0, padx=2, pady=20, columnspan=2, sticky=(N, E, W, S))
+        btn_save.grid(row=6, column=0, padx=2, pady=2, columnspan=2, sticky=(N, E, W, S))
 
         # Statusbar
         statusbar = Frame(win)

@@ -15,10 +15,16 @@
 /configs/AP.json
 /EDAPGui.exe
 .idea/
+test/compass/out/
+test/navpoint/out/
+test/navpoint-behind/out/
 test/nav-panel/out/
 test/nav-panel/out_selected/
+test/target/out/
 test/commodities-market/out/
 test/disengage/out/
+test/images-to-rescale/out/
 test/passenger-lounge/out/
 test/target/out/
+test/dest-sirius-atmos/out/
 test/target-occluded/out/

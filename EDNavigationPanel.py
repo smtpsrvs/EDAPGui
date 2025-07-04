@@ -9,7 +9,6 @@ from EDlogger import logger
 from OCR import OCR
 from Screen import Screen
 from Screen_Regions import size_scale_for_station
-from EDStationServicesInShip import goto_ship_view
 from StatusParser import StatusParser
 
 """
@@ -22,41 +21,10 @@ Author: Stumpii
 """
 
 
-# def goto_ship_view(keys, status_parser):
-#     # TODO - does this work in all cases?
-#     # TODO - move this to a better place
-#     # TODO - Use GET_GUI_FOCUS instead
-#     status = status_parser.get_cleaned_data()
-#     if status['GuiFocus'] == GuiFocusNoFocus:
-#         return True  # Do nothing
-#     elif status['GuiFocus'] == GuiFocusInternalPanel:
-#         keys.send("UI_Back")
-#     elif status['GuiFocus'] == GuiFocusExternalPanel:
-#         keys.send("UI_Back")
-#     elif status['GuiFocus'] == GuiFocusCommsPanel:
-#         keys.send("UI_Back")
-#     elif status['GuiFocus'] == GuiFocusRolePanel:
-#         keys.send("UI_Back")
-#     elif status['GuiFocus'] == GuiFocusStationServices:
-#         keys.send("UI_Back")
-#     elif status['GuiFocus'] == GuiFocusGalaxyMap:
-#         keys.send("UI_Back")
-#     elif status['GuiFocus'] == GuiFocusSystemMap:
-#         keys.send("UI_Back")
-#         keys.send("UI_Back")  # In case in system map from galaxy map
-#     elif status['GuiFocus'] == GuiFocusOrrery:
-#         keys.send("UI_Back")
-#         keys.send("UI_Back")  # In case in system map from galaxy map
-#     elif status['GuiFocus'] == GuiFocusFSS:
-#         keys.send("UI_Back")
-#     elif status['GuiFocus'] == GuiFocusSAA:
-#         keys.send("UI_Back")
-#     elif status['GuiFocus'] == GuiFocusCodex:
-#         keys.send("UI_Back")
-
-
-class NavPanel:
-    def __init__(self, screen, keys, cb):
+class EDNavigationPanel:
+    """ The Navigation (Left hand) Ship Status Panel. """
+    def __init__(self, ed_ap, screen, keys, cb):
+        self.ap = ed_ap
         self.screen = screen
         self.ocr = OCR(screen)
         self.keys = keys
@@ -261,7 +229,7 @@ class NavPanel:
             return active, active_tab_name
         else:
             print("Open Nav Panel")
-            goto_ship_view(self.keys, self.status_parser)
+            self.ap.ship_control.goto_cockpit_view()
             self.keys.send("HeadLookReset")
 
             self.keys.send('UIFocus', state=1)
@@ -509,8 +477,8 @@ class NavPanel:
                     in_list = True
                     self.keys.send("UI_Down")  # up to next item
 
-    def request_docking(self) -> bool:
-        """ Try to request docking.
+    def request_docking_ocr(self) -> bool:
+        """ Try to request docking with OCR.
         """
         res = self.show_contacts_tab()
         if res is None:
@@ -536,6 +504,6 @@ if __name__ == "__main__":
     scr = Screen()
     mykeys = EDKeys()
     mykeys.activate_window = True  # Helps with single steps testing
-    nav_pnl = NavPanel(scr, mykeys, None)
+    nav_pnl = EDNavigationPanel(scr, mykeys, None)
     nav_pnl.scroll_to_top_of_list()
     #nav_pnl.find_destination_in_list("ssss")
