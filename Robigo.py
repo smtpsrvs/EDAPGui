@@ -306,7 +306,7 @@ class Robigo:
         while True:
        
             if self.state == STATE_MISSIONS:
-                if self.do_single_loop == False:  # if looping, then do mission processing
+                if not self.do_single_loop:  # if looping, then do mission processing
                     ap.update_ap_status("Completing missions")
                     
                     # Complete Missions, if we have any
@@ -325,7 +325,7 @@ class Robigo:
                 ap.update_ap_status("Route to SOTHIS")
                 # Target SOTHIS and plot route
                 ap.jn.ship_state()["target"] = None   # must clear out previous target from Journal
-                dest = ap.waypoint.set_waypoint_target(ap, "SOTHIS ", target_select_cb=ap.jn.ship_state)
+                dest = ap.galaxy_map.set_gal_map_destination_text(ap, "SOTHIS", target_select_cb=ap.jn.ship_state)
 
                 if dest == False:
                     ap.update_ap_status("SOTHIS not set: " + str(dest))
@@ -370,7 +370,7 @@ class Robigo:
             elif self.state == STATE_ROUTE_TO_ROBIGO:  
                 ap.update_ap_status("Route to Robigo")     
                 # Set Route back to Robigo
-                dest = ap.waypoint.set_waypoint_target(ap, "ROBIGO", target_select_cb=ap.jn.ship_state)
+                dest = ap.galaxy_map.set_gal_map_destination_text(ap, "ROBIGO", target_select_cb=ap.jn.ship_state)
                 sleep(2)
                 
                 if dest == False:
