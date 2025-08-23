@@ -985,7 +985,7 @@ class EDAutopilot:
                 cv2.putText(img, f'x: {final_x_pct:5.2f} y: {final_y_pct:5.2f} r: {final_r_pct:5.2f}',
                             (1, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
                 cv2.imshow('target', img)
-                cv2.moveWindow('target', self.cv_view_x, self.cv_view_y+425)
+                #cv2.moveWindow('target', self.cv_view_x, self.cv_view_y+425)
             except Exception as e:
                 print("exception in getdest: "+str(e))
             cv2.waitKey(30)
@@ -2402,7 +2402,6 @@ class EDAutopilot:
         while not self.terminate:
             # Show compass all the time
             self.get_nav_offset(self.scrReg)
-
             # Show target all the time
             self.get_destination_offset(self.scrReg)
 
