@@ -1366,7 +1366,10 @@ class EDAutopilot:
             logger.debug("final x:"+str(off['x'])+" y:"+str(off['y']))
 
     def fsd_target_align(self, scr_reg):
-        """ Coarse align to the target to support FSD jumping """
+        """ Coarse align to the target to support FSD jumping.
+        If target could not be found, return false.
+        @param scr_reg: The screen region class.
+        """
 
         self.vce.say("Target Align")
 
@@ -1374,9 +1377,6 @@ class EDAutopilot:
 
         close = 20  # (20%)
 
-        # TODO: should use Pitch Rates to calculate, but this seems to work fine with all ships
-        hold_pitch = 0.150
-        hold_yaw = 0.300
         new = None  # Initialize to avoid unbound variable
         off = None  # Initialize to avoid unbound variable
         
@@ -1384,6 +1384,7 @@ class EDAutopilot:
             new = self.get_destination_offset(scr_reg)
             if new:
                 off = new
+                logger.debug(f"fsd_target_align x: {str(off['x'])} y:{str(off['y'])}")
                 break
             sleep(0.25)
 
@@ -1400,15 +1401,17 @@ class EDAutopilot:
         # Safety check to ensure off is valid before using it
         if off is None:
             logger.debug('  off is None, cannot continue alignment')
+            logger.debug("fsd_target_align not finding target")
+            self.ap_ckb('log', 'Target not found, terminating SC Assist')
             return
             
-        while (off['x'] > close) or \
-              (off['x'] < -close) or \
-              (off['y'] > close) or \
-              (off['y'] < -close):
+        while ((abs(off['x']) > close) or
+               (abs(off['y']) > close)):
 
+            # TODO: should use Pitch Rates to calculate, but this seems to work fine with all ships
+            hold_pitch = 0.150
+            hold_yaw = 0.300
 
-            #print("off:"+str(new))
             if off['x'] > close:
                 self.keys.send('YawRightButton', hold=hold_yaw)
             if off['x'] < -close:
@@ -1418,18 +1421,32 @@ class EDAutopilot:
             if off['y'] < -close:
                 self.keys.send('PitchDownButton', hold=hold_pitch)
 
-            if self.jn.ship_state()['status'] == 'starting_hyperspace':
-                return
+            sleep(.02)  # time for image to catch up
 
-            for i in range(5):
-                sleep(0.1)
-                new = self.get_destination_offset(scr_reg)
-                if new:
-                    off = new
-                    break
-                sleep(0.25)
+            # if self.jn.ship_state()['status'] == 'starting_hyperspace':
+            #     return
 
-            if not off:
+            # for i in range(5):
+            #     sleep(0.1)
+            #     new = self.get_destination_offset(scr_reg)
+            #     if new:
+            #         off = new
+            #         logger.debug(f"fsd_target_align 2 x: {str(off['x'])} y:{str(off['y'])}")
+            #         break
+            #     sleep(0.25)
+            #
+            # if not off:
+            #     return
+
+            new = self.get_destination_offset(scr_reg)
+            if new:
+                off = new
+                logger.debug(f"fsd_target_align 2 x: {str(off['x'])} y:{str(off['y'])}")
+
+            # Check if target is outside the target region (behind us) and break loop
+            if new is None:
+                logger.debug("fsd_target_align lost target")
+                self.ap_ckb('log', 'Target lost, attempting re-alignment.')
                 return
 
         logger.debug('align=complete')
@@ -1444,7 +1461,19 @@ class EDAutopilot:
         self.nav_align(scr_reg)
         self.keys.send('SetSpeed100')
 
-        self.fsd_target_align(scr_reg)
+        #self.fsd_target_align(scr_reg)
+        for i in range(5):
+            align_res = self.sc_target_align(scr_reg)
+            if align_res == ScTargetAlignReturn.Lost:
+                self.nav_align(scr_reg)  # Compass Align
+
+            elif align_res == ScTargetAlignReturn.Found:
+                return
+
+            elif align_res == ScTargetAlignReturn.Disengage:
+                break
+
+        raise Exception('mnvr_to_target failed 5 times')
 
     def sc_target_align(self, scr_reg) -> ScTargetAlignReturn:
         """ Stays tight on the target, monitors for disengage and obscured.
@@ -1459,7 +1488,9 @@ class EDAutopilot:
         close = 6.0  # 6%. Anything outside of this range will cause alignment.
         inner_lim = 2.5  # Stop alignment when in this range to avoid endless tweaking.
         y_off = 1.0  # To keep the target above the center line.
-        off = None
+
+        new = None  # Initialize to avoid unbound variable
+        off = None  # Initialize to avoid unbound variable
 
         for i in range(5):
             new = self.get_destination_offset(scr_reg)
@@ -1482,18 +1513,17 @@ class EDAutopilot:
             return ScTargetAlignReturn.Lost
 
         while ((abs(off['x']) > close) or
-               (abs(off['y']) > close) or
-               (abs(off['r']) > close)):
+               (abs(off['y']) > close)):
 
             close = inner_lim  # 2.0% Alignment will continue until within this range.
-
-            yaw_factor = 0.5
-            hold_yaw = abs(off['x']) * yaw_factor / self.yawrate
-            #hold_yaw = max(hold_yaw, 0.05)
 
             pitch_factor = 0.5
             hold_pitch = abs(off['y']) * pitch_factor / self.pitchrate
             #hold_pitch = max(hold_pitch, 0.05)
+
+            yaw_factor = 0.5
+            hold_yaw = abs(off['x']) * yaw_factor / self.yawrate
+            #hold_yaw = max(hold_yaw, 0.05)
 
             if off['x'] > close:
                 self.keys.send('YawRightButton', hold=hold_yaw)
