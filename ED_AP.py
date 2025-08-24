@@ -1293,9 +1293,11 @@ class EDAutopilot:
             sleep(-1.0 * self.sunpitchuptime)
             self.keys.send('PitchDownButton', state=0)
 
-    def nav_align(self, scr_reg):
+    def nav_align(self, scr_reg) -> bool:
         """ Use the compass to find the nav point position.  Will then perform rotation and pitching
-        to put the nav point in the middle of the compass, i.e. target right in front of us """
+        to put the nav point in the middle of the compass, i.e. target right in front of us.
+        @return: True if aligned, else False.
+        """
 
         close = 7.5  # in degrees
         if not (self.jn.ship_state()['status'] == 'in_supercruise' or self.jn.ship_state()['status'] == 'in_space'):
@@ -1308,10 +1310,12 @@ class EDAutopilot:
         # the vehicle should be positioned with the sun below us via the sun_avoid() routine after a jump
         for ii in range(self.config['NavAlignTries']):
             off = self.get_nav_offset(scr_reg)
+            logger.debug(f"Compass position: yaw: {str(off['yaw'])} pit: {str(off['pit'])}")
 
             # Check if we are close enough already
             if abs(off['yaw']) < close and abs(off['pit']) < close:
-                break
+                self.ap_ckb('log', 'Compass Align complete')
+                return True
 
             # Roll if the nav point is not directly behind us.
             if ((-180 + close) < off['yaw'] < (180 - close) and
@@ -1363,7 +1367,11 @@ class EDAutopilot:
                     break
 
             sleep(.1)
-            logger.debug("final x:"+str(off['x'])+" y:"+str(off['y']))
+            logger.debug(f"Compass position: yaw: {str(off['yaw'])} pit: {str(off['pit'])}")
+
+        # Not aligned
+        self.ap_ckb('log+vce', 'Compass Align failed - exhausted all retries')
+        return False
 
     def fsd_target_align(self, scr_reg):
         """ Coarse align to the target to support FSD jumping.
@@ -1473,11 +1481,11 @@ class EDAutopilot:
             elif align_res == ScTargetAlignReturn.Disengage:
                 break
 
+        logger.error('mnvr_to_target failed 5 times')
         raise Exception('mnvr_to_target failed 5 times')
 
     def sc_target_align(self, scr_reg) -> ScTargetAlignReturn:
-        """ Stays tight on the target, monitors for disengage and obscured.
-        If target could not be found, return false.
+        """ Align to the target, monitoring for disengage and obscured.
         @param scr_reg: The screen region class.
         @return: A string detailing the reason for the method return. Current return options:
             'lost': Lost target
@@ -1491,6 +1499,8 @@ class EDAutopilot:
 
         new = None  # Initialize to avoid unbound variable
         off = None  # Initialize to avoid unbound variable
+
+        self.ap_ckb('log+vce', 'Target Align')
 
         for i in range(5):
             new = self.get_destination_offset(scr_reg)
@@ -1509,7 +1519,7 @@ class EDAutopilot:
         # Could not be found, return
         if off is None:
             logger.debug("sc_target_align not finding target")
-            self.ap_ckb('log', 'Target not found, terminating SC Assist')
+            self.ap_ckb('log', 'Target Align failed - target not found')
             return ScTargetAlignReturn.Lost
 
         while ((abs(off['x']) > close) or
@@ -1560,7 +1570,7 @@ class EDAutopilot:
             # Check if target is outside the target region (behind us) and break loop
             if new is None:
                 logger.debug("sc_target_align lost target")
-                self.ap_ckb('log', 'Target lost, attempting re-alignment.')
+                self.ap_ckb('log', 'Target Align failed - lost target.')
                 return ScTargetAlignReturn.Lost
 
         # TODO - find a better way to clear these
@@ -1572,6 +1582,7 @@ class EDAutopilot:
             self.overlay.overlay_remove_floating_text('sc_disengage_active')
             self.overlay.overlay_paint()
 
+        self.ap_ckb('log', 'Target Align complete.')
         return ScTargetAlignReturn.Found
 
     def occluded_reposition(self, scr_reg):
