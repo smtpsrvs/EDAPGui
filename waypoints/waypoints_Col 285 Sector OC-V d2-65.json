@@ -1,0 +1,69 @@
+{
+    "GlobalShoppingList": {
+        "SystemName": "",
+        "StationName": "",
+        "GalaxyBookmarkType": "",
+        "GalaxyBookmarkNumber": 0,
+        "SystemBookmarkType": "",
+        "SystemBookmarkNumber": 0,
+        "UpdateCommodityCount": true,
+        "FleetCarrierTransfer": false,
+        "Skip": false,
+        "Completed": false,
+        "Comment": "",
+        "BuyCommodities": {},
+        "SellCommodities": {}
+    },
+    "2": {
+        "SystemName": "Col 285 Sector OC-V d2-65",
+        "StationName": "Tarasenko Creations",
+        "GalaxyBookmarkType": "Settlement",
+        "GalaxyBookmarkNumber": 1,
+        "SystemBookmarkType": "",
+        "SystemBookmarkNumber": 0,
+        "UpdateCommodityCount": true,
+        "FleetCarrierTransfer": false,
+        "Skip": false,
+        "Completed": false,
+        "Comment": "None",
+        "BuyCommodities": {},
+        "SellCommodities": {
+            "ALL": 0
+        }
+    },
+    "1": {
+        "SystemName": "HIP 24405",
+        "StationName": "Biermann Depot",
+        "GalaxyBookmarkType": "",
+        "GalaxyBookmarkNumber": 0,
+        "SystemBookmarkType": "Station",
+        "SystemBookmarkNumber": 1,
+        "UpdateCommodityCount": true,
+        "FleetCarrierTransfer": false,
+        "Skip": false,
+        "Completed": false,
+        "Comment": "None",
+        "BuyCommodities": {
+            "Steel": 9522,
+            "Ceramic Composites": 0,
+            "Polymers": 0,
+            "Aluminium": 0
+        },
+        "SellCommodities": {}
+    },
+    "rep": {
+        "SystemName": "REPEAT",
+        "StationName": "",
+        "GalaxyBookmarkType": "",
+        "GalaxyBookmarkNumber": 0,
+        "SystemBookmarkType": "",
+        "SystemBookmarkNumber": 0,
+        "UpdateCommodityCount": false,
+        "FleetCarrierTransfer": false,
+        "Skip": false,
+        "Completed": false,
+        "Comment": "None",
+        "BuyCommodities": {},
+        "SellCommodities": {}
+    }
+}
