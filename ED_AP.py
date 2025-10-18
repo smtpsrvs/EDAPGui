@@ -2151,6 +2151,7 @@ class EDAutopilot:
             else:
                 # if we dropped from SC, then we rammed into planet
                 logger.debug("No longer in supercruise")
+                time.sleep(3)
                 align_failed = True
                 break
 
