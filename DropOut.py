@@ -58,6 +58,62 @@ def _get_target_coordinates(ship_data: Any) -> tuple[float | None, float | None,
     return lat, lon, alt
 
 
+def _handle_surface_approach(ship_data, status, keys, logger) -> str:
+    """Handle the glide / surface approach sequence."""
+
+    try:
+        from sc_assist import sc_target_align
+    except ImportError as exc:
+        logger.error(f'Не вдалося імпортувати sc_target_align: {exc}')
+        return "reengage_supercruise"
+
+    keys.send("SetSpeed100")
+    loop_context: str | None = None
+    for _ in range(120):
+        status.get_cleaned_data()
+        altitude = status.current_data.get("Altitude", 99999) if status.current_data else 99999
+        target_lat, target_lon, target_alt = _get_target_coordinates(ship_data)
+        distance = status.get_distance_to_target(target_lat, target_lon, target_alt)
+
+        if distance is not None:
+            logger.debug(f"DistanceToTarget: {distance:.0f} м")
+        else:
+            logger.debug("DistanceToTarget: невідомо")
+
+        sc_target_align()
+
+        if altitude < 20000:
+            keys.send("SetSpeed50")
+        if altitude < 10000:
+            keys.send("SetSpeed25")
+        if altitude < 7000 and distance is not None and distance < 10000:
+            logger.info(f"Approach complete — {distance/1000:.1f} км до станції, переходжу до докування")
+            loop_context = "station_docking"
+            break
+        if altitude < 5000:
+            logger.warning("Altitude < 5 km — уникаю зіткнення")
+            loop_context = "surface_approach"
+            break
+
+        pitch = status.current_data.get("Pitch", 0) if status.current_data else 0
+        if distance is not None:
+            logger.info(f"Altitude {altitude:.0f}м, Distance {distance/1000:.1f} км — продовжую Glide")
+        else:
+            logger.info(f"Altitude {altitude:.0f}м, Distance невідомо — продовжую Glide")
+
+        if abs(pitch) > 45:
+            keys.send("SetSpeedZero")
+            logger.warning("Кут занадто великий — стабілізую")
+
+        time.sleep(0.5)
+
+    if loop_context is None:
+        logger.warning("Timeout 60s — Glide або Approach не виявлено")
+        loop_context = "surface_approach"
+
+    return loop_context
+
+
 def DropOut_context(ship_data, status, keys, nav_panel, logger):
     """
     Визначає контекст після виходу із Supercruise.
@@ -74,65 +130,19 @@ def DropOut_context(ship_data, status, keys, nav_panel, logger):
         context = "recover_from_interdiction"
     else:
         station_type = _get_station_type(ship_data)
+        target_lat, target_lon, target_alt = _get_target_coordinates(ship_data)
+
         if not station_type:
-            logger.warning("Невідомий тип станції — повертаю reengage_supercruise")
-            context = "reengage_supercruise"
+            if any(coord is not None for coord in (target_lat, target_lon, target_alt)):
+                logger.info("Є координати цілі, але тип станції невідомий — припускаю планетарний підхід")
+                context = _handle_surface_approach(ship_data, status, keys, logger)
+            else:
+                logger.warning("Невідомий тип станції — повертаю reengage_supercruise")
+                context = "reengage_supercruise"
         else:
             normalized_type = station_type.lower()
             if any(keyword in normalized_type for keyword in ("planetary", "surface", "altitude", "glide")):
-                try:
-                    from sc_assist import sc_target_align
-                except ImportError as exc:
-                    logger.error(f'Не вдалося імпортувати sc_target_align: {exc}')
-                    context = "reengage_supercruise"
-                    logger.info(f"DropOut завершено — повертаю контекст: {context}")
-                    return context
-
-                keys.send("SetSpeed100")
-                loop_context: str | None = None
-                for _ in range(120):
-                    status.get_cleaned_data()
-                    altitude = status.current_data.get("Altitude", 99999) if status.current_data else 99999
-                    target_lat, target_lon, target_alt = _get_target_coordinates(ship_data)
-                    distance = status.get_distance_to_target(target_lat, target_lon, target_alt)
-
-                    if distance is not None:
-                        logger.debug(f"DistanceToTarget: {distance:.0f} м")
-                    else:
-                        logger.debug("DistanceToTarget: невідомо")
-
-                    sc_target_align()
-
-                    if altitude < 20000:
-                        keys.send("SetSpeed50")
-                    if altitude < 10000:
-                        keys.send("SetSpeed25")
-                    if altitude < 7000 and distance is not None and distance < 10000:
-                        logger.info(f"Approach complete — {distance/1000:.1f} км до станції, переходжу до докування")
-                        loop_context = "station_docking"
-                        break
-                    if altitude < 5000:
-                        logger.warning("Altitude < 5 km — уникаю зіткнення")
-                        loop_context = "surface_approach"
-                        break
-
-                    pitch = status.current_data.get("Pitch", 0) if status.current_data else 0
-                    if distance is not None:
-                        logger.info(f"Altitude {altitude:.0f}м, Distance {distance/1000:.1f} км — продовжую Glide")
-                    else:
-                        logger.info(f"Altitude {altitude:.0f}м, Distance невідомо — продовжую Glide")
-
-                    if abs(pitch) > 45:
-                        keys.send("SetSpeedZero")
-                        logger.warning("Кут занадто великий — стабілізую")
-
-                    time.sleep(0.5)
-
-                if loop_context is None:
-                    logger.warning("Timeout 60s — Glide або Approach не виявлено")
-                    loop_context = "surface_approach"
-
-                context = loop_context
+                context = _handle_surface_approach(ship_data, status, keys, logger)
             elif "station" in normalized_type or "coriolis" in normalized_type:
                 logger.info("Виявлено орбітальну станцію — перехід у режим докування")
                 context = "station_docking"
