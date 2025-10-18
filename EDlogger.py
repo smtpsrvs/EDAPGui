@@ -1,5 +1,3 @@
-import sys
-
 import colorlog
 import datetime
 import logging
@@ -17,31 +15,51 @@ if os.path.exists(_filename):
     os.rename(_filename, f"{filename_only} {x}.log")
 
 # Define the logging config.
-logging.basicConfig(filename=_filename, level=logging.ERROR,
-                    format='%(asctime)s.%(msecs)03d %(levelname)-8s %(message)s',
-                    datefmt='%H:%M:%S')
+logging.basicConfig(
+    filename=_filename,
+    level=logging.INFO,
+    format='%(asctime)s.%(msecs)03d [%(name)s] %(levelname)-8s %(message)s',
+    datefmt='%H:%M:%S'
+)
 
-logger = colorlog.getLogger('ed_log')
 
-# Change this to debug if want to see debug lines in log file
-logger.setLevel(logging.INFO)    # change to INFO for more... DEBUG for much more
-logger.info(f'Python version: {sys.version}')
+def get_module_logger(name):
+    import colorlog as _colorlog
+    import logging as _logging
 
-handler = logging.StreamHandler()
-handler.setLevel(logging.WARNING)  # change this to what is shown on console
-handler.setFormatter(
-    colorlog.ColoredFormatter('%(log_color)s%(levelname)-8s%(reset)s %(white)s%(message)s', 
+    logger = _colorlog.getLogger(name)
+    handler = _colorlog.StreamHandler()
+    formatter = _colorlog.ColoredFormatter(
+        "%(log_color)s%(asctime)s.%(msecs)03d [%(name)s] %(levelname)-8s%(reset)s %(message)s",
+        datefmt="%H:%M:%S",
         log_colors={
-            'DEBUG':    'fg_bold_cyan',
-            'INFO':     'fg_bold_green',
-            'WARNING':  'bg_bold_yellow,fg_bold_blue',
-            'ERROR':    'bg_bold_red,fg_bold_white',
-            'CRITICAL': 'bg_bold_red,fg_bold_yellow',
-	},secondary_log_colors={}
+            'DEBUG': 'cyan',
+            'INFO': 'green',
+            'WARNING': 'yellow',
+            'ERROR': 'red',
+            'CRITICAL': 'bold_red'
+        }
+    )
+    handler.setFormatter(formatter)
+    if not logger.handlers:
+        logger.addHandler(handler)
+    logger.setLevel(_logging.INFO)
+    return logger
 
-    ))
-logger.addHandler(handler)
 
-#logger.disabled = True
-#logger.disabled = False
+def set_global_log_level(level):
+    import logging as _logging
+
+    _logging.getLogger().setLevel(level)
+    for name, logger in _logging.Logger.manager.loggerDict.items():
+        if isinstance(logger, _logging.Logger):
+            logger.setLevel(level)
+
+
+def get_logger():
+    return get_module_logger("GLOBAL")
+
+
+logger = get_logger()
+
 

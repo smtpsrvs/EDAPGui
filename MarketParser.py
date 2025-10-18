@@ -6,7 +6,10 @@ import time
 from operator import itemgetter
 from sys import platform
 from time import sleep
-from EDlogger import logger
+from EDlogger import get_module_logger
+
+LOGGER_NAME = __name__.split('.')[-1].upper()
+logger = get_module_logger(LOGGER_NAME)
 
 
 class MarketParser:
@@ -136,7 +139,7 @@ class MarketParser:
             return None
 
         sellable_items = [x for x in data['Items'] if x['Consumer'] or
-                          ((x['Demand'] > 1 or x['Demand'] or x['Rare']) and cargo_parser.get_item(x['Name_Localised']) is not None)]
+                          ((x['Demand'] > 1 or x['Demand']) and cargo_parser.get_item(x['Name_Localised']) is not None)]
         # DemandBracket: 0=Not listed, 1=Low Demand, 2=Medium Demand, 3=High Demand
         # sellable_items = [x for x in data['Items'] if x['DemandBracket'] > 0]
         # sellable_items = [x for x in data['Items'] if self.can_sell_item(x['Name_Localised'])]

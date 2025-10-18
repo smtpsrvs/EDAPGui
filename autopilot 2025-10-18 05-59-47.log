@@ -1,0 +1,678 @@
+05:41:42.219 [__MAIN__] INFO     Starting ED Autopilot V1.7.0.
+05:41:42.224 [AUTOPILOT] DEBUG    Log level set to DEBUG from configuration
+05:41:42.225 [EDGRAPHICSSETTINGS] INFO     Reading ED graphics display settings from 'C:\Users\Acer Nitro\AppData\Local\Frontier Developments\Elite Dangerous\Options\Graphics\DisplaySettings.xml'.
+05:41:42.226 [EDGRAPHICSSETTINGS] INFO     Reading ED graphics settings from 'C:\Users\Acer Nitro\AppData\Local\Frontier Developments\Elite Dangerous\Options\Graphics\Settings.xml'.
+05:41:42.226 [EDGRAPHICSSETTINGS] DEBUG    Elite Dangerous Display Config 'ScreenWidth': 2560.
+05:41:42.228 [EDGRAPHICSSETTINGS] DEBUG    Elite Dangerous Display Config 'ScreenHeight': 1440.
+05:41:42.228 [EDGRAPHICSSETTINGS] DEBUG    Elite Dangerous Display Config 'Fullscreen': Borderless.
+05:41:42.228 [EDGRAPHICSSETTINGS] DEBUG    Elite Dangerous Display Config 'Monitor': 0.
+05:41:42.228 [EDGRAPHICSSETTINGS] DEBUG    Elite Dangerous Graphics Options 'FOV': 54.848240.
+05:41:42.233 [SCREEN] DEBUG    Found Elite Dangerous window position: (0, 0, 2560, 1440)
+05:41:42.233 [SCREEN] DEBUG    Found monitor 1 with details: {'left': 0, 'top': 0, 'width': 2560, 'height': 1440}
+05:41:42.234 [SCREEN] DEBUG    Elite Dangerous is on monitor 1.
+05:41:42.234 [SCREEN] DEBUG    read json:{'1024x768': [0.39, 0.39], '1080x1080': [0.5, 0.5], '1280x800': [0.48, 0.48], '1280x1024': [0.5, 0.5], '1600x900': [0.6, 0.6], '1920x1080': [0.75, 0.75], '1920x1200': [0.73, 0.73], '1920x1440': [0.8, 0.8], '2560x1080': [0.75, 0.75], '2560x1440': [1.0, 1.0], '3440x1440': [1.0, 1.0], '3840 x 2160': [1.52, 1.52], 'Calibrated': [-1.0, -1.0]}
+05:41:42.234 [SCREEN] DEBUG    screen size: 2560 1440
+05:41:42.234 [SCREEN] DEBUG    Default scale X, Y: 1.0, 1.0
+05:41:43.245 [comtypes] DEBUG    CoInitializeEx(None, 2)
+05:41:43.250 [EDJOURNAL] INFO     Opening new Journal: C:\Users\Acer Nitro\Saved Games\Frontier Developments\Elite Dangerous\Journal.2025-10-17T222134.01.log
+05:41:43.271 [EDJOURNAL] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:41:43.285 [EDJOURNAL] DEBUG    Journal*.log: read: 1 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': None, 'location': None, 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': None, 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': None, 'fuel_level': None, 'fuel_percent': 10, 'is_scooping': False, 'cur_star_system': '', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': None, 'ship_size': None, 'has_fuel_scoop': None, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': None, 'has_std_dock_comp': None, 'has_sco_fsd': None, 'StationServices': None, 'target_latitude': None, 'target_longitude': None, 'target_altitude': None}
+05:41:43.286 [EDJOURNAL] DEBUG    Journal*.log: read: 8 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': None, 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': None, 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': '', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': None, 'ship_size': 'L', 'has_fuel_scoop': None, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': None, 'has_std_dock_comp': None, 'has_sco_fsd': None, 'StationServices': None, 'target_latitude': None, 'target_longitude': None, 'target_altitude': None}
+05:41:43.286 [EDJOURNAL] DEBUG    Journal*.log: read: 11 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': None, 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': None, 'ship_size': 'L', 'has_fuel_scoop': None, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': None, 'has_std_dock_comp': None, 'has_sco_fsd': None, 'StationServices': None, 'target_latitude': None, 'target_longitude': None, 'target_altitude': None}
+05:41:43.287 [EDJOURNAL] DEBUG    Journal*.log: read: 16 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': None, 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': None, 'target_longitude': None, 'target_altitude': None}
+05:41:43.288 [EDJOURNAL] DEBUG    Journal*.log: read: 21 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'Col 285 Sector GK-G b11-4', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': None, 'dist_jumped': 0, 'jumps_remains': 20, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': None, 'target_longitude': None, 'target_altitude': None}
+05:41:43.288 [EDJOURNAL] DEBUG    Journal*.log: read: 26 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'Col 285 Sector HL-O c6-8', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': None, 'dist_jumped': 0, 'jumps_remains': 10, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': None, 'target_longitude': None, 'target_altitude': None}
+05:41:43.288 [EDJOURNAL] DEBUG    Journal*.log: read: 30 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': None, 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': None, 'target_longitude': None, 'target_altitude': None}
+05:41:43.289 [EDJOURNAL] DEBUG    Journal*.log: read: 37 ship: {'time': 29, 'odyssey': True, 'status': 'starting_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': None, 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': None, 'target_longitude': None, 'target_altitude': None}
+05:41:43.289 [EDJOURNAL] DEBUG    Journal*.log: read: 49 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': None, 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': None, 'target_longitude': None, 'target_altitude': None}
+05:41:43.289 [EDJOURNAL] DEBUG    Journal*.log: read: 53 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': None, 'target_longitude': None, 'target_altitude': None}
+05:41:43.290 [EDJOURNAL] DEBUG    Journal*.log: read: 60 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.291 [EDJOURNAL] DEBUG    Journal*.log: read: 69 ship: {'time': 29, 'odyssey': True, 'status': 'starting_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.291 [EDJOURNAL] DEBUG    Journal*.log: read: 70 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.291 [comtypes.client._code_cache] INFO     Imported existing <module 'comtypes.gen' from 'C:\\Users\\Acer Nitro\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages\\comtypes\\gen\\__init__.py'>
+05:41:43.291 [EDJOURNAL] DEBUG    Journal*.log: read: 78 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.292 [comtypes.client._code_cache] INFO     Using writeable comtypes cache directory: 'C:\Users\Acer Nitro\AppData\Local\Programs\Python\Python311\Lib\site-packages\comtypes\gen'
+05:41:43.292 [EDJOURNAL] DEBUG    Journal*.log: read: 83 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': None, 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.292 [EDJOURNAL] DEBUG    Journal*.log: read: 86 ship: {'time': 29, 'odyssey': True, 'status': 'dockingdenied', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.292 [EDJOURNAL] DEBUG    Journal*.log: read: 91 ship: {'time': 29, 'odyssey': True, 'status': 'starting_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.293 [EDJOURNAL] DEBUG    Journal*.log: read: 92 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.293 [EDJOURNAL] DEBUG    Journal*.log: read: 98 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.294 [EDJOURNAL] DEBUG    Journal*.log: read: 102 ship: {'time': 29, 'odyssey': True, 'status': 'starting_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.294 [EDJOURNAL] DEBUG    Journal*.log: read: 103 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.294 [EDJOURNAL] DEBUG    Journal*.log: read: 107 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.294 [EDJOURNAL] DEBUG    Journal*.log: read: 110 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.295 [EDJOURNAL] DEBUG    Journal*.log: read: 112 ship: {'time': 29, 'odyssey': True, 'status': 'starting_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.295 [EDJOURNAL] DEBUG    Journal*.log: read: 113 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.295 [EDJOURNAL] DEBUG    Journal*.log: read: 118 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': 'De Landing', 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.296 [EDJOURNAL] DEBUG    Journal*.log: read: 119 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'De Landing', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': 'De Landing', 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.296 [EDJOURNAL] DEBUG    Journal*.log: read: 126 ship: {'time': 29, 'odyssey': True, 'status': 'dockingdenied', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'De Landing', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': 'De Landing', 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.296 [EDJOURNAL] DEBUG    Journal*.log: read: 127 ship: {'time': 29, 'odyssey': True, 'status': 'starting_docking', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'De Landing', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': 'De Landing', 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.296 [EDJOURNAL] DEBUG    Journal*.log: read: 130 ship: {'time': 29, 'odyssey': True, 'status': 'dockinggranted', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'De Landing', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': '', 'cur_station_type': '', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': 'De Landing', 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': None, 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.297 [EDJOURNAL] DEBUG    Journal*.log: read: 133 ship: {'time': 29, 'odyssey': True, 'status': 'in_station', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'De Landing', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': 'De Landing', 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.297 [EDJOURNAL] DEBUG    Journal*.log: read: 142 ship: {'time': 29, 'odyssey': True, 'status': 'starting_undocking', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'De Landing', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': 'De Landing', 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.298 [EDJOURNAL] DEBUG    Journal*.log: read: 143 ship: {'time': 29, 'odyssey': True, 'status': 'in_undocking', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'De Landing', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': 'De Landing', 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.298 [EDJOURNAL] DEBUG    Journal*.log: read: 144 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'De Landing', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': 'De Landing', 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.298 [EDJOURNAL] DEBUG    Journal*.log: read: 146 ship: {'time': 29, 'odyssey': True, 'status': 'starting_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'De Landing', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.298 [EDJOURNAL] DEBUG    Journal*.log: read: 147 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'De Landing', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.301 [EDJOURNAL] DEBUG    Journal*.log: read: 152 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.301 [EDJOURNAL] DEBUG    Journal*.log: read: 161 ship: {'time': 29, 'odyssey': True, 'status': 'starting_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.301 [EDJOURNAL] DEBUG    Journal*.log: read: 162 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.302 [EDJOURNAL] DEBUG    Journal*.log: read: 169 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.304 [EDJOURNAL] DEBUG    Journal*.log: read: 170 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.305 [EDJOURNAL] DEBUG    Journal*.log: read: 180 ship: {'time': 29, 'odyssey': True, 'status': 'starting_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.305 [EDJOURNAL] DEBUG    Journal*.log: read: 181 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': 'HIP 24291', 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 8, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.305 [EDJOURNAL] DEBUG    Journal*.log: read: 186 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.306 [EDJOURNAL] DEBUG    Journal*.log: read: 191 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.390 [EDJOURNAL] DEBUG    Journal*.log: read: 200 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.396 [EDJOURNAL] DEBUG    Journal*.log: read: 205 ship: {'time': 29, 'odyssey': True, 'status': 'starting_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.408 [EDJOURNAL] DEBUG    Journal*.log: read: 207 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.72195, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.408 [EDJOURNAL] DEBUG    Journal*.log: read: 219 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.409 [EDJOURNAL] DEBUG    Journal*.log: read: 220 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.409 [EDJOURNAL] DEBUG    Journal*.log: read: 232 ship: {'time': 29, 'odyssey': True, 'status': 'starting_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.409 [EDJOURNAL] DEBUG    Journal*.log: read: 233 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.409 [EDJOURNAL] DEBUG    Journal*.log: read: 242 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.410 [EDJOURNAL] DEBUG    Journal*.log: read: 249 ship: {'time': 29, 'odyssey': True, 'status': 'starting_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.410 [EDJOURNAL] DEBUG    Journal*.log: read: 250 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': None, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:41:43.410 [comtypes.client._create] DEBUG    SAPI.SPVoice -> {96749377-3391-11D2-9EE3-00C04F797396}
+05:41:43.410 [comtypes.client._create] DEBUG    CoCreateInstance({96749377-3391-11D2-9EE3-00C04F797396}, clsctx=None, interface=None)
+05:41:43.412 [EDKEYS] INFO     Latest keybindings file:C:\Users\Acer Nitro\AppData\Local\Frontier Developments\Elite Dangerous\Options\Bindings\Custom.4.2.binds
+05:41:43.417 [comtypes.client._managing] DEBUG    GetBestInterface(<POINTER(IUnknown) ptr=0x2312ffdb600 at 23163fa4150>)
+05:41:43.417 [EDKEYS] INFO     Latest keybindings file:C:\Users\Acer Nitro\AppData\Local\Frontier Developments\Elite Dangerous\Options\Bindings\Custom.4.2.binds
+05:41:43.417 [comtypes.client._managing] DEBUG    Does implement IProvideClassInfo
+05:41:43.423 [comtypes.client._managing] DEBUG    Default interface is {269316D8-57BD-11D2-9EEE-00C04F797396}
+05:41:43.423 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IUnknown) ptr=0x2312ffdb640 at 2316f7f6f50>
+05:41:43.423 [comtypes.client._generate] DEBUG    GetModule(TLIBATTR(GUID={C866CA3A-32F7-11D2-9602-00C04F8EE628}, Version=5.4, LCID=0, FLags=0x8))
+05:41:43.424 [comtypes.client._managing] DEBUG    Implements default interface from typeinfo <class 'comtypes.gen._C866CA3A_32F7_11D2_9602_00C04F8EE628_0_5_4.ISpeechVoice'>
+05:41:43.424 [comtypes.client._managing] DEBUG    Final result is <POINTER(ISpeechVoice) ptr=0x2312ffdb640 at 2316f7f6fd0>
+05:41:43.424 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IProvideClassInfo) ptr=0x2312ffdb660 at 2316f7d7ed0>
+05:41:43.424 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ITypeInfo) ptr=0x2316c172048 at 2316f7d7e50>
+05:41:43.424 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ITypeInfo) ptr=0x2316c1720a0 at 2316f7f7150>
+05:41:43.424 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ITypeLib) ptr=0x2316b7d8800 at 2316f7f6f50>
+05:41:43.424 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IUnknown) ptr=0x2312ffdb600 at 23163fa4150>
+05:41:43.424 [comtypes.client._events] DEBUG    <POINTER(ISpeechVoice) ptr=0x2312ffdb640 at 2316f7f6fd0> using sinkinterface from clsid <class 'comtypes.gen._C866CA3A_32F7_11D2_9602_00C04F8EE628_0_5_4._ISpeechVoiceEvents'>
+05:41:43.423 [EDKEYS] INFO     	get_bindings_<YawLeftButton>={'key': 30, 'mods': []} Key: <Key_A> Mod: < >
+05:41:43.424 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IProvideClassInfo2) ptr=0x2312ffdb660 at 23163fa4150>
+05:41:43.425 [comtypes._vtbl] DEBUG    <comtypes.client._events.CreateEventReceiver.<locals>.Sink object at 0x0000023163F96E50>: _ISpeechVoiceEvents.VoiceChange not implemented
+05:41:43.425 [comtypes._vtbl] DEBUG    <comtypes.client._events.CreateEventReceiver.<locals>.Sink object at 0x0000023163F96E50>: _ISpeechVoiceEvents.Bookmark not implemented
+05:41:43.424 [EDKEYS] INFO     	get_bindings_<YawRightButton>={'key': 32, 'mods': []} Key: <Key_D> Mod: < >
+05:41:43.425 [comtypes._vtbl] DEBUG    <comtypes.client._events.CreateEventReceiver.<locals>.Sink object at 0x0000023163F96E50>: _ISpeechVoiceEvents.Word not implemented
+05:41:43.425 [comtypes._vtbl] DEBUG    <comtypes.client._events.CreateEventReceiver.<locals>.Sink object at 0x0000023163F96E50>: _ISpeechVoiceEvents.Sentence not implemented
+05:41:43.425 [comtypes._vtbl] DEBUG    <comtypes.client._events.CreateEventReceiver.<locals>.Sink object at 0x0000023163F96E50>: _ISpeechVoiceEvents.Phoneme not implemented
+05:41:43.425 [EDKEYS] INFO     	get_bindings_<RollLeftButton>={'key': 30, 'mods': [56]} Key: <Key_A> Mod: <Key_LeftAlt>
+05:41:43.425 [comtypes._vtbl] DEBUG    <comtypes.client._events.CreateEventReceiver.<locals>.Sink object at 0x0000023163F96E50>: _ISpeechVoiceEvents.Viseme not implemented
+05:41:43.425 [EDKEYS] INFO     	get_bindings_<RollRightButton>={'key': 32, 'mods': [56]} Key: <Key_D> Mod: <Key_LeftAlt>
+05:41:43.425 [comtypes._vtbl] DEBUG    <comtypes.client._events.CreateEventReceiver.<locals>.Sink object at 0x0000023163F96E50>: _ISpeechVoiceEvents.AudioLevel not implemented
+05:41:43.426 [comtypes._vtbl] DEBUG    <comtypes.client._events.CreateEventReceiver.<locals>.Sink object at 0x0000023163F96E50>: _ISpeechVoiceEvents.EnginePrivate not implemented
+05:41:43.426 [EDKEYS] INFO     	get_bindings_<PitchUpButton>={'key': 17, 'mods': [56]} Key: <Key_W> Mod: <Key_LeftAlt>
+05:41:43.426 [comtypes.client._events] DEBUG    Start advise <class 'comtypes.gen._C866CA3A_32F7_11D2_9602_00C04F8EE628_0_5_4._ISpeechVoiceEvents'>
+05:41:43.426 [EDKEYS] INFO     	get_bindings_<PitchDownButton>={'key': 31, 'mods': [56]} Key: <Key_S> Mod: <Key_LeftAlt>
+05:41:43.426 [comtypes._comobject] DEBUG    <comtypes.client._events.CreateEventReceiver.<locals>.Sink object at 0x0000023163F96E50>.QueryInterface({A372ACD1-3BEF-4BBD-8FFB-CB3E2B416AF8}) -> S_OK
+05:41:43.426 [EDKEYS] INFO     	get_bindings_<SetSpeedZero>={'key': 45, 'mods': []} Key: <Key_X> Mod: < >
+05:41:43.426 [comtypes._comobject] DEBUG    1 active COM objects: Added   <comtypes.client._events.CreateEventReceiver.<locals>.Sink object at 0x0000023163F96E50>
+05:41:43.426 [EDKEYS] INFO     	get_bindings_<SetSpeed50>={'key': 61, 'mods': []} Key: <Key_F3> Mod: < >
+05:41:43.426 [comtypes._comobject] DEBUG    <comtypes.client._events.CreateEventReceiver.<locals>.Sink object at 0x0000023163F96E50>.AddRef() -> 1
+05:41:43.426 [EDKEYS] INFO     	get_bindings_<SetSpeed100>={'key': 63, 'mods': []} Key: <Key_F5> Mod: < >
+05:41:43.426 [EDKEYS] INFO     	get_bindings_<HyperSuperCombination>={'key': 36, 'mods': []} Key: <Key_J> Mod: < >
+05:41:43.426 [EDKEYS] INFO     	get_bindings_<SelectTarget>={'key': 20, 'mods': []} Key: <Key_T> Mod: < >
+05:41:43.427 [EDKEYS] INFO     	get_bindings_<DeployHeatSink>={'key': 22, 'mods': [56]} Key: <Key_U> Mod: <Key_LeftAlt>
+05:41:43.427 [EDKEYS] INFO     	get_bindings_<UIFocus>={'key': 42, 'mods': []} Key: <Key_LeftShift> Mod: < >
+05:41:43.427 [EDKEYS] INFO     	get_bindings_<UI_Up>={'key': 200, 'mods': []} Key: <Key_UpArrow> Mod: < >
+05:41:43.427 [EDKEYS] INFO     	get_bindings_<UI_Down>={'key': 208, 'mods': []} Key: <Key_DownArrow> Mod: < >
+05:41:43.427 [EDKEYS] INFO     	get_bindings_<UI_Left>={'key': 203, 'mods': []} Key: <Key_LeftArrow> Mod: < >
+05:41:43.427 [EDKEYS] INFO     	get_bindings_<UI_Right>={'key': 205, 'mods': []} Key: <Key_RightArrow> Mod: < >
+05:41:43.427 [EDKEYS] INFO     	get_bindings_<UI_Select>={'key': 57, 'mods': []} Key: <Key_Space> Mod: < >
+05:41:43.427 [EDKEYS] INFO     	get_bindings_<UI_Back>={'key': 14, 'mods': []} Key: <Key_Backspace> Mod: < >
+05:41:43.427 [EDKEYS] INFO     	get_bindings_<CycleNextPanel>={'key': 18, 'mods': []} Key: <Key_E> Mod: < >
+05:41:43.427 [EDKEYS] INFO     	get_bindings_<HeadLookReset>={'key': 41, 'mods': [29]} Key: <Key_Grave> Mod: <Key_LeftControl>
+05:41:43.427 [EDKEYS] INFO     	get_bindings_<PrimaryFire>={'key': 8, 'mods': []} Key: <Key_7> Mod: < >
+05:41:43.427 [EDKEYS] INFO     	get_bindings_<SecondaryFire>={'key': 9, 'mods': []} Key: <Key_8> Mod: < >
+05:41:43.429 [EDKEYS] INFO     	get_bindings_<ExplorationFSSEnter>={'key': 64, 'mods': []} Key: <Key_F6> Mod: < >
+05:41:43.429 [EDKEYS] INFO     	get_bindings_<ExplorationFSSQuit>={'key': 65, 'mods': []} Key: <Key_F7> Mod: < >
+05:41:43.429 [EDKEYS] INFO     	get_bindings_<MouseReset>={'key': 53, 'mods': []} Key: <Key_Slash> Mod: < >
+05:41:43.429 [EDKEYS] INFO     	get_bindings_<DeployHardpointToggle>={'key': 22, 'mods': []} Key: <Key_U> Mod: < >
+05:41:43.429 [EDKEYS] INFO     	get_bindings_<IncreaseEnginesPower>={'key': 200, 'mods': [29]} Key: <Key_UpArrow> Mod: <Key_LeftControl>
+05:41:43.429 [EDKEYS] INFO     	get_bindings_<IncreaseWeaponsPower>={'key': 203, 'mods': [29]} Key: <Key_LeftArrow> Mod: <Key_LeftControl>
+05:41:43.429 [EDKEYS] INFO     	get_bindings_<IncreaseSystemsPower>={'key': 205, 'mods': [29]} Key: <Key_RightArrow> Mod: <Key_LeftControl>
+05:41:43.429 [EDKEYS] INFO     	get_bindings_<GalaxyMapOpen>={'key': 50, 'mods': [56]} Key: <Key_M> Mod: <Key_LeftAlt>
+05:41:43.429 [EDKEYS] INFO     	get_bindings_<CamZoomIn>={'key': 44, 'mods': []} Key: <Key_Z> Mod: < >
+05:41:43.429 [EDKEYS] INFO     	get_bindings_<SystemMapOpen>={'key': 50, 'mods': [29]} Key: <Key_M> Mod: <Key_LeftControl>
+05:41:43.429 [EDKEYS] INFO     	get_bindings_<UseBoostJuice>={'key': 15, 'mods': []} Key: <Key_Tab> Mod: < >
+05:41:43.429 [EDKEYS] INFO     	get_bindings_<Supercruise>={'key': 37, 'mods': []} Key: <Key_K> Mod: < >
+05:41:43.430 [EDKEYS] INFO     	get_bindings_<UpThrustButton>={'key': 19, 'mods': []} Key: <Key_R> Mod: < >
+05:41:43.430 [EDKEYS] INFO     	get_bindings_<LandingGearToggle>={'key': 38, 'mods': []} Key: <Key_L> Mod: < >
+05:41:43.430 [EDKEYS] INFO     	get_bindings_<TargetNextRouteSystem>={'key': 36, 'mods': [29]} Key: <Key_J> Mod: <Key_LeftControl>
+05:41:43.430 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IConnectionPointContainer) ptr=0x2312ffdb668 at 23163fa4050>
+05:41:43.430 [EDKEYS] INFO     	get_bindings_<CamTranslateForward>={'key': 17, 'mods': []} Key: <Key_W> Mod: < >
+05:41:43.430 [EDKEYS] INFO     	get_bindings_<CamTranslateRight>={'key': 32, 'mods': [29, 56]} Key: <Key_D> Mod: <Key_LeftControl>
+05:41:43.432 [EDWAYPOINT] DEBUG    EDWayPoint: read json:{'GlobalShoppingList': {'SystemName': '', 'StationName': '', 'GalaxyBookmarkType': '', 'GalaxyBookmarkNumber': 0, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {'Indite': 0, 'Bertrandite': 999, 'Silver': 0, 'Gold': 0}, 'Comment': None, 'UpdateCommodityCount': True, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '1': {'SystemName': 'Orgen', 'StationName': 'Trailblazer Song', 'GalaxyBookmarkType': '', 'GalaxyBookmarkNumber': 0, 'SystemBookmarkType': 'Navigation Panel', 'SystemBookmarkNumber': 2, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': None, 'UpdateCommodityCount': True, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '2': {'SystemName': 'Synuefe LO-G c27-25', 'StationName': 'Cat Colony', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 3, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': None, 'UpdateCommodityCount': True, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '3': {'SystemName': 'Synuefe ZX-M b54-1', 'StationName': 'System Colonisation Ship', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 1, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {'ALL': 0}, 'BuyCommodities': {}, 'Comment': None, 'UpdateCommodityCount': True, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '4': {'SystemName': 'Lambda-1 Tucanae', 'StationName': 'Riess Hub', 'GalaxyBookmarkType': '', 'GalaxyBookmarkNumber': 0, 'SystemBookmarkType': 'Station', 'SystemBookmarkNumber': 1, 'SellCommodities': {'Water Purifiers': 9999}, 'BuyCommodities': {'Gold': 9999}, 'Comment': None, 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '5': {'SystemName': 'Mbutas', 'StationName': 'P.T.N. DARK SUN H6H-N8T', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 3, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': 'Bertrandite', 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '6': {'SystemName': 'Mbutas', 'StationName': 'P.T.N. GHIBLI BOOKBOX GHB-BKB', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 6, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': 'Gold', 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '7': {'SystemName': 'Mbutas', 'StationName': 'P.T.N. TAILS TFX-L3W', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 10, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': 'Silver', 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '8': {'SystemName': 'Mbutas', 'StationName': 'P.T.N. THORONDOR TNT-95W', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 11, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': 'Indite', 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '9': {'SystemName': 'Mbutas', 'StationName': 'P.T.N. CONSISTENCY G2H-N4Y', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 4, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': 'Silver', 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '10': {'SystemName': 'Mbutas', 'StationName': 'P.T.N. PIT OF HERESY G1U-1TX', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 9, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': 'Indite', 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '11': {'SystemName': 'Mbutas', 'StationName': 'P.T.N EVEREST T9K-5HQ', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 2, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': 'Gold', 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '12': {'SystemName': 'Mbutas', 'StationName': 'P.T.N. BLOSSOM WBG-16Q', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 0, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': 'Indite', 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '13': {'SystemName': 'Mbutas', 'StationName': 'P.T.N. HADES WNX-33Y', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 7, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': None, 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '14': {'SystemName': 'Mbutas', 'StationName': 'P.T.N. OLYMPUS WBJ-N1Y', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 8, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': 'Bertrandite', 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '15': {'SystemName': 'Mbutas', 'StationName': 'PTN ROSIES BAR GFT-N6V', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 12, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': 'Gold', 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '16': {'SystemName': 'Mbutas', 'StationName': 'PTN WARDEN OF NOTHING (T7T-6VX)', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 8, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': None, 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '17': {'SystemName': 'Mbutas', 'StationName': 'PTN THE LAVISH CHATEAU GFT-NXF', 'GalaxyBookmarkType': 'System', 'GalaxyBookmarkNumber': 13, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': 'Bertrandite', 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': False, 'Completed': False}, '18': {'SystemName': 'Mbutas', 'StationName': 'Burkin Orbital', 'GalaxyBookmarkType': '', 'GalaxyBookmarkNumber': 0, 'SystemBookmarkType': 'Station', 'SystemBookmarkNumber': 1, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': None, 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': False, 'Completed': False}, '19': {'SystemName': 'Mbutas', 'StationName': 'Dalton', 'GalaxyBookmarkType': '', 'GalaxyBookmarkNumber': 0, 'SystemBookmarkType': 'Station', 'SystemBookmarkNumber': 2, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': None, 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': True, 'Completed': False}, '20': {'SystemName': 'New System', 'StationName': '', 'GalaxyBookmarkType': '', 'GalaxyBookmarkNumber': 0, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'SellCommodities': {}, 'BuyCommodities': {}, 'Comment': None, 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': False, 'Completed': False}}
+05:41:43.434 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:41:43.448 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:41:43.449 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:41:43.452 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:41:43.454 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:41:43.455 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:41:43.457 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:41:43.472 [comtypes.client._managing] DEBUG    wrap_outparam(<POINTER(ISpeechObjectToken) ptr=0x2312ffdc2c0 at 23163fa4050>)
+05:41:43.472 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ISpeechObjectToken) ptr=0x2312ffdc2c0 at 23163fa4050>
+05:41:43.475 [comtypes.client._managing] DEBUG    wrap_outparam(<POINTER(ISpeechObjectTokens) ptr=0x2316f956ef0 at 23163fa4050>)
+05:41:43.475 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IUnknown) ptr=0x2312ffde5f0 at 2316f7f4b50>
+05:41:43.475 [comtypes.client._managing] DEBUG    wrap_outparam(<POINTER(IDispatch) ptr=0x2316f957c40 at 2316f7f4a50>)
+05:41:43.475 [comtypes.client._managing] DEBUG    GetBestInterface(<POINTER(IDispatch) ptr=0x2316f957c40 at 2316f7f4a50>)
+05:41:43.475 [comtypes.client._managing] DEBUG    Does NOT implement IProvideClassInfo, trying IProvideClassInfo2
+05:41:43.476 [comtypes.client._managing] DEBUG    Does NOT implement IProvideClassInfo/IProvideClassInfo2
+05:41:43.488 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IUnknown) ptr=0x2316c172150 at 2316f7f4750>
+05:41:43.489 [comtypes.client._managing] DEBUG    Default interface is {C74A3ADC-B727-4500-A84A-B526721C8B8C}
+05:41:43.489 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IUnknown) ptr=0x2316f957c40 at 2316f7f4850>
+05:41:43.489 [comtypes.client._generate] DEBUG    GetModule(TLIBATTR(GUID={C866CA3A-32F7-11D2-9602-00C04F8EE628}, Version=5.4, LCID=0, FLags=0x8))
+05:41:43.489 [comtypes.client._managing] DEBUG    Implements default interface from typeinfo <class 'comtypes.gen._C866CA3A_32F7_11D2_9602_00C04F8EE628_0_5_4.ISpeechObjectToken'>
+05:41:43.489 [comtypes.client._managing] DEBUG    Final result is <POINTER(ISpeechObjectToken) ptr=0x2316f957c40 at 2316f7f48d0>
+05:41:43.489 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IDispatch) ptr=0x2316f957c40 at 2316f7f47d0>
+05:41:43.489 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ITypeInfo) ptr=0x2316c172150 at 2316f7f46d0>
+05:41:43.489 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ITypeLib) ptr=0x2316b7d8800 at 2316f7f4850>
+05:41:43.489 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IDispatch) ptr=0x2316f957c40 at 2316f7f4a50>
+05:41:43.489 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IEnumVARIANT) ptr=0x2312ffde5f0 at 2316f7f4bd0>
+05:41:43.489 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ISpeechObjectTokens) ptr=0x2316f956ef0 at 23163fa4050>
+05:41:43.490 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ISpeechObjectToken) ptr=0x2316f957c40 at 2316f7f48d0>
+05:41:43.490 [comtypes.client._managing] DEBUG    wrap_outparam(<POINTER(ISpeechObjectTokens) ptr=0x2316f956ef0 at 23163fa4050>)
+05:41:43.490 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IUnknown) ptr=0x2312ffde4d0 at 2316f7f4bd0>
+05:41:43.490 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ISpeechObjectTokens) ptr=0x2316f956ef0 at 23163fa4050>
+05:41:43.491 [comtypes.client._managing] DEBUG    wrap_outparam(<POINTER(IDispatch) ptr=0x2316f9589c0 at 2316f7f4ad0>)
+05:41:43.491 [comtypes.client._managing] DEBUG    GetBestInterface(<POINTER(IDispatch) ptr=0x2316f9589c0 at 2316f7f4ad0>)
+05:41:43.492 [comtypes.client._managing] DEBUG    Does NOT implement IProvideClassInfo, trying IProvideClassInfo2
+05:41:43.492 [comtypes.client._managing] DEBUG    Does NOT implement IProvideClassInfo/IProvideClassInfo2
+05:41:43.492 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IUnknown) ptr=0x2316c172150 at 2316f7f46d0>
+05:41:43.492 [comtypes.client._managing] DEBUG    Default interface is {C74A3ADC-B727-4500-A84A-B526721C8B8C}
+05:41:43.492 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IUnknown) ptr=0x2316f9589c0 at 2316f7f4950>
+05:41:43.492 [comtypes.client._generate] DEBUG    GetModule(TLIBATTR(GUID={C866CA3A-32F7-11D2-9602-00C04F8EE628}, Version=5.4, LCID=0, FLags=0x8))
+05:41:43.492 [comtypes.client._managing] DEBUG    Implements default interface from typeinfo <class 'comtypes.gen._C866CA3A_32F7_11D2_9602_00C04F8EE628_0_5_4.ISpeechObjectToken'>
+05:41:43.492 [comtypes.client._managing] DEBUG    Final result is <POINTER(ISpeechObjectToken) ptr=0x2316f9589c0 at 2316f7f4850>
+05:41:43.492 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IDispatch) ptr=0x2316f9589c0 at 2316f7f49d0>
+05:41:43.493 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ITypeInfo) ptr=0x2316c172150 at 2316f7f47d0>
+05:41:43.493 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ITypeLib) ptr=0x2316b7d8800 at 2316f7f4950>
+05:41:43.493 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IDispatch) ptr=0x2316f9589c0 at 2316f7f4ad0>
+05:41:43.493 [comtypes.client._managing] DEBUG    wrap_outparam(<POINTER(IDispatch) ptr=0x2316f9580c0 at 2316f7f4ad0>)
+05:41:43.493 [comtypes.client._managing] DEBUG    GetBestInterface(<POINTER(IDispatch) ptr=0x2316f9580c0 at 2316f7f4ad0>)
+05:41:43.493 [comtypes.client._managing] DEBUG    Does NOT implement IProvideClassInfo, trying IProvideClassInfo2
+05:41:43.493 [comtypes.client._managing] DEBUG    Does NOT implement IProvideClassInfo/IProvideClassInfo2
+05:41:43.493 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IUnknown) ptr=0x2316c172150 at 2316f7f46d0>
+05:41:43.493 [comtypes.client._managing] DEBUG    Default interface is {C74A3ADC-B727-4500-A84A-B526721C8B8C}
+05:41:43.493 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IUnknown) ptr=0x2316f9580c0 at 2316f7f47d0>
+05:41:43.494 [comtypes.client._generate] DEBUG    GetModule(TLIBATTR(GUID={C866CA3A-32F7-11D2-9602-00C04F8EE628}, Version=5.4, LCID=0, FLags=0x8))
+05:41:43.494 [comtypes.client._managing] DEBUG    Implements default interface from typeinfo <class 'comtypes.gen._C866CA3A_32F7_11D2_9602_00C04F8EE628_0_5_4.ISpeechObjectToken'>
+05:41:43.494 [comtypes.client._managing] DEBUG    Final result is <POINTER(ISpeechObjectToken) ptr=0x2316f9580c0 at 2316f7f4b50>
+05:41:43.494 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IDispatch) ptr=0x2316f9580c0 at 2316f7f49d0>
+05:41:43.494 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ITypeInfo) ptr=0x2316c172150 at 2316f7f4750>
+05:41:43.494 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ITypeLib) ptr=0x2316b7d8800 at 2316f7f47d0>
+05:41:43.494 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IDispatch) ptr=0x2316f9580c0 at 2316f7f4ad0>
+05:41:43.494 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ISpeechObjectToken) ptr=0x2316f9589c0 at 2316f7f4850>
+05:41:43.494 [comtypes.client._managing] DEBUG    wrap_outparam(<POINTER(IDispatch) ptr=0x2316f958390 at 2316f7f4bd0>)
+05:41:43.494 [comtypes.client._managing] DEBUG    GetBestInterface(<POINTER(IDispatch) ptr=0x2316f958390 at 2316f7f4bd0>)
+05:41:43.494 [comtypes.client._managing] DEBUG    Does NOT implement IProvideClassInfo, trying IProvideClassInfo2
+05:41:43.495 [comtypes.client._managing] DEBUG    Does NOT implement IProvideClassInfo/IProvideClassInfo2
+05:41:43.495 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IUnknown) ptr=0x2316c172150 at 2316f7f49d0>
+05:41:43.495 [comtypes.client._managing] DEBUG    Default interface is {C74A3ADC-B727-4500-A84A-B526721C8B8C}
+05:41:43.495 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IUnknown) ptr=0x2316f958390 at 2316f7f4950>
+05:41:43.495 [comtypes.client._generate] DEBUG    GetModule(TLIBATTR(GUID={C866CA3A-32F7-11D2-9602-00C04F8EE628}, Version=5.4, LCID=0, FLags=0x8))
+05:41:43.495 [comtypes.client._managing] DEBUG    Implements default interface from typeinfo <class 'comtypes.gen._C866CA3A_32F7_11D2_9602_00C04F8EE628_0_5_4.ISpeechObjectToken'>
+05:41:43.495 [comtypes.client._managing] DEBUG    Final result is <POINTER(ISpeechObjectToken) ptr=0x2316f958390 at 2316f7f4a50>
+05:41:43.495 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IDispatch) ptr=0x2316f958390 at 2316f7f4750>
+05:41:43.495 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ITypeInfo) ptr=0x2316c172150 at 2316f7f46d0>
+05:41:43.495 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ITypeLib) ptr=0x2316b7d8800 at 2316f7f4950>
+05:41:43.495 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IDispatch) ptr=0x2316f958390 at 2316f7f4bd0>
+05:41:43.495 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ISpeechObjectToken) ptr=0x2316f9580c0 at 2316f7f4b50>
+05:41:43.495 [comtypes.client._managing] DEBUG    wrap_outparam(<POINTER(IDispatch) ptr=0x2316f958150 at 2316f7f4850>)
+05:41:43.495 [comtypes.client._managing] DEBUG    GetBestInterface(<POINTER(IDispatch) ptr=0x2316f958150 at 2316f7f4850>)
+05:41:43.495 [comtypes.client._managing] DEBUG    Does NOT implement IProvideClassInfo, trying IProvideClassInfo2
+05:41:43.495 [comtypes.client._managing] DEBUG    Does NOT implement IProvideClassInfo/IProvideClassInfo2
+05:41:43.495 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IUnknown) ptr=0x2316c172150 at 2316f7f4750>
+05:41:43.495 [comtypes.client._managing] DEBUG    Default interface is {C74A3ADC-B727-4500-A84A-B526721C8B8C}
+05:41:43.495 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IUnknown) ptr=0x2316f958150 at 2316f7f4ad0>
+05:41:43.496 [comtypes.client._generate] DEBUG    GetModule(TLIBATTR(GUID={C866CA3A-32F7-11D2-9602-00C04F8EE628}, Version=5.4, LCID=0, FLags=0x8))
+05:41:43.496 [comtypes.client._managing] DEBUG    Implements default interface from typeinfo <class 'comtypes.gen._C866CA3A_32F7_11D2_9602_00C04F8EE628_0_5_4.ISpeechObjectToken'>
+05:41:43.496 [comtypes.client._managing] DEBUG    Final result is <POINTER(ISpeechObjectToken) ptr=0x2316f958150 at 2316f7f47d0>
+05:41:43.496 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IDispatch) ptr=0x2316f958150 at 2316f7f46d0>
+05:41:43.496 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ITypeInfo) ptr=0x2316c172150 at 2316f7f49d0>
+05:41:43.496 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ITypeLib) ptr=0x2316b7d8800 at 2316f7f4ad0>
+05:41:43.496 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IDispatch) ptr=0x2316f958150 at 2316f7f4850>
+05:41:43.496 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ISpeechObjectToken) ptr=0x2316f958390 at 2316f7f4a50>
+05:41:43.496 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(IEnumVARIANT) ptr=0x2312ffde4d0 at 2316f7f48d0>
+05:41:43.496 [comtypes._post_coinit.unknwn] DEBUG    Release <POINTER(ISpeechObjectToken) ptr=0x2316f958150 at 2316f7f47d0>
+05:41:43.597 [__MAIN__] INFO     ED Autopilot loaded successfully.
+05:41:44.492 [__MAIN__] INFO     Welcome aboard your Imperial Cutter.
+05:41:44.495 [__MAIN__] INFO     Warning, your Imperial Cutter is not fitted with a Fuel Scoop.
+05:41:44.497 [AUTOPILOT] INFO     Loaded your custom configuration for cutter from ship_configs.json
+05:41:49.111 [__MAIN__] INFO     Loaded Waypoint file: C:/Users/Acer Nitro/Desktop/EDAPGui-1.7.0/waypoints/waypoints_Col 285 Sector OC-V d2-65.json
+05:41:49.111 [EDWAYPOINT] DEBUG    EDWayPoint: read json:{'GlobalShoppingList': {'SystemName': '', 'StationName': '', 'GalaxyBookmarkType': '', 'GalaxyBookmarkNumber': 0, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'UpdateCommodityCount': True, 'FleetCarrierTransfer': False, 'Skip': False, 'Completed': False, 'Comment': '', 'BuyCommodities': {}, 'SellCommodities': {}}, '2': {'SystemName': 'Col 285 Sector OC-V d2-65', 'StationName': 'Tarasenko Creations', 'GalaxyBookmarkType': 'Settlement', 'GalaxyBookmarkNumber': 1, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'UpdateCommodityCount': True, 'FleetCarrierTransfer': False, 'Skip': False, 'Completed': False, 'Comment': 'None', 'BuyCommodities': {}, 'SellCommodities': {'ALL': 0}}, '1': {'SystemName': 'HIP 24405', 'StationName': 'Biermann Depot', 'GalaxyBookmarkType': '', 'GalaxyBookmarkNumber': 0, 'SystemBookmarkType': 'Station', 'SystemBookmarkNumber': 1, 'UpdateCommodityCount': True, 'FleetCarrierTransfer': False, 'Skip': False, 'Completed': False, 'Comment': 'None', 'BuyCommodities': {'Steel': 9522, 'Ceramic Composites': 0, 'Polymers': 0, 'Aluminium': 0}, 'SellCommodities': {}}, 'rep': {'SystemName': 'REPEAT', 'StationName': '', 'GalaxyBookmarkType': '', 'GalaxyBookmarkNumber': 0, 'SystemBookmarkType': '', 'SystemBookmarkNumber': 0, 'UpdateCommodityCount': False, 'FleetCarrierTransfer': False, 'Skip': False, 'Completed': False, 'Comment': 'None', 'BuyCommodities': {}, 'SellCommodities': {}}}
+05:41:51.464 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:42:01.476 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:42:05.461 [__MAIN__] DEBUG    Entered: start_waypoint
+05:42:05.461 [__MAIN__] INFO     Waypoint Assist start
+05:42:05.519 [AUTOPILOT] DEBUG    Log level set to DEBUG (full detail)
+05:42:05.931 [AUTOPILOT] DEBUG    Running waypoint_assist
+05:42:05.942 [__MAIN__] INFO     Waypoint file: waypoints_Col 285 Sector OC-V d2-65.json
+05:42:05.948 [__MAIN__] INFO     Next Waypoint: TARASENKO CREATIONS in COL 285 SECTOR OC-V D2-65
+05:42:05.951 [__MAIN__] INFO     Already in target System.
+05:42:05.952 [__MAIN__] INFO     Targeting Station: TARASENKO CREATIONS
+05:42:05.954 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:42:05.956 [EDGALAXYMAP] DEBUG    Opening Galaxy Map
+05:42:05.957 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:42:05.958 [EDKEYS] DEBUG    	send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+05:42:06.897 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text '[':', '+6', '8']'.
+05:42:07.503 [OCR] DEBUG    Found 'CARTOGRAPHICS' text in item text '['niversa', '3:42:07', 'CARTOGRAPHICS', '180CT-3311']'.
+05:42:08.649 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:42:09.504 [EDKEYS] DEBUG    	send=UI_Up,key:{'key': 200, 'mods': []},key_name:Key_UpArrow,hold:None,repeat:1,repeat_delay:None,state:None
+05:42:09.808 [EDKEYS] DEBUG    	send=UI_Left,key:{'key': 203, 'mods': []},key_name:Key_LeftArrow,hold:None,repeat:1,repeat_delay:None,state:None
+05:42:10.610 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+05:42:11.162 [EDKEYS] DEBUG    	send=UI_Right,key:{'key': 205, 'mods': []},key_name:Key_RightArrow,hold:None,repeat:1,repeat_delay:None,state:None
+05:42:11.662 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:42:11.714 [EDKEYS] DEBUG    	send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:4,repeat_delay:None,state:None
+05:42:13.172 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+05:42:13.723 [EDKEYS] DEBUG    	send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:0,repeat_delay:None,state:None
+05:42:13.974 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:3.0,repeat:1,repeat_delay:None,state:None
+05:42:17.076 [EDKEYS] DEBUG    	send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+05:42:17.904 [__MAIN__] INFO     Status update: Targeting Station: TARASENKO CREATIONS
+05:42:17.905 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:42:17.936 [EDJOURNAL] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:42:20.973 [AUTOPILOT] DEBUG    has_destination:0.894880473613739
+05:42:20.976 [__MAIN__] INFO      - Station: TARASENKO CREATIONS
+05:42:20.980 [__MAIN__] INFO     Status update: SC to Station: TARASENKO CREATIONS
+05:42:20.980 [AUTOPILOT] DEBUG    Entered sc_assist
+05:42:20.981 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:42:21.006 [AUTOPILOT] DEBUG    has_destination:0.8948808908462524
+05:42:21.007 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:42:21.009 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+05:42:21.314 [__MAIN__] INFO     Compass Align
+05:42:21.332 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:12.679285714285713,repeat:1,repeat_delay:None,state:None
+05:42:32.687 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:42:34.651 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:2.460714285714286,repeat:1,repeat_delay:None,state:None
+05:42:37.862 [AUTOPILOT] DEBUG    final x:-0.01 y:0.07
+05:42:37.877 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+05:42:38.180 [__MAIN__] INFO     Target Align
+05:42:38.264 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.15,repeat:1,repeat_delay:None,state:None
+05:42:38.606 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.15,repeat:1,repeat_delay:None,state:None
+05:42:38.946 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.15,repeat:1,repeat_delay:None,state:None
+05:42:39.291 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.15,repeat:1,repeat_delay:None,state:None
+05:42:39.637 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+05:42:41.995 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.15,repeat:1,repeat_delay:None,state:None
+05:42:42.706 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:42:52.722 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:43:02.740 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:43:13.717 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:43:23.765 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:43:33.785 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:43:43.802 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:43:54.825 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:44:04.844 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:44:14.517 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:44:25.865 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:44:35.495 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:44:45.888 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:44:55.906 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:44:56.594 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+05:45:06.925 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:45:16.946 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:45:24.139 [EDKEYS] DEBUG    	send=YawLeftButton,key:{'key': 30, 'mods': []},key_name:Key_A,hold:0.09,repeat:1,repeat_delay:None,state:None
+05:45:26.416 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:45:28.604 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+05:45:37.254 [EDKEYS] DEBUG    	send=YawLeftButton,key:{'key': 30, 'mods': []},key_name:Key_A,hold:0.09,repeat:1,repeat_delay:None,state:None
+05:45:37.970 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:45:47.909 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:45:57.996 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:46:04.757 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+05:46:08.015 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:46:19.033 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:46:29.053 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:46:30.195 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+05:46:38.742 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:46:40.947 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+05:46:49.077 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:46:49.611 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+05:46:56.186 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+05:46:58.542 [EDKEYS] DEBUG    	send=YawLeftButton,key:{'key': 30, 'mods': []},key_name:Key_A,hold:0.09,repeat:1,repeat_delay:None,state:None
+05:47:00.097 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:01.151 [EDKEYS] DEBUG    	send=YawLeftButton,key:{'key': 30, 'mods': []},key_name:Key_A,hold:0.09,repeat:1,repeat_delay:None,state:None
+05:47:01.343 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+05:47:01.671 [EDKEYS] DEBUG    	send=YawLeftButton,key:{'key': 30, 'mods': []},key_name:Key_A,hold:0.09,repeat:1,repeat_delay:None,state:None
+05:47:04.122 [EDKEYS] DEBUG    	send=YawLeftButton,key:{'key': 30, 'mods': []},key_name:Key_A,hold:0.09,repeat:1,repeat_delay:None,state:None
+05:47:04.446 [EDKEYS] DEBUG    	send=YawLeftButton,key:{'key': 30, 'mods': []},key_name:Key_A,hold:0.09,repeat:1,repeat_delay:None,state:None
+05:47:06.887 [EDKEYS] DEBUG    	send=YawLeftButton,key:{'key': 30, 'mods': []},key_name:Key_A,hold:0.09,repeat:1,repeat_delay:None,state:None
+05:47:07.080 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+05:47:07.405 [EDKEYS] DEBUG    	send=YawLeftButton,key:{'key': 30, 'mods': []},key_name:Key_A,hold:0.09,repeat:1,repeat_delay:None,state:None
+05:47:09.729 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:11.994 [EDKEYS] DEBUG    	send=YawLeftButton,key:{'key': 30, 'mods': []},key_name:Key_A,hold:0.09,repeat:1,repeat_delay:None,state:None
+05:47:15.118 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:16.133 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:17.146 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:18.162 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:18.589 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:18.675 [EDJOURNAL] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:18.716 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+05:47:20.179 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:21.052 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:22.192 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:23.191 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:24.206 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:25.220 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:26.235 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:27.251 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:27.607 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+05:47:28.266 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:29.282 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:29.936 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:30.059 [EDJOURNAL] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:30.071 [EDJOURNAL] DEBUG    Journal*.log: read: 1 ship: {'time': 29, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': False, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:47:30.072 [AUTOPILOT] DEBUG    No longer in supercruise
+05:47:31.297 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:32.073 [EDKEYS] DEBUG    	send=SetSpeedZero,key:{'key': 45, 'mods': []},key_name:Key_X,hold:None,repeat:1,repeat_delay:None,state:None
+05:47:32.376 [__MAIN__] INFO     Supercruise dropped, terminating SC Assist
+05:47:32.581 [AUTOPILOT] INFO     \u0412\u0438\u044f\u0432\u043b\u0435\u043d\u043e \u043e\u0440\u0431\u0456\u0442\u0430\u043b\u044c\u043d\u0443 \u0441\u0442\u0430\u043d\u0446\u0456\u044e — \u043f\u0435\u0440\u0435\u0445\u0456\u0434 \u0443 \u0440\u0435\u0436\u0438\u043c \u0434\u043e\u043a\u0443\u0432\u0430\u043d\u043d\u044f
+05:47:32.581 [AUTOPILOT] INFO     DropOut \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043d\u043e — \u043f\u043e\u0432\u0435\u0440\u0442\u0430\u044e \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442: station_docking
+05:47:33.587 [__MAIN__] INFO     Targeting Station: TARASENKO CREATIONS
+05:47:33.589 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:33.590 [EDGALAXYMAP] DEBUG    Opening Galaxy Map
+05:47:33.591 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:33.592 [EDKEYS] DEBUG    	send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+05:47:34.081 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text '['+6']'.
+05:47:34.495 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text '['+6']'.
+05:47:34.791 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+05:47:35.562 [OCR] DEBUG    Found 'CARTOGRAPHICS' text in item text '['Universa', '3:47:35', 'CARTOGRAPHICS', '180CT3311', '712']'.
+05:47:35.564 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:37.563 [EDKEYS] DEBUG    	send=UI_Up,key:{'key': 200, 'mods': []},key_name:Key_UpArrow,hold:None,repeat:1,repeat_delay:None,state:None
+05:47:37.867 [EDKEYS] DEBUG    	send=UI_Left,key:{'key': 203, 'mods': []},key_name:Key_LeftArrow,hold:None,repeat:1,repeat_delay:None,state:None
+05:47:38.670 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+05:47:39.223 [EDKEYS] DEBUG    	send=UI_Right,key:{'key': 205, 'mods': []},key_name:Key_RightArrow,hold:None,repeat:1,repeat_delay:None,state:None
+05:47:39.775 [EDKEYS] DEBUG    	send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:4,repeat_delay:None,state:None
+05:47:41.234 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+05:47:41.786 [EDKEYS] DEBUG    	send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:0,repeat_delay:None,state:None
+05:47:42.037 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:3.0,repeat:1,repeat_delay:None,state:None
+05:47:43.578 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:45.140 [EDKEYS] DEBUG    	send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+05:47:45.591 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:45.964 [__MAIN__] INFO     Status update: Targeting Station: TARASENKO CREATIONS
+05:47:45.982 [EDJOURNAL] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:45.997 [EDKEYS] DEBUG    	send=SetSpeed100,key:{'key': 63, 'mods': []},key_name:Key_F5,hold:None,repeat:1,repeat_delay:None,state:None
+05:47:46.299 [EDKEYS] DEBUG    	send=Supercruise,key:{'key': 37, 'mods': []},key_name:Key_K,hold:0.001,repeat:1,repeat_delay:None,state:None
+05:47:52.607 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:53.622 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:54.635 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:55.649 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:56.660 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:57.675 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:58.403 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+05:47:58.690 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:47:59.703 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:00.717 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:01.730 [AUTOPILOT] DEBUG    has_destination:0.7722808718681335
+05:48:01.731 [__MAIN__] INFO      - Station: TARASENKO CREATIONS
+05:48:01.731 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:01.734 [__MAIN__] INFO     Status update: SC to Station: TARASENKO CREATIONS
+05:48:01.735 [AUTOPILOT] DEBUG    Entered sc_assist
+05:48:01.746 [STATUSPARSER] DEBUG    An error occurred reading Status.json file. File may be open.
+05:48:01.747 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:01.762 [AUTOPILOT] DEBUG    has_destination:0.7534844875335693
+05:48:01.763 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:01.768 [EDKEYS] DEBUG    	send=SetSpeed100,key:{'key': 63, 'mods': []},key_name:Key_F5,hold:None,repeat:1,repeat_delay:None,state:None
+05:48:01.846 [STATUSPARSER] DEBUG    Attempting to re-read Status.json file after delay.
+05:48:01.848 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:02.070 [EDKEYS] DEBUG    	send=Supercruise,key:{'key': 37, 'mods': []},key_name:Key_K,hold:0.001,repeat:1,repeat_delay:None,state:None
+05:48:02.851 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:03.866 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:04.882 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:05.896 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:06.905 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:07.242 [__MAIN__] DEBUG    Entered: stop_waypoint
+05:48:07.243 [__MAIN__] INFO     Waypoint Assist stop
+05:48:07.243 [__MAIN__] INFO     Status update: Idle
+05:48:07.305 [AUTOPILOT] DEBUG    Log level set to DEBUG (full detail)
+05:48:07.914 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:08.930 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:09.947 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:10.963 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:12.978 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:13.993 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:14.173 [AUTOPILOT] DEBUG    Caught stop exception
+05:48:14.173 [__MAIN__] DEBUG    Detected 'waypoint_stop' callback msg
+05:48:14.234 [AUTOPILOT] DEBUG    Log level set to DEBUG (full detail)
+05:48:15.006 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:16.020 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:18.034 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:20.052 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:22.066 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:23.081 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:24.094 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:26.107 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:28.121 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:30.137 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:33.153 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:35.168 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:36.181 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:37.194 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:39.211 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:41.225 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:43.239 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:45.258 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:46.272 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:48.289 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:49.302 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:50.315 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:52.328 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:54.346 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:57.362 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:58.376 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:48:59.393 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:01.407 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:02.423 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:03.439 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:05.455 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:07.469 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:08.482 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:10.497 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:11.513 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:12.529 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:14.544 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:15.557 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:16.572 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:17.588 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:19.604 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:20.619 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:21.633 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:23.646 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:25.663 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:26.677 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:28.691 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:29.703 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:30.717 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:32.733 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:33.747 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:35.763 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:37.778 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:38.795 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:39.812 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:40.827 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:40.827 [STATUSPARSER] DEBUG    An error occurred reading Status.json file. File may be open.
+05:49:40.929 [STATUSPARSER] DEBUG    Attempting to re-read Status.json file after delay.
+05:49:40.930 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:41.944 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:43.959 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:45.975 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:46.988 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:48.002 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:51.017 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:53.033 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:54.046 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:55.059 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:56.072 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:49:58.086 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:00.102 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:02.117 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:04.132 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:05.146 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:07.161 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:09.177 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:11.192 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:14.207 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:16.222 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:18.236 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:19.249 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:20.264 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:21.279 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:23.294 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:26.308 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:28.323 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:30.338 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:32.353 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:33.367 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:35.382 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:37.397 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:40.415 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:42.429 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:45.447 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:46.461 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:47.475 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:49.490 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:51.507 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:52.522 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:54.538 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:56.553 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:58.566 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:50:59.583 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:01.598 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:04.612 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:05.627 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:06.642 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:09.656 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:10.672 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:11.688 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:13.704 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:15.719 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:16.733 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:18.749 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:20.763 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:21.778 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:23.793 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:24.809 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:25.824 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:26.838 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:28.854 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:29.868 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:31.880 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:33.896 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:34.912 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:35.927 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:37.944 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:38.957 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:39.972 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:40.986 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:44.002 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:45.016 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:46.032 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:49.046 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:50.062 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:51.076 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:54.092 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:56.107 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:51:59.122 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:01.139 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:04.154 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:06.171 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:09.185 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:12.198 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:13.224 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:13.252 [EDJOURNAL] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:16.227 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:17.242 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:18.255 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:21.269 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:23.281 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:26.296 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:28.309 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:29.323 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:30.337 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:31.352 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:34.365 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:36.381 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:39.398 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:41.412 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:42.427 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:44.441 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:46.457 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:48.474 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:49.486 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:52.501 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:53.127 [EDJOURNAL] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:53.142 [EDJOURNAL] DEBUG    Journal*.log: read: 1 ship: {'time': 29, 'odyssey': True, 'status': 'starting_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': False, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:52:53.514 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:54.528 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:55.542 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:57.555 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:58.274 [EDJOURNAL] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:58.288 [EDJOURNAL] DEBUG    Journal*.log: read: 1 ship: {'time': 29, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': False, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+05:52:58.568 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:58.569 [STATUSPARSER] DEBUG    An error occurred reading Status.json file. File may be open.
+05:52:58.670 [STATUSPARSER] DEBUG    Attempting to re-read Status.json file after delay.
+05:52:58.671 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:52:59.685 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:00.698 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:01.711 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:02.724 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:03.739 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:04.752 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:05.766 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:06.778 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:07.795 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:08.807 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:09.822 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:10.838 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:11.603 [EDJOURNAL] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:11.853 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:12.868 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:13.882 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:14.896 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:20.915 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:30.933 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:40.953 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:53:50.970 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:54:01.987 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:54:12.005 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:54:22.023 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:54:33.042 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:54:43.060 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:54:53.078 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:55:03.097 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:55:14.115 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:55:24.134 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:55:34.154 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:55:44.173 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:55:55.193 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:56:05.212 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:56:15.233 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:56:25.254 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:56:36.274 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:56:46.292 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:56:56.310 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:57:07.329 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:57:17.348 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:57:27.367 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:57:37.384 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:57:48.403 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:57:58.422 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:58:08.439 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:58:19.457 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:58:29.477 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:58:39.494 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:58:49.525 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:59:00.545 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:59:10.552 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:59:10.552 [STATUSPARSER] DEBUG    An error occurred reading Status.json file. File may be open.
+05:59:10.654 [STATUSPARSER] DEBUG    Attempting to re-read Status.json file after delay.
+05:59:10.655 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:59:20.675 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:59:30.693 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:59:41.711 [STATUSPARSER] DEBUG    [EDJOURNAL] Using temp copy for safe read
+05:59:47.280 [__MAIN__] DEBUG    Entered: restart_program
+05:59:47.280 [__MAIN__] DEBUG    Entered: stop_fsd
+05:59:47.280 [__MAIN__] INFO     FSD Route Assist stop
+05:59:47.280 [__MAIN__] INFO     Status update: Idle
+05:59:47.281 [__MAIN__] DEBUG    Entered: stop_sc
+05:59:47.281 [__MAIN__] INFO     SC Assist stop
+05:59:47.281 [__MAIN__] INFO     Status update: Idle

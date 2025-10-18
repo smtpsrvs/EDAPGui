@@ -1,0 +1,441 @@
+03:46:54.345 [__MAIN__] INFO     Loaded Waypoint file: C:/Users/Acer Nitro/Desktop/EDAPGui-1.7.0/waypoints/waypoints_Col 285 Sector OC-V d2-65.json
+03:47:01.375 [AUTOPILOT] INFO     Log level set to INFO (standard)
+03:47:07.281 [AUTOPILOT] INFO     Log level set to INFO (standard)
+03:47:19.377 [AUTOPILOT] DEBUG    Log level set to DEBUG (full detail)
+03:47:26.367 [__MAIN__] DEBUG    Entered: start_waypoint
+03:47:26.367 [__MAIN__] INFO     Waypoint Assist start
+03:47:26.422 [AUTOPILOT] DEBUG    Log level set to DEBUG (full detail)
+03:47:27.062 [AUTOPILOT] DEBUG    Running waypoint_assist
+03:47:27.074 [__MAIN__] INFO     Waypoint file: waypoints_Col 285 Sector OC-V d2-65.json
+03:47:27.081 [__MAIN__] INFO     Next Waypoint: TARASENKO CREATIONS in COL 285 SECTOR OC-V D2-65
+03:47:27.082 [__MAIN__] INFO     Already in target System.
+03:47:27.085 [__MAIN__] INFO     Targeting Station: TARASENKO CREATIONS
+03:47:27.087 [EDGALAXYMAP] DEBUG    Opening Galaxy Map
+03:47:27.087 [EDKEYS] DEBUG    	send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+03:47:27.962 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text '['B', '+6']'.
+03:47:28.267 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+03:47:28.881 [OCR] DEBUG    Found 'CARTOGRAPHICS' text in item text '['Universa', '1:47:29', 'CARTOGRAPHICS', '180CT3311']'.
+03:47:30.881 [EDKEYS] DEBUG    	send=UI_Up,key:{'key': 200, 'mods': []},key_name:Key_UpArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:47:31.186 [EDKEYS] DEBUG    	send=UI_Left,key:{'key': 203, 'mods': []},key_name:Key_LeftArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:47:31.988 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+03:47:32.541 [EDKEYS] DEBUG    	send=UI_Right,key:{'key': 205, 'mods': []},key_name:Key_RightArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:47:33.093 [EDKEYS] DEBUG    	send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:4,repeat_delay:None,state:None
+03:47:34.551 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+03:47:35.104 [EDKEYS] DEBUG    	send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:0,repeat_delay:None,state:None
+03:47:35.355 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:3.0,repeat:1,repeat_delay:None,state:None
+03:47:38.457 [EDKEYS] DEBUG    	send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+03:47:39.283 [__MAIN__] INFO     Status update: Targeting Station: TARASENKO CREATIONS
+03:47:42.308 [AUTOPILOT] DEBUG    has_destination:0.8923575282096863
+03:47:42.310 [__MAIN__] INFO      - Station: TARASENKO CREATIONS
+03:47:42.312 [__MAIN__] INFO     Status update: SC to Station: TARASENKO CREATIONS
+03:47:42.312 [AUTOPILOT] DEBUG    Entered sc_assist
+03:47:42.329 [AUTOPILOT] DEBUG    has_destination:0.8916457891464233
+03:47:42.331 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:47:42.636 [__MAIN__] INFO     Compass Align
+03:47:42.666 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:12.679285714285713,repeat:1,repeat_delay:None,state:None
+03:47:55.988 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:2.3185714285714285,repeat:1,repeat_delay:None,state:None
+03:47:59.046 [AUTOPILOT] DEBUG    final x:0.01 y:0.04
+03:47:59.066 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:47:59.370 [__MAIN__] INFO     Target Align
+03:47:59.452 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.15,repeat:1,repeat_delay:None,state:None
+03:47:59.807 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.15,repeat:1,repeat_delay:None,state:None
+03:48:00.155 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.15,repeat:1,repeat_delay:None,state:None
+03:48:00.494 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.15,repeat:1,repeat_delay:None,state:None
+03:48:00.847 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:48:01.456 [STATUSPARSER] DEBUG    An error occurred reading Status.json file. File may be open.
+03:48:01.558 [STATUSPARSER] DEBUG    Attempting to re-read Status.json file after delay.03:53:42.726 [AUTOPILOT] DEBUG    Target is occluded (0.5644 >  0.55)
+03:53:42.728 [__MAIN__] INFO     Target occluded, repositioning.
+03:53:42.729 [EDKEYS] DEBUG     send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:53:48.032 [EDKEYS] DEBUG     send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:6.428571428571429,repeat:1,repeat_delay:None,state:None
+03:53:54.586 [EDKEYS] DEBUG     send=SetSpeed100,key:{'key': 63, 'mods': []},key_name:Key_F5,hold:None,repeat:1,repeat_delay:None,state:None
+03:54:09.888 [EDKEYS] DEBUG     send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:54:15.190 [EDKEYS] DEBUG     send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:6.428571428571429,repeat:1,repeat_delay:None,state:None
+03:54:21.744 [__MAIN__] INFO     Compass Align
+03:54:21.764 [EDKEYS] DEBUG     send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:12.659285714285714,repeat:1,repeat_delay:None,state:None
+03:54:35.068 [EDKEYS] DEBUG     send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:6.428571428571429,repeat:1,repeat_delay:None,state:None
+03:54:42.135 [EDKEYS] DEBUG     send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:1.647142857142857,repeat:1,repeat_delay:None,state:None
+03:54:44.532 [AUTOPILOT] DEBUG    final x:0.01 y:0.01
+03:54:44.546 [EDKEYS] DEBUG     send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:54:44.851 [__MAIN__] INFO     Target Align
+03:54:44.978 [EDKEYS] DEBUG     send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.15,repeat:1,repeat_delay:None,state:None
+03:54:45.332 [EDKEYS] DEBUG     send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.15,repeat:1,repeat_delay:None,state:None
+03:54:45.680 [EDKEYS] DEBUG     send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:54:45.946 [EDKEYS] DEBUG     send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:54:48.314 [EDKEYS] DEBUG     send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:54:48.591 [EDKEYS] DEBUG     send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:54:50.967 [EDKEYS] DEBUG     send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:54:53.351 [EDKEYS] DEBUG     send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:54:57.809 [EDKEYS] DEBUG     send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:54:58.072 [EDKEYS] DEBUG     send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:04.636 [EDKEYS] DEBUG     send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:09.088 [EDKEYS] DEBUG     send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:09.280 [EDKEYS] DEBUG     send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:11.645 [EDKEYS] DEBUG     send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:14.000 [EDKEYS] DEBUG     send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:14.193 [EDKEYS] DEBUG     send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:16.553 [EDKEYS] DEBUG     send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:16.746 [EDKEYS] DEBUG     send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:19.119 [EDKEYS] DEBUG     send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:21.479 [EDKEYS] DEBUG     send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:21.671 [EDKEYS] DEBUG     send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:26.150 [EDKEYS] DEBUG     send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:26.344 [EDKEYS] DEBUG     send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+[2025/10/18 03:55:28] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.23182010650634766
+[2025/10/18 03:55:28] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:55:28] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+[2025/10/18 03:55:31] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.024568796157836914
+[2025/10/18 03:55:31] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:55:31] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+03:55:31.122 [EDKEYS] DEBUG     send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+[2025/10/18 03:55:31] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.024716615676879883
+[2025/10/18 03:55:31] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:55:31] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+[2025/10/18 03:55:33] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.022902965545654297
+[2025/10/18 03:55:33] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:55:33] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+[2025/10/18 03:55:35] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.022176265716552734
+[2025/10/18 03:55:35] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:55:35] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+03:55:35.727 [EDKEYS] DEBUG     send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+[2025/10/18 03:55:36] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.02455878257751465
+[2025/10/18 03:55:36] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:55:36] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+03:55:36.052 [EDKEYS] DEBUG     send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+[2025/10/18 03:55:36] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.0230560302734375
+[2025/10/18 03:55:36] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:55:36] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+[2025/10/18 03:55:38] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.01854872703552246
+[2025/10/18 03:55:38] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:55:38] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+03:55:38.532 [EDKEYS] DEBUG     send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+[2025/10/18 03:55:38] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.02054762840270996
+[2025/10/18 03:55:38] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:55:38] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+03:55:38.861 [EDKEYS] DEBUG     send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:39.138 [EDKEYS] DEBUG     send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+[2025/10/18 03:55:39] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.024078845977783203
+[2025/10/18 03:55:39] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:55:39] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+03:55:39.483 [EDKEYS] DEBUG     send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+[2025/10/18 03:55:39] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.023097753524780273
+[2025/10/18 03:55:39] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:55:39] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+03:55:39.827 [EDKEYS] DEBUG     send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+[2025/10/18 03:55:40] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.02399897575378418
+[2025/10/18 03:55:40] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:55:40] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+03:55:40.164 [AUTOPILOT] DEBUG    sc_target_align lost target
+03:55:40.165 [__MAIN__] INFO     Target lost, attempting re-alignment.
+03:55:50.166 [EDKEYS] DEBUG     send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:55:50.471 [EDJOURNAL] DEBUG    Journal*.log: read: 1 ship: {'time': 98, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': False, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+03:55:50.471 [EDJOURNAL] DEBUG    Journal*.log: read: 2 ship: {'time': 98, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': False, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+03:55:50.473 [__MAIN__] INFO     Compass Align
+[2025/10/18 03:55:50] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.022584915161132812
+[2025/10/18 03:55:50] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:55:50] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+03:55:50.586 [AUTOPILOT] DEBUG    No longer in supercruise
+03:55:52.588 [EDKEYS] DEBUG     send=SetSpeedZero,key:{'key': 45, 'mods': []},key_name:Key_X,hold:None,repeat:1,repeat_delay:None,state:None
+03:55:52.892 [__MAIN__] INFO     Supercruise dropped, terminating SC Assist
+03:55:52.901 [AUTOPILOT] INFO     ???????? ?????????? ??????? — ??????? ? ????? ?????????
+03:55:52.901 [AUTOPILOT] INFO     DropOut ????????? — ???????? ????????: station_docking
+03:55:53.908 [__MAIN__] INFO     Targeting Station: TARASENKO CREATIONS
+03:55:53.908 [EDGALAXYMAP] DEBUG    Opening Galaxy Map
+03:55:53.909 [EDKEYS] DEBUG     send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+[2025/10/18 03:55:54] ppocr DEBUG: dt_boxes num : 1, elapsed : 0.030154943466186523
+[2025/10/18 03:55:54] ppocr DEBUG: cls num  : 1, elapsed : 0.04360389709472656
+[2025/10/18 03:55:54] ppocr DEBUG: rec_res num  : 1, elapsed : 0.11055231094360352
+03:55:54.450 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+[2025/10/18 03:55:54] ppocr DEBUG: dt_boxes num : 1, elapsed : 0.030085086822509766
+[2025/10/18 03:55:54] ppocr DEBUG: cls num  : 1, elapsed : 0.006520271301269531
+[2025/10/18 03:55:54] ppocr DEBUG: rec_res num  : 1, elapsed : 0.06348848342895508
+03:55:54.823 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+[2025/10/18 03:55:55] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.03222537040710449
+[2025/10/18 03:55:55] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:55:55] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+03:55:55.115 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+[2025/10/18 03:55:55] ppocr DEBUG: dt_boxes num : 5, elapsed : 0.03466963768005371
+[2025/10/18 03:55:55] ppocr DEBUG: cls num  : 5, elapsed : 0.008874177932739258
+[2025/10/18 03:55:55] ppocr DEBUG: rec_res num  : 5, elapsed : 0.28523993492126465
+03:55:55.703 [OCR] DEBUG    Found 'CARTOGRAPHICS' text in item text '['Universa', '1:55:55', 'CARTOGRAPHICS', '180CT3311']'.
+03:55:57.704 [EDKEYS] DEBUG     send=UI_Up,key:{'key': 200, 'mods': []},key_name:Key_UpArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:55:58.008 [EDKEYS] DEBUG     send=UI_Left,key:{'key': 203, 'mods': []},key_name:Key_LeftArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:55:58.811 [EDKEYS] DEBUG     send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+03:55:59.363 [EDKEYS] DEBUG     send=UI_Right,key:{'key': 205, 'mods': []},key_name:Key_RightArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:55:59.916 [EDKEYS] DEBUG     send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:4,repeat_delay:None,state:None
+03:56:01.373 [EDKEYS] DEBUG     send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:01.926 [EDKEYS] DEBUG     send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:0,repeat_delay:None,state:None
+03:56:02.176 [EDKEYS] DEBUG     send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:3.0,repeat:1,repeat_delay:None,state:None
+03:56:05.278 [EDKEYS] DEBUG     send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:06.103 [__MAIN__] INFO     Status update: Targeting Station: TARASENKO CREATIONS
+03:56:06.108 [EDKEYS] DEBUG     send=SetSpeed100,key:{'key': 63, 'mods': []},key_name:Key_F5,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:06.412 [EDKEYS] DEBUG     send=Supercruise,key:{'key': 37, 'mods': []},key_name:Key_K,hold:0.001,repeat:1,repeat_delay:None,state:None
+03:56:18.515 [EDKEYS] DEBUG     send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:21.842 [AUTOPILOT] DEBUG    has_destination:0.857872486114502
+03:56:21.843 [__MAIN__] INFO      - Station: TARASENKO CREATIONS
+03:56:21.846 [__MAIN__] INFO     Status update: SC to Station: TARASENKO CREATIONS
+03:56:21.846 [AUTOPILOT] DEBUG    Entered sc_assist
+03:56:21.869 [AUTOPILOT] DEBUG    has_destination:0.8626077771186829
+03:56:21.871 [EDKEYS] DEBUG     send=SetSpeed100,key:{'key': 63, 'mods': []},key_name:Key_F5,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:22.174 [EDKEYS] DEBUG     send=Supercruise,key:{'key': 37, 'mods': []},key_name:Key_K,hold:0.001,repeat:1,repeat_delay:None,state:None
+03:56:34.278 [EDKEYS] DEBUG     send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:34.580 [EDKEYS] DEBUG     send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:34.887 [__MAIN__] INFO     Compass Align
+03:56:34.912 [EDKEYS] DEBUG     send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:35.218 [__MAIN__] INFO     Target Align
+03:56:35.271 [AUTOPILOT] DEBUG    No longer in supercruise
+03:56:37.272 [EDKEYS] DEBUG     send=SetSpeedZero,key:{'key': 45, 'mods': []},key_name:Key_X,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:37.577 [__MAIN__] INFO     Supercruise dropped, terminating SC Assist
+03:56:37.579 [AUTOPILOT] INFO     ???????? ?????????? ??????? — ??????? ? ????? ?????????
+03:56:37.580 [AUTOPILOT] INFO     DropOut ????????? — ???????? ????????: station_docking
+03:56:38.586 [__MAIN__] INFO     Targeting Station: TARASENKO CREATIONS
+03:56:38.586 [EDGALAXYMAP] DEBUG    Opening Galaxy Map
+03:56:38.587 [EDKEYS] DEBUG     send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+[2025/10/18 03:56:38] ppocr DEBUG: dt_boxes num : 1, elapsed : 0.031015396118164062
+[2025/10/18 03:56:38] ppocr DEBUG: cls num  : 1, elapsed : 0.00601959228515625
+[2025/10/18 03:56:39] ppocr DEBUG: rec_res num  : 1, elapsed : 0.059182167053222656
+03:56:39.040 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text '['+6']'.
+[2025/10/18 03:56:39] ppocr DEBUG: dt_boxes num : 1, elapsed : 0.029115915298461914
+[2025/10/18 03:56:39] ppocr DEBUG: cls num  : 1, elapsed : 0.004007816314697266
+[2025/10/18 03:56:39] ppocr DEBUG: rec_res num  : 1, elapsed : 0.06235980987548828
+03:56:39.404 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text '['+6']'.
+[2025/10/18 03:56:39] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.026585102081298828
+[2025/10/18 03:56:39] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:56:39] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+03:56:39.696 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+[2025/10/18 03:56:39] ppocr DEBUG: dt_boxes num : 5, elapsed : 0.034587860107421875
+[2025/10/18 03:56:39] ppocr DEBUG: cls num  : 5, elapsed : 0.009540319442749023
+[2025/10/18 03:56:40] ppocr DEBUG: rec_res num  : 5, elapsed : 0.20263433456420898
+03:56:40.200 [OCR] DEBUG    Found 'CARTOGRAPHICS' text in item text '['Universa', '1:56:40', 'CARTOGRAPHICS', '180CT3311']'.
+03:56:42.202 [EDKEYS] DEBUG     send=UI_Up,key:{'key': 200, 'mods': []},key_name:Key_UpArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:42.506 [EDKEYS] DEBUG     send=UI_Left,key:{'key': 203, 'mods': []},key_name:Key_LeftArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:43.308 [EDKEYS] DEBUG     send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:43.861 [EDKEYS] DEBUG     send=UI_Right,key:{'key': 205, 'mods': []},key_name:Key_RightArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:44.414 [EDKEYS] DEBUG     send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:4,repeat_delay:None,state:None
+03:56:45.871 [EDKEYS] DEBUG     send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:46.424 [EDKEYS] DEBUG     send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:0,repeat_delay:None,state:None
+03:56:46.674 [EDKEYS] DEBUG     send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:3.0,repeat:1,repeat_delay:None,state:None
+03:56:49.776 [EDKEYS] DEBUG     send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:50.601 [__MAIN__] INFO     Status update: Targeting Station: TARASENKO CREATIONS
+03:56:50.603 [EDKEYS] DEBUG     send=SetSpeed100,key:{'key': 63, 'mods': []},key_name:Key_F5,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:50.906 [EDKEYS] DEBUG     send=Supercruise,key:{'key': 37, 'mods': []},key_name:Key_K,hold:0.001,repeat:1,repeat_delay:None,state:None
+03:57:03.009 [EDKEYS] DEBUG     send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:57:06.334 [AUTOPILOT] DEBUG    has_destination:0.20197013020515442
+03:57:06.335 [__MAIN__] INFO      - Could not target station: TARASENKO CREATIONS
+03:57:07.340 [__MAIN__] INFO     Targeting Station: TARASENKO CREATIONS
+03:57:07.341 [EDGALAXYMAP] DEBUG    Opening Galaxy Map
+03:57:07.341 [EDKEYS] DEBUG     send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+[2025/10/18 03:57:07] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.031246662139892578
+[2025/10/18 03:57:07] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:57:07] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+03:57:07.732 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+[2025/10/18 03:57:08] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.032199859619140625
+[2025/10/18 03:57:08] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:57:08] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0
+03:57:08.037 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+[2025/10/18 03:57:08] ppocr DEBUG: dt_boxes num : 0, elapsed : 0.034076690673828125
+[2025/10/18 03:57:08] ppocr DEBUG: cls num  : 0, elapsed : 0
+[2025/10/18 03:57:08] ppocr DEBUG: rec_res num  : 0, elapsed : 0.0010576248168945312
+03:57:08.350 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+[2025/10/18 03:57:08] ppocr DEBUG: dt_boxes num : 5, elapsed : 0.03199934959411621
+[2025/10/18 03:57:08] ppocr DEBUG: cls num  : 5, elapsed : 0.009520769119262695
+[2025/10/18 03:57:08] ppocr DEBUG: rec_res num  : 5, elapsed : 0.2445380687713623
+03:57:08.896 [OCR] DEBUG    Found 'CARTOGRAPHICS' text in item text '['Universa', '1:57:09', 'CARTOGRAPHICS', '180CT3311']'.
+03:57:10.896 [EDKEYS] DEBUG     send=UI_Up,key:{'key': 200, 'mods': []},key_name:Key_UpArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:57:11.200 [EDKEYS] DEBUG     send=UI_Left,key:{'key': 203, 'mods': []},key_name:Key_LeftArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:57:12.002 [EDKEYS] DEBUG     send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+03:57:12.555 [EDKEYS] DEBUG     send=UI_Right,key:{'key': 205, 'mods': []},key_name:Key_RightArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:57:13.107 [EDKEYS] DEBUG     send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:4,repeat_delay:None,state:None
+03:57:14.563 [EDKEYS] DEBUG     send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+03:57:15.115 [EDKEYS] DEBUG     send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:0,repeat_delay:None,state:None
+03:57:15.366 [EDKEYS] DEBUG     send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:3.0,repeat:1,repeat_delay:None,state:None
+03:57:18.293 [__MAIN__] DEBUG    Entered: stop_waypoint
+03:57:18.293 [__MAIN__] INFO     Waypoint Assist stop
+03:57:18.294 [__MAIN__] INFO     Status update: Idle
+03:57:18.359 [AUTOPILOT] DEBUG    Log level set to DEBUG (full detail)
+03:57:18.368 [AUTOPILOT] DEBUG    Caught stop exception
+03:57:18.368 [__MAIN__] DEBUG    Detected 'waypoint_stop' callback msg
+03:57:18.435 [AUTOPILOT] DEBUG    Log level set to DEBUG (full detail)
+03:48:03.225 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:48:03.486 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:48:03.753 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:48:06.823 [AUTOPILOT] DEBUG    sc_target_align not finding target
+03:48:06.823 [__MAIN__] INFO     Target not found, terminating SC Assist
+03:48:16.824 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:48:17.129 [__MAIN__] INFO     Compass Align
+03:48:17.230 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:49:03.593 [STATUSPARSER] DEBUG    An error occurred reading Status.json file. File may be open.
+03:49:03.694 [STATUSPARSER] DEBUG    Attempting to re-read Status.json file after delay.
+03:50:19.166 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:52:25.253 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:52:25.513 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:52:40.442 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:52:42.821 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:52:47.271 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:52:55.930 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:52:58.293 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:53:02.743 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:53:05.808 [AUTOPILOT] DEBUG    sc_target_align not finding target
+03:53:05.810 [__MAIN__] INFO     Target not found, terminating SC Assist
+03:53:15.811 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:53:16.116 [__MAIN__] INFO     Compass Align
+03:53:16.226 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:53:16.419 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:53:16.689 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:53:16.882 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:53:17.149 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:53:17.413 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:53:19.769 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:53:20.039 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:53:28.699 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:53:33.175 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:53:33.368 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:53:37.838 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:53:40.202 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:53:42.726 [AUTOPILOT] DEBUG    Target is occluded (0.5644 >  0.55)
+03:53:42.728 [__MAIN__] INFO     Target occluded, repositioning.
+03:53:42.729 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:53:48.032 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:6.428571428571429,repeat:1,repeat_delay:None,state:None
+03:53:54.586 [EDKEYS] DEBUG    	send=SetSpeed100,key:{'key': 63, 'mods': []},key_name:Key_F5,hold:None,repeat:1,repeat_delay:None,state:None
+03:54:09.888 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:54:15.190 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:6.428571428571429,repeat:1,repeat_delay:None,state:None
+03:54:21.744 [__MAIN__] INFO     Compass Align
+03:54:21.764 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:12.659285714285714,repeat:1,repeat_delay:None,state:None
+03:54:35.068 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:6.428571428571429,repeat:1,repeat_delay:None,state:None
+03:54:42.135 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:1.647142857142857,repeat:1,repeat_delay:None,state:None
+03:54:44.532 [AUTOPILOT] DEBUG    final x:0.01 y:0.01
+03:54:44.546 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:54:44.851 [__MAIN__] INFO     Target Align
+03:54:44.978 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.15,repeat:1,repeat_delay:None,state:None
+03:54:45.332 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.15,repeat:1,repeat_delay:None,state:None
+03:54:45.680 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:54:45.946 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:54:48.314 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:54:48.591 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:54:50.967 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:54:53.351 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:54:57.809 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:54:58.072 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:04.636 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:09.088 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:09.280 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:11.645 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:14.000 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:14.193 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:16.553 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:16.746 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:19.119 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:21.479 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:21.671 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:26.150 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:26.344 [EDKEYS] DEBUG    	send=PitchUpButton,key:{'key': 17, 'mods': [56]},key_name:Key_W,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:31.122 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:35.727 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:36.052 [EDKEYS] DEBUG    	send=YawRightButton,key:{'key': 32, 'mods': []},key_name:Key_D,hold:0.09,repeat:1,repeat_delay:None,state:None
+03:55:38.532 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:38.861 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:39.138 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:39.483 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:39.827 [EDKEYS] DEBUG    	send=PitchDownButton,key:{'key': 31, 'mods': [56]},key_name:Key_S,hold:0.075,repeat:1,repeat_delay:None,state:None
+03:55:40.164 [AUTOPILOT] DEBUG    sc_target_align lost target
+03:55:40.165 [__MAIN__] INFO     Target lost, attempting re-alignment.
+03:55:50.166 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:55:50.471 [EDJOURNAL] DEBUG    Journal*.log: read: 1 ship: {'time': 98, 'odyssey': True, 'status': 'in_supercruise', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': False, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+03:55:50.471 [EDJOURNAL] DEBUG    Journal*.log: read: 2 ship: {'time': 98, 'odyssey': True, 'status': 'in_space', 'type': 'cutter', 'location': 'Col 285 Sector OC-V d2-65', 'star_class': None, 'target': None, 'fighter_destroyed': False, 'shieldsup': True, 'under_attack': False, 'interdicted': False, 'no_dock_reason': 'Distance', 'mission_completed': 0, 'mission_redirected': 0, 'body': 'Col 285 Sector OC-V d2-65 4 a', 'dist_jumped': 0, 'jumps_remains': 0, 'fuel_capacity': 64.0, 'fuel_level': 31.520004, 'fuel_percent': 49, 'is_scooping': False, 'cur_star_system': 'Col 285 Sector OC-V d2-65', 'cur_station': 'De Landing', 'cur_station_type': 'Coriolis', 'cargo_capacity': 704, 'ship_size': 'L', 'has_fuel_scoop': False, 'SupercruiseDestinationDrop_type': None, 'has_adv_dock_comp': True, 'has_std_dock_comp': False, 'has_sco_fsd': False, 'StationServices': ['dock', 'autodock', 'commodities', 'contacts', 'missions', 'outfitting', 'crewlounge', 'rearm', 'refuel', 'repair', 'shipyard', 'engineer', 'missionsgenerated', 'facilitator', 'flightcontroller', 'stationoperations', 'powerplay', 'searchrescue', 'stationMenu', 'shop', 'livery', 'socialspace', 'registeringcolonisation'], 'target_latitude': -6.721951, 'target_longitude': 127.745811, 'target_altitude': None}
+03:55:50.473 [__MAIN__] INFO     Compass Align
+03:55:50.586 [AUTOPILOT] DEBUG    No longer in supercruise
+03:55:52.588 [EDKEYS] DEBUG    	send=SetSpeedZero,key:{'key': 45, 'mods': []},key_name:Key_X,hold:None,repeat:1,repeat_delay:None,state:None
+03:55:52.892 [__MAIN__] INFO     Supercruise dropped, terminating SC Assist
+03:55:52.901 [AUTOPILOT] INFO     \u0412\u0438\u044f\u0432\u043b\u0435\u043d\u043e \u043e\u0440\u0431\u0456\u0442\u0430\u043b\u044c\u043d\u0443 \u0441\u0442\u0430\u043d\u0446\u0456\u044e — \u043f\u0435\u0440\u0435\u0445\u0456\u0434 \u0443 \u0440\u0435\u0436\u0438\u043c \u0434\u043e\u043a\u0443\u0432\u0430\u043d\u043d\u044f
+03:55:52.901 [AUTOPILOT] INFO     DropOut \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043d\u043e — \u043f\u043e\u0432\u0435\u0440\u0442\u0430\u044e \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442: station_docking
+03:55:53.908 [__MAIN__] INFO     Targeting Station: TARASENKO CREATIONS
+03:55:53.908 [EDGALAXYMAP] DEBUG    Opening Galaxy Map
+03:55:53.909 [EDKEYS] DEBUG    	send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+03:55:54.450 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+03:55:54.823 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+03:55:55.115 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+03:55:55.703 [OCR] DEBUG    Found 'CARTOGRAPHICS' text in item text '['Universa', '1:55:55', 'CARTOGRAPHICS', '180CT3311']'.
+03:55:57.704 [EDKEYS] DEBUG    	send=UI_Up,key:{'key': 200, 'mods': []},key_name:Key_UpArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:55:58.008 [EDKEYS] DEBUG    	send=UI_Left,key:{'key': 203, 'mods': []},key_name:Key_LeftArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:55:58.811 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+03:55:59.363 [EDKEYS] DEBUG    	send=UI_Right,key:{'key': 205, 'mods': []},key_name:Key_RightArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:55:59.916 [EDKEYS] DEBUG    	send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:4,repeat_delay:None,state:None
+03:56:01.373 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:01.926 [EDKEYS] DEBUG    	send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:0,repeat_delay:None,state:None
+03:56:02.176 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:3.0,repeat:1,repeat_delay:None,state:None
+03:56:05.278 [EDKEYS] DEBUG    	send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:06.103 [__MAIN__] INFO     Status update: Targeting Station: TARASENKO CREATIONS
+03:56:06.108 [EDKEYS] DEBUG    	send=SetSpeed100,key:{'key': 63, 'mods': []},key_name:Key_F5,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:06.412 [EDKEYS] DEBUG    	send=Supercruise,key:{'key': 37, 'mods': []},key_name:Key_K,hold:0.001,repeat:1,repeat_delay:None,state:None
+03:56:18.515 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:21.842 [AUTOPILOT] DEBUG    has_destination:0.857872486114502
+03:56:21.843 [__MAIN__] INFO      - Station: TARASENKO CREATIONS
+03:56:21.846 [__MAIN__] INFO     Status update: SC to Station: TARASENKO CREATIONS
+03:56:21.846 [AUTOPILOT] DEBUG    Entered sc_assist
+03:56:21.869 [AUTOPILOT] DEBUG    has_destination:0.8626077771186829
+03:56:21.871 [EDKEYS] DEBUG    	send=SetSpeed100,key:{'key': 63, 'mods': []},key_name:Key_F5,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:22.174 [EDKEYS] DEBUG    	send=Supercruise,key:{'key': 37, 'mods': []},key_name:Key_K,hold:0.001,repeat:1,repeat_delay:None,state:None
+03:56:34.278 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:34.580 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:34.887 [__MAIN__] INFO     Compass Align
+03:56:34.912 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:35.218 [__MAIN__] INFO     Target Align
+03:56:35.271 [AUTOPILOT] DEBUG    No longer in supercruise
+03:56:37.272 [EDKEYS] DEBUG    	send=SetSpeedZero,key:{'key': 45, 'mods': []},key_name:Key_X,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:37.577 [__MAIN__] INFO     Supercruise dropped, terminating SC Assist
+03:56:37.579 [AUTOPILOT] INFO     \u0412\u0438\u044f\u0432\u043b\u0435\u043d\u043e \u043e\u0440\u0431\u0456\u0442\u0430\u043b\u044c\u043d\u0443 \u0441\u0442\u0430\u043d\u0446\u0456\u044e — \u043f\u0435\u0440\u0435\u0445\u0456\u0434 \u0443 \u0440\u0435\u0436\u0438\u043c \u0434\u043e\u043a\u0443\u0432\u0430\u043d\u043d\u044f
+03:56:37.580 [AUTOPILOT] INFO     DropOut \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043d\u043e — \u043f\u043e\u0432\u0435\u0440\u0442\u0430\u044e \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442: station_docking
+03:56:38.586 [__MAIN__] INFO     Targeting Station: TARASENKO CREATIONS
+03:56:38.586 [EDGALAXYMAP] DEBUG    Opening Galaxy Map
+03:56:38.587 [EDKEYS] DEBUG    	send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:39.040 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text '['+6']'.
+03:56:39.404 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text '['+6']'.
+03:56:39.696 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+03:56:40.200 [OCR] DEBUG    Found 'CARTOGRAPHICS' text in item text '['Universa', '1:56:40', 'CARTOGRAPHICS', '180CT3311']'.
+03:56:42.202 [EDKEYS] DEBUG    	send=UI_Up,key:{'key': 200, 'mods': []},key_name:Key_UpArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:42.506 [EDKEYS] DEBUG    	send=UI_Left,key:{'key': 203, 'mods': []},key_name:Key_LeftArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:43.308 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:43.861 [EDKEYS] DEBUG    	send=UI_Right,key:{'key': 205, 'mods': []},key_name:Key_RightArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:44.414 [EDKEYS] DEBUG    	send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:4,repeat_delay:None,state:None
+03:56:45.871 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:46.424 [EDKEYS] DEBUG    	send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:0,repeat_delay:None,state:None
+03:56:46.674 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:3.0,repeat:1,repeat_delay:None,state:None
+03:56:49.776 [EDKEYS] DEBUG    	send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:50.601 [__MAIN__] INFO     Status update: Targeting Station: TARASENKO CREATIONS
+03:56:50.603 [EDKEYS] DEBUG    	send=SetSpeed100,key:{'key': 63, 'mods': []},key_name:Key_F5,hold:None,repeat:1,repeat_delay:None,state:None
+03:56:50.906 [EDKEYS] DEBUG    	send=Supercruise,key:{'key': 37, 'mods': []},key_name:Key_K,hold:0.001,repeat:1,repeat_delay:None,state:None
+03:57:03.009 [EDKEYS] DEBUG    	send=SetSpeed50,key:{'key': 61, 'mods': []},key_name:Key_F3,hold:None,repeat:1,repeat_delay:None,state:None
+03:57:06.334 [AUTOPILOT] DEBUG    has_destination:0.20197013020515442
+03:57:06.335 [__MAIN__] INFO      - Could not target station: TARASENKO CREATIONS
+03:57:07.340 [__MAIN__] INFO     Targeting Station: TARASENKO CREATIONS
+03:57:07.341 [EDGALAXYMAP] DEBUG    Opening Galaxy Map
+03:57:07.341 [EDKEYS] DEBUG    	send=GalaxyMapOpen,key:{'key': 50, 'mods': [56]},key_name:Key_M,hold:None,repeat:1,repeat_delay:None,state:None
+03:57:07.732 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+03:57:08.037 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+03:57:08.350 [OCR] DEBUG    Did not find 'CARTOGRAPHICS' text in item text 'None'.
+03:57:08.896 [OCR] DEBUG    Found 'CARTOGRAPHICS' text in item text '['Universa', '1:57:09', 'CARTOGRAPHICS', '180CT3311']'.
+03:57:10.896 [EDKEYS] DEBUG    	send=UI_Up,key:{'key': 200, 'mods': []},key_name:Key_UpArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:57:11.200 [EDKEYS] DEBUG    	send=UI_Left,key:{'key': 203, 'mods': []},key_name:Key_LeftArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:57:12.002 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+03:57:12.555 [EDKEYS] DEBUG    	send=UI_Right,key:{'key': 205, 'mods': []},key_name:Key_RightArrow,hold:None,repeat:1,repeat_delay:None,state:None
+03:57:13.107 [EDKEYS] DEBUG    	send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:4,repeat_delay:None,state:None
+03:57:14.563 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:None,repeat:1,repeat_delay:None,state:None
+03:57:15.115 [EDKEYS] DEBUG    	send=UI_Down,key:{'key': 208, 'mods': []},key_name:Key_DownArrow,hold:None,repeat:0,repeat_delay:None,state:None
+03:57:15.366 [EDKEYS] DEBUG    	send=UI_Select,key:{'key': 57, 'mods': []},key_name:Key_Space,hold:3.0,repeat:1,repeat_delay:None,state:None
+03:57:18.293 [__MAIN__] DEBUG    Entered: stop_waypoint
+03:57:18.293 [__MAIN__] INFO     Waypoint Assist stop
+03:57:18.294 [__MAIN__] INFO     Status update: Idle
+03:57:18.359 [AUTOPILOT] DEBUG    Log level set to DEBUG (full detail)
+03:57:18.368 [AUTOPILOT] DEBUG    Caught stop exception
+03:57:18.368 [__MAIN__] DEBUG    Detected 'waypoint_stop' callback msg
+03:57:18.435 [AUTOPILOT] DEBUG    Log level set to DEBUG (full detail)
+04:38:10.289 [STATUSPARSER] DEBUG    An error occurred reading Status.json file. File may be open.
+04:38:10.390 [STATUSPARSER] DEBUG    Attempting to re-read Status.json file after delay.
+04:38:49.409 [STATUSPARSER] DEBUG    An error occurred reading Status.json file. File may be open.
+04:38:49.511 [STATUSPARSER] DEBUG    Attempting to re-read Status.json file after delay.
+05:19:22.086 [__MAIN__] DEBUG    Entered: restart_program
+05:19:22.087 [__MAIN__] DEBUG    Entered: stop_fsd
+05:19:22.088 [__MAIN__] INFO     FSD Route Assist stop
+05:19:22.088 [__MAIN__] INFO     Status update: Idle
+05:19:22.088 [__MAIN__] DEBUG    Entered: stop_sc
+05:19:22.088 [__MAIN__] INFO     SC Assist stop
+05:19:22.089 [__MAIN__] INFO     Status update: Idle

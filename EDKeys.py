@@ -13,7 +13,10 @@ import xmltodict
 
 from Screen import set_focus_elite_window
 from directinput import *
-from EDlogger import logger
+from EDlogger import get_module_logger
+
+LOGGER_NAME = __name__.split('.')[-1].upper()
+logger = get_module_logger(LOGGER_NAME)
 
 """
 Description:  Pulls the keybindings for specific controls from the ED Key Bindings file, this class also
@@ -73,7 +76,6 @@ class EDKeys:
             'TargetNextRouteSystem',  # Target next system in route
             'CamTranslateForward',
             'CamTranslateRight',
-            'OrderAggressiveBehaviour',
         ]
         self.keys = self.get_bindings()
         self.bindings = self.get_bindings_dict()

@@ -14,8 +14,7 @@ will keep you on target and when "TO DISENGAGE" is presented and will autodrop o
 ## Waypoint assist
 With Waypoint Assist you define the route in a file and this assist will jump to those waypoints.  If a Station is defined to dock at, the assistant will transition to SC Assist and
 dock with the station.  A early version of a trading capability is also included.<br>
-Additional information on Waypoints can be found [here](docs/Waypoint.md).
-Additional information on the Waypoint Editor tab can be found [here](docs/WaypointEditor.md).
+Additional information can be found [here](docs/Waypoint.md).
 ## Robigo Mines assist
 The Robigo Assist performs the Robigo Mines passenger mission loop which includes mission selection, mission completetion, and the full loop to Sirius Atmospherics.<br>
 Additional information can be found [here](docs/Robigo.md). 
@@ -85,10 +84,7 @@ Also Note: This repository is provided for educational purposes as a in depth pr
 _Requires **python 3** and **git**_
 
 _Python 3.11 is the recommended version of Python. Python 3.9 or 3.10 may also be used._
-If you don't have Python installed:
-* Here is a link to [Python 3.11 installer](https://www.python.org/downloads/release/python-3110/). 
-* Scroll to the bottom and select the installer with the description "Recommended".
-* **Note**: To avoid a 'py is not recognized error' later, in the Python installation wizard, make sure to check the box “Add Python 3.xx to PATH”.
+If you don't have Python installed, here is a link to [Python 3.11 installer](https://www.python.org/downloads/release/python-3110/). Scroll to the bottom and select the installer with the description "Recommended".
 
 ## Simple
 If you just want to download and run EDAP and have no interest in the source code, use this method:

@@ -5,7 +5,10 @@ import os
 import time
 from sys import platform
 from time import sleep
-from EDlogger import logger
+from EDlogger import get_module_logger
+
+LOGGER_NAME = __name__.split('.')[-1].upper()
+logger = get_module_logger(LOGGER_NAME)
 
 
 class NavRouteParser:
@@ -51,8 +54,7 @@ class NavRouteParser:
         return os.path.getmtime(self.file_path)
 
     def get_nav_route_data(self):
-        """Loads data from the JSON file and returns the data, or None if the file does not exist.
-        The first entry is the starting system.
+        """Loads data from the JSON file and returns the data. The first entry is the starting system.
         When there is a route:
         {
         "timestamp": "2024-09-29T20:02:20Z", "event": "NavRoute", "Route": [
@@ -71,10 +73,6 @@ class NavRouteParser:
         {"timestamp": "2024-09-29T21:06:53Z", "event": "NavRouteClear", "Route": [
         ]}
         """
-        # Check file if exists
-        if not os.path.exists(self.file_path):
-            return None
-
         # Check if file changed
         if self.get_file_modified_time() == self.last_mod_time:
             #logger.debug(f'NavRoute.json mod timestamp {self.last_mod_time} unchanged.')
@@ -104,9 +102,7 @@ class NavRouteParser:
         """ Gets the final destination (system name) or empty string.
         """
         # Get latest data
-        data = self.get_nav_route_data()
-        if data is None:
-            return ''
+        self.get_nav_route_data()
 
         # Check if there is a route
         if self.current_data['event'] == "NavRouteClear":

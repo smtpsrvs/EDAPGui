@@ -11,7 +11,10 @@ import Screen_Regions
 from ED_AP import *
 from EDJournal import *
 from EDKeys import *
-from EDlogger import logger
+from EDlogger import get_module_logger
+
+LOGGER_NAME = __name__.split('.')[-1].upper()
+logger = get_module_logger(LOGGER_NAME)
 from Image_Templates import *
 from Overlay import *
 from Screen import *
@@ -149,7 +152,7 @@ class Robigo:
         # tries is the number of rows to go through to find the item looking for
         # the Nav Panel should be filtered to reduce the number of rows in the list
         while not found and tries < 50:
-            found = self.is_found(ap, 'nav_panel', templ)
+            found = self.is_found(ap, "nav_panel", templ)   
             if found:
                 ap.keys.send("UI_Select", repeat=2)  # Select it and lock target
             else:
