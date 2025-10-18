@@ -1,5 +1,4 @@
 import json
-import math
 import os
 import time
 from datetime import datetime, timedelta
@@ -7,14 +6,9 @@ import queue
 from sys import platform
 import threading
 from time import sleep
-import shutil
-import tempfile
 
 from EDAP_data import *
-from EDlogger import get_module_logger
-
-LOGGER_NAME = __name__.split('.')[-1].upper()
-logger = get_module_logger(LOGGER_NAME)
+from EDlogger import logger
 from Voice import Voice
 from WindowsKnownPaths import *
 
@@ -203,11 +197,7 @@ class StatusParser:
         while True:
             if os.access(self.file_path, os.R_OK):
                 try:
-                    temp_dir = tempfile.gettempdir()
-                    temp_status_path = os.path.join(temp_dir, os.path.basename(self.file_path))
-                    shutil.copy2(self.file_path, temp_status_path)
-                    logger.debug('[EDJOURNAL] Using temp copy for safe read')
-                    with open(temp_status_path, 'r', encoding='utf-8') as file:
+                    with open(self.file_path, 'r', encoding='utf-8') as file:
                         data = json.load(file)
                         if attempt > 1:
                             print(f"Status file attempt: {attempt}")
@@ -244,7 +234,6 @@ class StatusParser:
             'Heading': None,
             'Altitude': None,
             'PlanetRadius': None,
-            'DistanceToTarget': None,
             'Balance': None,
             'Destination_System': '',
             'Destination_Body': -1,
@@ -360,53 +349,6 @@ class StatusParser:
                 return True
             sleep(0.5)
         return False
-
-    def get_distance_to_target(self, target_lat, target_lon, target_alt=0):
-        """Calculate the true distance to the provided target coordinates.
-
-        Uses the Haversine formula to determine great-circle distance across the
-        planetary surface and combines it with altitude difference to get the
-        straight-line distance.
-        """
-
-        self.get_cleaned_data()
-
-        if self.current_data is None:
-            return None
-
-        ship_lat = self.current_data.get('Latitude')
-        ship_lon = self.current_data.get('Longitude')
-        planet_radius = self.current_data.get('PlanetRadius')
-        ship_alt = self.current_data.get('Altitude')
-
-        if (ship_lat is None or ship_lon is None or
-                target_lat is None or target_lon is None or
-                planet_radius is None):
-            self.current_data['DistanceToTarget'] = None
-            return None
-
-        ship_alt = ship_alt if ship_alt is not None else 0
-        target_alt = target_alt if target_alt is not None else 0
-
-        lat1 = math.radians(ship_lat)
-        lon1 = math.radians(ship_lon)
-        lat2 = math.radians(target_lat)
-        lon2 = math.radians(target_lon)
-
-        dlat = lat2 - lat1
-        dlon = lon2 - lon1
-
-        a = (math.sin(dlat / 2) ** 2 +
-             math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2)
-        delta_sigma = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-
-        surface_distance = planet_radius * delta_sigma
-        altitude_difference = target_alt - ship_alt
-
-        distance = math.sqrt(surface_distance ** 2 + altitude_difference ** 2)
-
-        self.current_data['DistanceToTarget'] = distance
-        return distance
 
     def wait_for_flag_on(self, flag: int, timeout: float = 15) -> bool:
         """ Waits for the of the selected flag to turn true.

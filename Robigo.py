@@ -11,10 +11,7 @@ import Screen_Regions
 from ED_AP import *
 from EDJournal import *
 from EDKeys import *
-from EDlogger import get_module_logger
-
-LOGGER_NAME = __name__.split('.')[-1].upper()
-logger = get_module_logger(LOGGER_NAME)
+from EDlogger import logger
 from Image_Templates import *
 from Overlay import *
 from Screen import *

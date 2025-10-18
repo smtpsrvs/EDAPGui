@@ -5,10 +5,7 @@ from time import sleep
 
 from EDAP_data import GuiFocusExternalPanel
 from EDKeys import EDKeys
-from EDlogger import get_module_logger, set_global_log_level
-
-LOGGER_NAME = __name__.split('.')[-1].upper()
-logger = get_module_logger(LOGGER_NAME)
+from EDlogger import logger
 from OCR import OCR
 from Screen import Screen
 from Screen_Regions import size_scale_for_station
@@ -174,7 +171,7 @@ def dummy_cb(msg, body=None):
 
 # Usage Example
 if __name__ == "__main__":
-    set_global_log_level(logging.DEBUG)  # Default to log all debug when running this file.
+    logger.setLevel(logging.DEBUG)  # Default to log all debug when running this file.
     from ED_AP import EDAutopilot
     ap = EDAutopilot(cb=dummy_cb)
     ap.keys.activate_window = True  # Helps with single steps testing

@@ -6,11 +6,8 @@ import win32gui
 
 from EDJournal import *
 from EDKeys import *
-from EDlogger import get_module_logger
+from EDlogger import logger
 from Voice import *
-
-LOGGER_NAME = __name__.split('.')[-1].upper()
-logger = get_module_logger(LOGGER_NAME)
 
 """
 Description:  AFK Combat in Rez site (see Type 10 AFK videos).

@@ -5,15 +5,10 @@ from os import environ, listdir
 from os.path import join, isfile, getmtime, abspath
 from json import loads
 from time import sleep, time
-from datetime import datetime, timezone
-import shutil
-import tempfile
+from datetime import datetime
 
 from EDAP_data import ship_size_map, ship_name_map
-from EDlogger import get_module_logger
-
-LOGGER_NAME = __name__.split('.')[-1].upper()
-logger = get_module_logger(LOGGER_NAME)
+from EDlogger import logger
 from WindowsKnownPaths import *
 
 """
@@ -173,13 +168,7 @@ class EDJournal:
             'has_std_dock_comp': None,
             'has_sco_fsd': None,
             'StationServices': None,
-            'target_latitude': None,
-            'target_longitude': None,
-            'target_altitude': None,
         }
-        self._session_start_time = datetime.now(timezone.utc)
-        self._initial_history_replayed = False
-        self._last_processed_timestamp = None
         self.ship_state()    # load up from file
         self.reset_items()
 
@@ -212,18 +201,6 @@ class EDJournal:
         # open the latest journal
         self.log_file = open(log_name, encoding="utf-8")
         self.last_mod_time = None
-
-    def _parse_timestamp(self, log):
-        ts = log.get('timestamp')
-        if not ts:
-            return None
-
-        try:
-            if ts.endswith('Z'):
-                ts = ts[:-1] + '+00:00'
-            return datetime.fromisoformat(ts)
-        except Exception:
-            return None
 
     def parse_line(self, log):
         # parse data
@@ -324,20 +301,13 @@ class EDJournal:
                 self.ship['StationServices'] = log['StationServices']
 
                 # parse location
-            elif log_event in ('ApproachSettlement', 'ApproachBody', 'Location'):
-                if 'Latitude' in log and 'Longitude' in log:
-                    self.ship['target_latitude'] = log['Latitude']
-                    self.ship['target_longitude'] = log['Longitude']
-                if 'Altitude' in log:
-                    self.ship['target_altitude'] = log['Altitude']
-
-                if log_event == 'Location':
-                    self.ship['location'] = log['StarSystem']
-                    self.ship['cur_star_system'] = log['StarSystem']
-                    self.ship['cur_station'] = log['StationName']
-                    self.ship['cur_station_type'] = log['StationType']
-                    if log['Docked'] == True:
-                        self.ship['status'] = 'in_station'
+            elif log_event == 'Location':
+                self.ship['location'] = log['StarSystem']
+                self.ship['cur_star_system'] = log['StarSystem']
+                self.ship['cur_station'] = log['StationName']
+                self.ship['cur_station_type'] = log['StationType']
+                if log['Docked'] == True:
+                    self.ship['status'] = 'in_station'
 
             elif log_event == 'Interdicted':
                 self.ship['interdicted'] = True
@@ -435,54 +405,22 @@ class EDJournal:
         if self.get_file_modified_time() == self.last_mod_time:
             return self.ship
 
-        temp_dir = tempfile.gettempdir()
-        temp_log_path = os.path.join(temp_dir, os.path.basename(self.current_log))
-        shutil.copy2(self.current_log, temp_log_path)
-        logger.debug('[EDJOURNAL] Using temp copy for safe read')
-
-        start_position = self.log_file.tell() if self.log_file else 0
         cnt = 0
-        with open(temp_log_path, encoding="utf-8") as temp_log_file:
-            temp_log_file.seek(start_position)
-            while True:
-                line = temp_log_file.readline()
-                # if end of file then break from while True
-                if not line:
-                    break
-                else:
-                    log = loads(line)
-                    cnt = cnt + 1
-                    log_time = self._parse_timestamp(log)
+        while True:
+            line = self.log_file.readline()
+            # if end of file then break from while True
+            if not line:
+                break
+            else:
+                log = loads(line)
+                cnt = cnt + 1
+                current_jrnl = self.ship.copy()
+                self.parse_line(log)
 
-                    if self._last_processed_timestamp and log_time and log_time < self._last_processed_timestamp:
-                        continue
-
-                    if (not self._initial_history_replayed and log_time and
-                            log_time < self._session_start_time):
-                        self.parse_line(log)
-                        self._last_processed_timestamp = log_time
-                        continue
-
-                    current_jrnl = self.ship.copy()
-                    self.parse_line(log)
-
-                    if log_time:
-                        self._last_processed_timestamp = log_time
-                        if (not self._initial_history_replayed and
-                                log_time >= self._session_start_time):
-                            self._initial_history_replayed = True
-
-                    if self.ship != current_jrnl:
-                        logger.debug('Journal*.log: read: '+str(cnt)+' ship: '+str(self.ship))
-
-            end_position = temp_log_file.tell()
-
-        if self.log_file:
-            self.log_file.seek(end_position)
+                if self.ship != current_jrnl:
+                    logger.debug('Journal*.log: read: '+str(cnt)+' ship: '+str(self.ship))
 
         self.last_mod_time = self.get_file_modified_time()
-        if not self._initial_history_replayed and self._last_processed_timestamp:
-            self._initial_history_replayed = True
         return self.ship
 
 

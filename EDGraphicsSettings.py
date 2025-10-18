@@ -1,9 +1,6 @@
 from os.path import isfile
 
-from EDlogger import get_module_logger
-
-LOGGER_NAME = __name__.split('.')[-1].upper()
-logger = get_module_logger(LOGGER_NAME)
+from EDlogger import logger
 import xmltodict
 from os import environ
 

@@ -3,10 +3,7 @@ from time import sleep
 from CargoParser import CargoParser
 from EDAP_data import *
 from EDKeys import EDKeys
-from EDlogger import get_module_logger
-
-LOGGER_NAME = __name__.split('.')[-1].upper()
-logger = get_module_logger(LOGGER_NAME)
+from EDlogger import logger
 import json
 from MarketParser import MarketParser
 from MousePt import MousePoint

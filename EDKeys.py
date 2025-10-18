@@ -13,10 +13,7 @@ import xmltodict
 
 from Screen import set_focus_elite_window
 from directinput import *
-from EDlogger import get_module_logger
-
-LOGGER_NAME = __name__.split('.')[-1].upper()
-logger = get_module_logger(LOGGER_NAME)
+from EDlogger import logger
 
 """
 Description:  Pulls the keybindings for specific controls from the ED Key Bindings file, this class also

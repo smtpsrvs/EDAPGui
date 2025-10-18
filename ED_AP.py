@@ -1,14 +1,11 @@
 import math
-import threading
 import traceback
 from enum import Enum
 from math import atan, degrees
 import random
 from tkinter import messagebox
-import time
 
 import cv2
-import logging
 
 from simple_localization import LocalizationManager
 
@@ -18,7 +15,7 @@ from EDGraphicsSettings import EDGraphicsSettings
 from EDShipControl import EDShipControl
 from EDStationServicesInShip import EDStationServicesInShip
 from EDSystemMap import EDSystemMap
-from EDlogger import get_module_logger, set_global_log_level
+from EDlogger import logging
 import Image_Templates
 import Screen
 import Screen_Regions
@@ -35,11 +32,6 @@ from StatusParser import StatusParser
 from Voice import *
 from Robigo import *
 from TCE_Integration import TceIntegration
-
-LOGGER_NAME = __name__.split('.')[-1].upper()
-if LOGGER_NAME == "ED_AP":
-    LOGGER_NAME = "AUTOPILOT"
-logger = get_module_logger(LOGGER_NAME)
 
 """
 File:EDAP.py    EDAutopilot
@@ -123,7 +115,6 @@ class EDAutopilot:
         }
         self._sc_sco_active_loop_thread = None
         self._sc_sco_active_loop_enable = False
-        self._sc_sco_stop_event = threading.Event()
         self.sc_sco_is_active = 0
         self._sc_sco_active_on_ls = 0
         self._single_waypoint_station = None
@@ -195,13 +186,11 @@ class EDAutopilot:
         self.vce.say("Welcome to Autopilot")
 
         # set log level based on config input, defaulting to warning
-        level = logging.WARNING
+        logger.setLevel(logging.WARNING)
+        if self.config['LogINFO']:
+            logger.setLevel(logging.INFO)
         if self.config['LogDEBUG']:
-            level = logging.DEBUG
-        elif self.config['LogINFO']:
-            level = logging.INFO
-        set_global_log_level(level)
-        logger.log(level, "Log level set to %s from configuration", logging.getLevelName(level))
+            logger.setLevel(logging.DEBUG)
 
         # initialize all to false
         self.fsd_assist_enabled = False
@@ -1100,10 +1089,6 @@ class EDAutopilot:
     def start_sco_monitoring(self):
         """ Start Supercruise Overcharge Monitoring. This starts a parallel thread used to detect SCO
         until stop_sco_monitoring if called. """
-        if self._sc_sco_active_loop_enable:
-            return
-
-        self._sc_sco_stop_event.clear()
         self._sc_sco_active_loop_enable = True
 
         if self._sc_sco_active_loop_thread is None or not self._sc_sco_active_loop_thread.is_alive():
@@ -1112,21 +1097,12 @@ class EDAutopilot:
 
     def stop_sco_monitoring(self):
         """ Stop Supercruise Overcharge Monitoring. """
-        if not self._sc_sco_active_loop_enable and (self._sc_sco_active_loop_thread is None or not self._sc_sco_active_loop_thread.is_alive()):
-            return
-
         self._sc_sco_active_loop_enable = False
-        self._sc_sco_stop_event.set()
-
-        if self._sc_sco_active_loop_thread and self._sc_sco_active_loop_thread.is_alive() and self._sc_sco_active_loop_thread is not threading.current_thread():
-            self._sc_sco_active_loop_thread.join(timeout=2.0)
-
-        self._sc_sco_active_loop_thread = None
 
     def _sc_sco_active_loop(self):
         """ A loop to determine is Supercruise Overcharge is active.
         This runs on a separate thread monitoring the status in the background. """
-        while self._sc_sco_active_loop_enable and not self._sc_sco_stop_event.is_set():
+        while self._sc_sco_active_loop_enable:
             # Try to determine if the disengage/sco text is there
             sc_sco_is_active_ls = self.sc_sco_is_active
 
@@ -1154,8 +1130,7 @@ class EDAutopilot:
                     self.keys.send('UseBoostJuice')
 
             # Check again in a bit
-            if self._sc_sco_stop_event.wait(1):
-                break
+            sleep(1)
 
     def undock(self):
         """ Performs menu action to undock from Station """
@@ -2151,7 +2126,6 @@ class EDAutopilot:
             else:
                 # if we dropped from SC, then we rammed into planet
                 logger.debug("No longer in supercruise")
-                time.sleep(3)
                 align_failed = True
                 break
 
@@ -2211,18 +2185,6 @@ class EDAutopilot:
             self.vce.say("Exiting Supercruise, setting throttle to zero")
             self.keys.send('SetSpeedZero')  # make sure we don't continue to land
             self.ap_ckb('log', "Supercruise dropped, terminating SC Assist")
-            from DropOut import DropOut_context
-
-            time.sleep(0.2)
-            ship_data = self.jn.ship_state()
-            context = DropOut_context(ship_data, self.status, self.keys, self.nav_panel, logger)
-            if context in ("surface_approach", "station_docking"):
-                # ядро саме виконає nav_panel.request_docking()
-                return
-
-            if context in ("recover_from_interdiction", "reengage_supercruise"):
-                # дозволяй циклу продовжитися
-                pass
 
         self.ap_ckb('log+vce', "Supercruise Assist complete")
 
@@ -2390,31 +2352,24 @@ class EDAutopilot:
     def set_fss_scan(self, enable=False):
         self.config["ElwScannerEnable"] = enable
 
-    def set_log_error(self, value=False):
+    def set_log_error(self, enable=False):
         self.config["LogDEBUG"] = False
         self.config["LogINFO"] = False
-        if value:
-            set_global_log_level(logging.ERROR)
-            logger.log(logging.ERROR, "Log level set to ERROR (critical only)")
+        logger.setLevel(logging.ERROR)
 
-    def set_log_debug(self, value=False):
+    def set_log_debug(self, enable=False):
         self.config["LogDEBUG"] = True
         self.config["LogINFO"] = False
-        if value:
-            set_global_log_level(logging.DEBUG)
-            logger.log(logging.DEBUG, "Log level set to DEBUG (full detail)")
+        logger.setLevel(logging.DEBUG)
 
-    def set_log_info(self, value=False):
+    def set_log_info(self, enable=False):
         self.config["LogDEBUG"] = False
         self.config["LogINFO"] = True
-        if value:
-            set_global_log_level(logging.INFO)
-            logger.log(logging.INFO, "Log level set to INFO (standard)")
+        logger.setLevel(logging.INFO)
 
     # quit() is important to call to clean up, if we don't terminate the threads we created the AP will hang on exit
     # have then then kill python exec
     def quit(self):
-        self.stop_sco_monitoring()
         if self.vce != None:
             self.vce.quit()
         if self.overlay != None:
@@ -2427,6 +2382,13 @@ class EDAutopilot:
     #
     def engine_loop(self):
         while not self.terminate:
+            self._sc_sco_active_loop_enable = True
+
+            if self._sc_sco_active_loop_enable:
+                if self._sc_sco_active_loop_thread is None or not self._sc_sco_active_loop_thread.is_alive():
+                    self._sc_sco_active_loop_thread = threading.Thread(target=self._sc_sco_active_loop, daemon=True)
+                    self._sc_sco_active_loop_thread.start()
+
             if self.fsd_assist_enabled == True:
                 logger.debug("Running fsd_assist")
                 set_focus_elite_window()
@@ -2472,9 +2434,6 @@ class EDAutopilot:
                 except Exception as e:
                     print("Trapped generic:"+str(e))
                     traceback.print_exc()
-                finally:
-                    self.stop_sco_monitoring()
-                    self.update_ap_status("Idle")
 
                 logger.debug("Completed sc_assist")
                 self.sc_assist_enabled = False

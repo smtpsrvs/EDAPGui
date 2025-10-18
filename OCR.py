@@ -7,10 +7,7 @@ from paddleocr import PaddleOCR
 from strsimpy import SorensenDice
 from strsimpy.jaro_winkler import JaroWinkler
 
-from EDlogger import get_module_logger
-
-LOGGER_NAME = __name__.split('.')[-1].upper()
-logger = get_module_logger(LOGGER_NAME)
+from EDlogger import logger
 
 """
 File:OCR.py    

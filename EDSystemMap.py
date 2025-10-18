@@ -1,10 +1,7 @@
 from __future__ import annotations
 
 from EDAP_data import GuiFocusSystemMap
-from EDlogger import get_module_logger
-
-LOGGER_NAME = __name__.split('.')[-1].upper()
-logger = get_module_logger(LOGGER_NAME)
+from EDlogger import logger
 from OCR import OCR
 from Screen_Regions import reg_scale_for_station
 from StatusParser import StatusParser

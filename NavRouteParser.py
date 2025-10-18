@@ -5,10 +5,7 @@ import os
 import time
 from sys import platform
 from time import sleep
-from EDlogger import get_module_logger
-
-LOGGER_NAME = __name__.split('.')[-1].upper()
-logger = get_module_logger(LOGGER_NAME)
+from EDlogger import logger
 
 
 class NavRouteParser:
