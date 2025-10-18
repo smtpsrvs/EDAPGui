@@ -1,4 +1,5 @@
 import math
+import threading
 import traceback
 from enum import Enum
 from math import atan, degrees
@@ -122,6 +123,7 @@ class EDAutopilot:
         }
         self._sc_sco_active_loop_thread = None
         self._sc_sco_active_loop_enable = False
+        self._sc_sco_stop_event = threading.Event()
         self.sc_sco_is_active = 0
         self._sc_sco_active_on_ls = 0
         self._single_waypoint_station = None
@@ -1098,6 +1100,10 @@ class EDAutopilot:
     def start_sco_monitoring(self):
         """ Start Supercruise Overcharge Monitoring. This starts a parallel thread used to detect SCO
         until stop_sco_monitoring if called. """
+        if self._sc_sco_active_loop_enable:
+            return
+
+        self._sc_sco_stop_event.clear()
         self._sc_sco_active_loop_enable = True
 
         if self._sc_sco_active_loop_thread is None or not self._sc_sco_active_loop_thread.is_alive():
@@ -1106,12 +1112,21 @@ class EDAutopilot:
 
     def stop_sco_monitoring(self):
         """ Stop Supercruise Overcharge Monitoring. """
+        if not self._sc_sco_active_loop_enable and (self._sc_sco_active_loop_thread is None or not self._sc_sco_active_loop_thread.is_alive()):
+            return
+
         self._sc_sco_active_loop_enable = False
+        self._sc_sco_stop_event.set()
+
+        if self._sc_sco_active_loop_thread and self._sc_sco_active_loop_thread.is_alive() and self._sc_sco_active_loop_thread is not threading.current_thread():
+            self._sc_sco_active_loop_thread.join(timeout=2.0)
+
+        self._sc_sco_active_loop_thread = None
 
     def _sc_sco_active_loop(self):
         """ A loop to determine is Supercruise Overcharge is active.
         This runs on a separate thread monitoring the status in the background. """
-        while self._sc_sco_active_loop_enable:
+        while self._sc_sco_active_loop_enable and not self._sc_sco_stop_event.is_set():
             # Try to determine if the disengage/sco text is there
             sc_sco_is_active_ls = self.sc_sco_is_active
 
@@ -1139,7 +1154,8 @@ class EDAutopilot:
                     self.keys.send('UseBoostJuice')
 
             # Check again in a bit
-            sleep(1)
+            if self._sc_sco_stop_event.wait(1):
+                break
 
     def undock(self):
         """ Performs menu action to undock from Station """
@@ -2397,6 +2413,7 @@ class EDAutopilot:
     # quit() is important to call to clean up, if we don't terminate the threads we created the AP will hang on exit
     # have then then kill python exec
     def quit(self):
+        self.stop_sco_monitoring()
         if self.vce != None:
             self.vce.quit()
         if self.overlay != None:
@@ -2409,13 +2426,6 @@ class EDAutopilot:
     #
     def engine_loop(self):
         while not self.terminate:
-            self._sc_sco_active_loop_enable = True
-
-            if self._sc_sco_active_loop_enable:
-                if self._sc_sco_active_loop_thread is None or not self._sc_sco_active_loop_thread.is_alive():
-                    self._sc_sco_active_loop_thread = threading.Thread(target=self._sc_sco_active_loop, daemon=True)
-                    self._sc_sco_active_loop_thread.start()
-
             if self.fsd_assist_enabled == True:
                 logger.debug("Running fsd_assist")
                 set_focus_elite_window()
@@ -2461,6 +2471,9 @@ class EDAutopilot:
                 except Exception as e:
                     print("Trapped generic:"+str(e))
                     traceback.print_exc()
+                finally:
+                    self.stop_sco_monitoring()
+                    self.update_ap_status("Idle")
 
                 logger.debug("Completed sc_assist")
                 self.sc_assist_enabled = False

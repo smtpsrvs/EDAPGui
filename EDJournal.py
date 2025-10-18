@@ -5,7 +5,7 @@ from os import environ, listdir
 from os.path import join, isfile, getmtime, abspath
 from json import loads
 from time import sleep, time
-from datetime import datetime
+from datetime import datetime, timezone
 import shutil
 import tempfile
 
@@ -177,6 +177,9 @@ class EDJournal:
             'target_longitude': None,
             'target_altitude': None,
         }
+        self._session_start_time = datetime.now(timezone.utc)
+        self._initial_history_replayed = False
+        self._last_processed_timestamp = None
         self.ship_state()    # load up from file
         self.reset_items()
 
@@ -209,6 +212,18 @@ class EDJournal:
         # open the latest journal
         self.log_file = open(log_name, encoding="utf-8")
         self.last_mod_time = None
+
+    def _parse_timestamp(self, log):
+        ts = log.get('timestamp')
+        if not ts:
+            return None
+
+        try:
+            if ts.endswith('Z'):
+                ts = ts[:-1] + '+00:00'
+            return datetime.fromisoformat(ts)
+        except Exception:
+            return None
 
     def parse_line(self, log):
         # parse data
@@ -437,8 +452,25 @@ class EDJournal:
                 else:
                     log = loads(line)
                     cnt = cnt + 1
+                    log_time = self._parse_timestamp(log)
+
+                    if self._last_processed_timestamp and log_time and log_time < self._last_processed_timestamp:
+                        continue
+
+                    if (not self._initial_history_replayed and log_time and
+                            log_time < self._session_start_time):
+                        self.parse_line(log)
+                        self._last_processed_timestamp = log_time
+                        continue
+
                     current_jrnl = self.ship.copy()
                     self.parse_line(log)
+
+                    if log_time:
+                        self._last_processed_timestamp = log_time
+                        if (not self._initial_history_replayed and
+                                log_time >= self._session_start_time):
+                            self._initial_history_replayed = True
 
                     if self.ship != current_jrnl:
                         logger.debug('Journal*.log: read: '+str(cnt)+' ship: '+str(self.ship))
@@ -449,6 +481,8 @@ class EDJournal:
             self.log_file.seek(end_position)
 
         self.last_mod_time = self.get_file_modified_time()
+        if not self._initial_history_replayed and self._last_processed_timestamp:
+            self._initial_history_replayed = True
         return self.ship
 
 
